@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Porra Mundial 2026</title>
+<style>
+:root{--primary:#1a1a2e;--secondary:#16213e;--accent:#e94560;--accent2:#0f3460;--gold:#f5c518;--bg:#0f0f1a;--card:#1e1e30;--text:#eaeaea;--text2:#a0a0b8;--border:#2a2a40;--exact:#27ae60;--outcome:#f39c12;--wrong:#e74c3c}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;text-align:center}
+.welcome .logo{font-size:4rem;margin-bottom:12px}
+.welcome h1{font-size:2rem;margin-bottom:4px}.welcome h1 span{color:var(--gold)}
+.welcome .sub{color:var(--text2);margin-bottom:32px;font-size:.9rem}
+.welcome .name-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:400px;width:100%}
+.welcome .name-box label{display:block;font-weight:600;margin-bottom:10px;font-size:1rem}
+.welcome .name-box input{width:100%;padding:14px 18px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:1.1rem;text-align:center;margin-bottom:16px;-webkit-appearance:none;appearance:none}
+.welcome .name-box input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,197,24,.15)}
+.welcome .name-box input::placeholder{color:var(--text2)}
+.app{display:none}.app.visible{display:block}
+.header{background:linear-gradient(135deg,var(--primary),var(--accent2));padding:14px 20px;text-align:center;border-bottom:3px solid var(--accent);position:sticky;top:0;z-index:100}
+.header h1{font-size:1.4rem;letter-spacing:2px}.header h1 span{color:var(--gold)}
+.header .user-bar{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;font-size:.82rem;color:var(--text2)}
+.header .user-bar .uname{color:var(--gold);font-weight:700}
+.header .user-bar .logout{color:var(--text2);cursor:pointer;text-decoration:underline;font-size:.78rem}
+.tabs{display:flex;background:var(--secondary);border-bottom:2px solid var(--border);overflow-x:auto;position:sticky;top:62px;z-index:99}
+.tabs button{flex:1;min-width:90px;padding:12px 6px;background:none;border:none;color:var(--text2);font-size:.82rem;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;transition:.2s;white-space:nowrap;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.tabs button:hover{color:var(--text);background:rgba(255,255,255,.03)}
+.tabs button.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(245,197,24,.05)}
+.content{max-width:900px;margin:0 auto;padding:16px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.groups-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.group-card{background:var(--card);border-radius:12px;overflow:hidden;border:1px solid var(--border)}
+.group-card .gh{background:linear-gradient(135deg,var(--accent2),var(--accent));padding:8px 14px;font-weight:700;font-size:.9rem;letter-spacing:1px}
+.group-card .tr{display:flex;align-items:center;padding:8px 14px;border-bottom:1px solid var(--border);font-size:.88rem;gap:8px}
+.group-card .tr:last-child{border-bottom:none}
+.mdh{background:var(--accent2);padding:8px 14px;border-radius:8px;margin:14px 0 6px;font-weight:700;font-size:.9rem}
+.mc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:6px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px}
+.mc .th{text-align:right;font-weight:600;font-size:.85rem;display:flex;align-items:center;justify-content:flex-end;gap:6px}
+.mc .ta{text-align:left;font-weight:600;font-size:.85rem;display:flex;align-items:center;gap:6px}
+.mc .vs{text-align:center;font-size:.78rem;color:var(--text2);min-width:90px}
+.mc .si{display:flex;align-items:center;gap:4px;justify-content:center}
+.mc .si input{width:36px;height:32px;text-align:center;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:1rem;font-weight:700;-webkit-appearance:none;appearance:none}
+.mc .si input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 2px rgba(245,197,24,.2)}
+.mc .si input:disabled{opacity:.5;cursor:not-allowed}
+.mc .gb{font-size:.7rem;color:var(--accent);font-weight:700}
+.mc.hr .vs{color:var(--gold);font-weight:700}
+.mc.re{border-left:3px solid var(--exact)}.mc.ro{border-left:3px solid var(--outcome)}.mc.rw{border-left:3px solid var(--wrong)}
+.btn{padding:10px 20px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.9rem;transition:.2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.btn-p{background:var(--accent);color:#fff}.btn-p:hover{background:#d63850}
+.btn-s{background:var(--accent2);color:#fff}.btn-s:hover{background:#1a4a80}
+.btn-g{background:var(--gold);color:var(--primary)}.btn-g:hover{background:#e0b000}
+.btn-sm{padding:6px 14px;font-size:.8rem}
+.btn-big{width:100%;padding:14px;font-size:1.1rem;border-radius:12px}
+.pb{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.72rem;font-weight:700;margin-left:4px}
+.p3{background:rgba(39,174,96,.2);color:var(--exact)}.p1{background:rgba(243,156,18,.2);color:var(--outcome)}.p0{background:rgba(231,76,60,.2);color:var(--wrong)}
+.ps{display:flex;gap:10px;margin:14px 0;flex-wrap:wrap}
+.psi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:80px;flex:1}
+.psi .n{font-size:1.5rem;font-weight:700}.psi .l{font-size:.7rem;color:var(--text2);margin-top:2px}
+.psi.ex .n{color:var(--exact)}.psi.oc .n{color:var(--outcome)}.psi.wr .n{color:var(--wrong)}.psi.to .n{color:var(--gold)}
+.lb{background:var(--card);border-radius:12px;overflow:hidden;border:1px solid var(--border)}
+.lb table{width:100%;border-collapse:collapse}
+.lb th{background:var(--accent2);padding:10px 14px;text-align:left;font-size:.8rem;text-transform:uppercase;letter-spacing:1px}
+.lb td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:.88rem}
+.lb tr:last-child td{border-bottom:none}.lb tr:hover{background:rgba(255,255,255,.02)}
+.lb tr.me{background:rgba(245,197,24,.08)}
+.lb .rk{font-weight:700;font-size:1rem}.lb .nm{font-weight:600}
+.lb .pt{font-weight:700;color:var(--gold);font-size:1rem}
+.lb .se{color:var(--exact)}.lb .so{color:var(--outcome)}.lb .sw{color:var(--wrong)}
+.mdt{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.mdt button{padding:7px 14px;background:var(--card);border:1px solid var(--border);border-radius:20px;color:var(--text2);cursor:pointer;font-size:.82rem;font-weight:600;transition:.2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.mdt button:hover{border-color:var(--text2)}.mdt button.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.ib{background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.3);border-radius:10px;padding:12px 16px;margin-bottom:14px;font-size:.85rem;color:var(--text2);line-height:1.5}
+.ib strong{color:var(--gold)}
+.es{text-align:center;padding:40px;color:var(--text2)}.es .em{font-size:3rem;margin-bottom:12px}
+.st{font-size:1.1rem;font-weight:700;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--border)}.st span{color:var(--gold)}
+.ios{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap}
+select{padding:8px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.9rem;cursor:pointer}
+select:focus{outline:none;border-color:var(--gold)}
+.fb{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 24px;font-size:.88rem;z-index:1000;opacity:0;transition:.3s;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.ok{border-color:var(--exact);color:var(--exact)}.toast.err{border-color:var(--wrong);color:var(--wrong)}
+.admin-only{display:none}.is-admin .admin-only{display:block}.is-admin .admin-tab{display:initial}
+@media(max-width:600px){.header h1{font-size:1.1rem}.content{padding:10px}.mc{grid-template-columns:1fr;gap:3px;text-align:center;padding:8px 10px}.mc .th,.mc .ta{text-align:center;justify-content:center;font-size:.82rem}.groups-grid{grid-template-columns:1fr 1fr}.lb{overflow-x:auto}.tabs button{min-width:60px;font-size:.7rem;padding:10px 3px}.welcome h1{font-size:1.5rem}.welcome .logo{font-size:3rem}}
+</style>
+</head>
+<body>
+<div class="welcome" id="welcome">
+  <div class="logo">⚽</div>
+  <h1>PORRA <span>MUNDIAL 2026</span></h1>
+  <p class="sub">USA • Canada • Mexico — 11 jun - 19 jul 2026</p>
+  <div class="name-box">
+    <label>¿Cómo te llamas?</label>
+    <input type="text" id="login-name" placeholder="Tu nombre..." autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false">
+    <button class="btn btn-g btn-big" id="login-btn">Entrar 🏆</button>
+    <div style="margin-top:12px;font-size:.78rem;color:var(--text2)">🟢 Exacto = 3 pts &nbsp; 🟡 Signo (1X2) = 1 pt &nbsp; 🔴 Fallo = 0</div>
+  </div>
+</div>
+<div class="app" id="app">
+  <div class="header">
+    <h1>⚽ PORRA <span>MUNDIAL 2026</span> 🏆</h1>
+    <div class="user-bar">👤 <span class="uname" id="hdr-name"></span> <span class="logout" id="logout-btn">cambiar</span> <span class="logout admin-only" id="admin-nav-btn" style="margin-left:8px">⚙️ admin</span></div>
+  </div>
+  <div class="tabs">
+    <button class="active" id="tab-btn-predicciones">🎯 Predicciones</button>
+    <button id="tab-btn-clasificacion">🏆 Ranking</button>
+    <button id="tab-btn-grupos">🏟️ Grupos</button>
+    <button id="tab-btn-partidos">📋 Partidos</button>
+    <button class="admin-only admin-tab" style="display:none" id="tab-btn-resultados">✅ Resultados</button>
+  </div>
+  <div class="content">
+    <div id="tab-predicciones" class="tab-panel active">
+      <div id="my-stats" class="ps"></div>
+      <div class="ib">Rellena tus predicciones y pulsa <strong>Guardar</strong>. 🟢 Exacto = 3 | 🟡 Signo = 1 | 🔴 Fallo = 0</div>
+      <div class="mdt" id="pmf"></div>
+      <div id="pcc"></div>
+      <div style="margin-top:16px;text-align:center"><button class="btn btn-g" id="save-btn" style="padding:14px 40px;font-size:1rem">💾 Guardar mis predicciones</button></div>
+    </div>
+    <div id="tab-clasificacion" class="tab-panel">
+      <div class="ios"><button class="btn btn-s btn-sm" id="sync-btn">🔄 Actualizar</button></div>
+      <div class="st">🏆 Clasificación <span>en vivo</span></div>
+      <div id="lst" class="ps"></div>
+      <div id="lcc" class="lb"></div>
+    </div>
+    <div id="tab-grupos" class="tab-panel">
+      <div class="ib"><strong>48 equipos</strong> en <strong>12 grupos</strong>. 2 primeros + 8 mejores terceros pasan a octavos.</div>
+      <div id="gc" class="groups-grid"></div>
+    </div>
+    <div id="tab-partidos" class="tab-panel">
+      <div class="mdt" id="mf"></div>
+      <div id="mcc"></div>
+    </div>
+    <div id="tab-resultados" class="tab-panel admin-only">
+      <div class="ib">Solo tú (admin) ves esta pestaña. Mete los <strong>resultados reales</strong>.</div>
+      <div class="ios"><button class="btn btn-g btn-sm" id="save-res-btn">💾 Guardar resultados</button></div>
+      <div class="mdt" id="rmf"></div>
+      <div id="rcc"></div>
+    </div>
+    <div id="tab-admin" class="tab-panel admin-only">
+      <div class="st">⚙️ Configuración admin</div>
+      <div class="ib">
+        <strong>Admin actual:</strong> <span id="admin-name-display" style="color:var(--gold)"></span><br><br>
+        <input type="text" id="admin-name-input" style="padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);margin:6px 0">
+        <button class="btn btn-s btn-sm" id="save-admin-btn">Cambiar admin</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+<script>
+// ============================================================
+// CONFIGURACIÓN — URL hardcodeada, funciona en todos los dispositivos
+// ============================================================
+const API_URL = 'https://script.google.com/macros/s/AKfycbxQvvwmjOi5AkRh1BvEXTW_Ror-PNsiuJyDr09oM39tYmQP5vqKZpVdQuYPFgm7agDuHg/exec';
+
+// ============================================================
+// DATOS
+// ============================================================
+const FL={'Mexico':'<img src="https://flagcdn.com/w40/mx.png" width="24" height="16" alt="Mexico" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','South Africa':'<img src="https://flagcdn.com/w40/za.png" width="24" height="16" alt="South Africa" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Korea Republic':'<img src="https://flagcdn.com/w40/kr.png" width="24" height="16" alt="Korea Republic" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Czechia':'<img src="https://flagcdn.com/w40/cz.png" width="24" height="16" alt="Czechia" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Canada':'<img src="https://flagcdn.com/w40/ca.png" width="24" height="16" alt="Canada" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Bosnia & Herzegovina':'<img src="https://flagcdn.com/w40/ba.png" width="24" height="16" alt="Bosnia & Herzegovina" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Qatar':'<img src="https://flagcdn.com/w40/qa.png" width="24" height="16" alt="Qatar" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Switzerland':'<img src="https://flagcdn.com/w40/ch.png" width="24" height="16" alt="Switzerland" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Brazil':'<img src="https://flagcdn.com/w40/br.png" width="24" height="16" alt="Brazil" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Morocco':'<img src="https://flagcdn.com/w40/ma.png" width="24" height="16" alt="Morocco" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Haiti':'<img src="https://flagcdn.com/w40/ht.png" width="24" height="16" alt="Haiti" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Scotland':'<img src="https://flagcdn.com/w40/gb-sct.png" width="24" height="16" alt="Scotland" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','USA':'<img src="https://flagcdn.com/w40/us.png" width="24" height="16" alt="USA" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Paraguay':'<img src="https://flagcdn.com/w40/py.png" width="24" height="16" alt="Paraguay" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Australia':'<img src="https://flagcdn.com/w40/au.png" width="24" height="16" alt="Australia" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Turkiye':'<img src="https://flagcdn.com/w40/tr.png" width="24" height="16" alt="Turkiye" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Germany':'<img src="https://flagcdn.com/w40/de.png" width="24" height="16" alt="Germany" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Curacao':'<img src="https://flagcdn.com/w40/cw.png" width="24" height="16" alt="Curacao" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Ivory Coast':'<img src="https://flagcdn.com/w40/ci.png" width="24" height="16" alt="Ivory Coast" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Ecuador':'<img src="https://flagcdn.com/w40/ec.png" width="24" height="16" alt="Ecuador" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Netherlands':'<img src="https://flagcdn.com/w40/nl.png" width="24" height="16" alt="Netherlands" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Japan':'<img src="https://flagcdn.com/w40/jp.png" width="24" height="16" alt="Japan" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Sweden':'<img src="https://flagcdn.com/w40/se.png" width="24" height="16" alt="Sweden" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Tunisia':'<img src="https://flagcdn.com/w40/tn.png" width="24" height="16" alt="Tunisia" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Belgium':'<img src="https://flagcdn.com/w40/be.png" width="24" height="16" alt="Belgium" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Egypt':'<img src="https://flagcdn.com/w40/eg.png" width="24" height="16" alt="Egypt" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Iran':'<img src="https://flagcdn.com/w40/ir.png" width="24" height="16" alt="Iran" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','New Zealand':'<img src="https://flagcdn.com/w40/nz.png" width="24" height="16" alt="New Zealand" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Spain':'<img src="https://flagcdn.com/w40/es.png" width="24" height="16" alt="Spain" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Cape Verde':'<img src="https://flagcdn.com/w40/cv.png" width="24" height="16" alt="Cape Verde" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Saudi Arabia':'<img src="https://flagcdn.com/w40/sa.png" width="24" height="16" alt="Saudi Arabia" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Uruguay':'<img src="https://flagcdn.com/w40/uy.png" width="24" height="16" alt="Uruguay" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','France':'<img src="https://flagcdn.com/w40/fr.png" width="24" height="16" alt="France" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Senegal':'<img src="https://flagcdn.com/w40/sn.png" width="24" height="16" alt="Senegal" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Iraq':'<img src="https://flagcdn.com/w40/iq.png" width="24" height="16" alt="Iraq" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Norway':'<img src="https://flagcdn.com/w40/no.png" width="24" height="16" alt="Norway" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Argentina':'<img src="https://flagcdn.com/w40/ar.png" width="24" height="16" alt="Argentina" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Algeria':'<img src="https://flagcdn.com/w40/dz.png" width="24" height="16" alt="Algeria" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Austria':'<img src="https://flagcdn.com/w40/at.png" width="24" height="16" alt="Austria" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Jordan':'<img src="https://flagcdn.com/w40/jo.png" width="24" height="16" alt="Jordan" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Portugal':'<img src="https://flagcdn.com/w40/pt.png" width="24" height="16" alt="Portugal" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','DR Congo':'<img src="https://flagcdn.com/w40/cd.png" width="24" height="16" alt="DR Congo" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Uzbekistan':'<img src="https://flagcdn.com/w40/uz.png" width="24" height="16" alt="Uzbekistan" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Colombia':'<img src="https://flagcdn.com/w40/co.png" width="24" height="16" alt="Colombia" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','England':'<img src="https://flagcdn.com/w40/gb-eng.png" width="24" height="16" alt="England" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Croatia':'<img src="https://flagcdn.com/w40/hr.png" width="24" height="16" alt="Croatia" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Ghana':'<img src="https://flagcdn.com/w40/gh.png" width="24" height="16" alt="Ghana" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">','Panama':'<img src="https://flagcdn.com/w40/pa.png" width="24" height="16" alt="Panama" style="vertical-align:middle;border-radius:2px;box-shadow:0 0 2px rgba(0,0,0,.3)">'};
+
+const GR={
+  A:['Mexico','South Africa','Korea Republic','Czechia'],B:['Canada','Bosnia & Herzegovina','Qatar','Switzerland'],
+  C:['Brazil','Morocco','Haiti','Scotland'],D:['USA','Paraguay','Australia','Turkiye'],
+  E:['Germany','Curacao','Ivory Coast','Ecuador'],F:['Netherlands','Japan','Sweden','Tunisia'],
+  G:['Belgium','Egypt','Iran','New Zealand'],H:['Spain','Cape Verde','Saudi Arabia','Uruguay'],
+  I:['France','Senegal','Iraq','Norway'],J:['Argentina','Algeria','Austria','Jordan'],
+  K:['Portugal','DR Congo','Uzbekistan','Colombia'],L:['England','Croatia','Ghana','Panama']
+};
+
+const MA=[
+  {i:1,m:1,d:'11 Jun',h:'Mexico',a:'South Africa',g:'A'},{i:2,m:1,d:'11 Jun',h:'Korea Republic',a:'Czechia',g:'A'},
+  {i:3,m:1,d:'12 Jun',h:'Canada',a:'Bosnia & Herzegovina',g:'B'},{i:4,m:1,d:'12 Jun',h:'USA',a:'Paraguay',g:'D'},
+  {i:5,m:1,d:'13 Jun',h:'Qatar',a:'Switzerland',g:'B'},{i:6,m:1,d:'13 Jun',h:'Haiti',a:'Scotland',g:'C'},
+  {i:7,m:1,d:'13 Jun',h:'Brazil',a:'Morocco',g:'C'},{i:8,m:1,d:'13 Jun',h:'Australia',a:'Turkiye',g:'D'},
+  {i:9,m:1,d:'14 Jun',h:'Ivory Coast',a:'Ecuador',g:'E'},{i:10,m:1,d:'14 Jun',h:'Germany',a:'Curacao',g:'E'},
+  {i:11,m:1,d:'14 Jun',h:'Netherlands',a:'Japan',g:'F'},{i:12,m:1,d:'14 Jun',h:'Sweden',a:'Tunisia',g:'F'},
+  {i:13,m:1,d:'15 Jun',h:'Saudi Arabia',a:'Uruguay',g:'H'},{i:14,m:1,d:'15 Jun',h:'Spain',a:'Cape Verde',g:'H'},
+  {i:15,m:1,d:'15 Jun',h:'Iran',a:'New Zealand',g:'G'},{i:16,m:1,d:'15 Jun',h:'Belgium',a:'Egypt',g:'G'},
+  {i:17,m:1,d:'16 Jun',h:'France',a:'Senegal',g:'I'},{i:18,m:1,d:'16 Jun',h:'Iraq',a:'Norway',g:'I'},
+  {i:19,m:1,d:'16 Jun',h:'Argentina',a:'Algeria',g:'J'},{i:20,m:1,d:'16 Jun',h:'Austria',a:'Jordan',g:'J'},
+  {i:21,m:1,d:'17 Jun',h:'Ghana',a:'Panama',g:'L'},{i:22,m:1,d:'17 Jun',h:'England',a:'Croatia',g:'L'},
+  {i:23,m:1,d:'17 Jun',h:'Portugal',a:'DR Congo',g:'K'},{i:24,m:1,d:'17 Jun',h:'Uzbekistan',a:'Colombia',g:'K'},
+  {i:25,m:2,d:'18 Jun',h:'Czechia',a:'South Africa',g:'A'},{i:26,m:2,d:'18 Jun',h:'Mexico',a:'Korea Republic',g:'A'},
+  {i:27,m:2,d:'18 Jun',h:'Switzerland',a:'Bosnia & Herzegovina',g:'B'},{i:28,m:2,d:'18 Jun',h:'Canada',a:'Qatar',g:'B'},
+  {i:29,m:2,d:'19 Jun',h:'Scotland',a:'Morocco',g:'C'},{i:30,m:2,d:'19 Jun',h:'Brazil',a:'Haiti',g:'C'},
+  {i:31,m:2,d:'19 Jun',h:'Turkiye',a:'Paraguay',g:'D'},{i:32,m:2,d:'19 Jun',h:'USA',a:'Australia',g:'D'},
+  {i:33,m:2,d:'20 Jun',h:'Germany',a:'Ivory Coast',g:'E'},{i:34,m:2,d:'20 Jun',h:'Ecuador',a:'Curacao',g:'E'},
+  {i:35,m:2,d:'20 Jun',h:'Netherlands',a:'Sweden',g:'F'},{i:36,m:2,d:'20 Jun',h:'Japan',a:'Tunisia',g:'F'},
+  {i:37,m:2,d:'21 Jun',h:'Belgium',a:'Iran',g:'G'},{i:38,m:2,d:'21 Jun',h:'Egypt',a:'New Zealand',g:'G'},
+  {i:39,m:2,d:'21 Jun',h:'Spain',a:'Saudi Arabia',g:'H'},{i:40,m:2,d:'21 Jun',h:'Cape Verde',a:'Uruguay',g:'H'},
+  {i:41,m:2,d:'22 Jun',h:'France',a:'Iraq',g:'I'},{i:42,m:2,d:'22 Jun',h:'Norway',a:'Senegal',g:'I'},
+  {i:43,m:2,d:'22 Jun',h:'Argentina',a:'Austria',g:'J'},{i:44,m:2,d:'22 Jun',h:'Algeria',a:'Jordan',g:'J'},
+  {i:45,m:2,d:'23 Jun',h:'Colombia',a:'DR Congo',g:'K'},{i:46,m:2,d:'23 Jun',h:'Portugal',a:'Uzbekistan',g:'K'},
+  {i:47,m:2,d:'23 Jun',h:'England',a:'Ghana',g:'L'},{i:48,m:2,d:'23 Jun',h:'Croatia',a:'Panama',g:'L'},
+  {i:49,m:3,d:'24 Jun',h:'Czechia',a:'Mexico',g:'A'},{i:50,m:3,d:'24 Jun',h:'South Africa',a:'Korea Republic',g:'A'},
+  {i:51,m:3,d:'24 Jun',h:'Switzerland',a:'Canada',g:'B'},{i:52,m:3,d:'24 Jun',h:'Bosnia & Herzegovina',a:'Qatar',g:'B'},
+  {i:53,m:3,d:'24 Jun',h:'Brazil',a:'Scotland',g:'C'},{i:54,m:3,d:'24 Jun',h:'Morocco',a:'Haiti',g:'C'},
+  {i:55,m:3,d:'25 Jun',h:'Turkiye',a:'USA',g:'D'},{i:56,m:3,d:'25 Jun',h:'Paraguay',a:'Australia',g:'D'},
+  {i:57,m:3,d:'25 Jun',h:'Germany',a:'Ecuador',g:'E'},{i:58,m:3,d:'25 Jun',h:'Curacao',a:'Ivory Coast',g:'E'},
+  {i:59,m:3,d:'25 Jun',h:'Netherlands',a:'Tunisia',g:'F'},{i:60,m:3,d:'25 Jun',h:'Japan',a:'Sweden',g:'F'},
+  {i:61,m:3,d:'26 Jun',h:'Belgium',a:'New Zealand',g:'G'},{i:62,m:3,d:'26 Jun',h:'Egypt',a:'Iran',g:'G'},
+  {i:63,m:3,d:'26 Jun',h:'Spain',a:'Uruguay',g:'H'},{i:64,m:3,d:'26 Jun',h:'Cape Verde',a:'Saudi Arabia',g:'H'},
+  {i:65,m:3,d:'26 Jun',h:'France',a:'Norway',g:'I'},{i:66,m:3,d:'26 Jun',h:'Senegal',a:'Iraq',g:'I'},
+  {i:67,m:3,d:'27 Jun',h:'Argentina',a:'Jordan',g:'J'},{i:68,m:3,d:'27 Jun',h:'Algeria',a:'Austria',g:'J'},
+  {i:69,m:3,d:'27 Jun',h:'Portugal',a:'Colombia',g:'K'},{i:70,m:3,d:'27 Jun',h:'DR Congo',a:'Uzbekistan',g:'K'},
+  {i:71,m:3,d:'27 Jun',h:'England',a:'Panama',g:'L'},{i:72,m:3,d:'27 Jun',h:'Croatia',a:'Ghana',g:'L'}
+];
+
+// ============================================================
+// ESTADO
+// ============================================================
+let S = {p:[], pr:{}, r:{}};
+let ME = '';
+let ADMIN = localStorage.getItem('porra_admin') || '';
+
+// ============================================================
+// LOGIN — Fix iOS: addEventListener en lugar de onclick en HTML
+// ============================================================
+function login() {
+  const n = document.getElementById('login-name').value.trim();
+  if (!n) { toast('Escribe tu nombre', 'err'); return; }
+  ME = n;
+  localStorage.setItem('porra_me', ME);
+  startApp();
+}
+
+function logout() {
+  localStorage.removeItem('porra_me');
+  location.reload();
+}
+
+function startApp() {
+  document.getElementById('welcome').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+  document.getElementById('hdr-name').textContent = ME;
+  if (ME === ADMIN || !ADMIN) document.body.classList.add('is-admin');
+  syncAll();
+}
+
+// ============================================================
+// API
+// ============================================================
+async function api(action, params={}) {
+  const u = new URL(API_URL);
+  u.searchParams.set('action', action);
+  for (const [k, v] of Object.entries(params)) {
+    u.searchParams.set(k, typeof v === 'object' ? JSON.stringify(v) : v);
+  }
+  const r = await fetch(u.toString());
+  const j = await r.json();
+  if (j.error) throw new Error(j.error);
+  return j;
+}
+
+async function syncAll() {
+  try {
+    toast('Sincronizando...', 'ok');
+    const r = await api('getAll');
+    S.p = r.participants || [];
+    S.pr = r.predictions || {};
+    S.r = r.results || {};
+    if (!S.p.includes(ME)) {
+      await api('addParticipant', {name: ME});
+      S.p.push(ME);
+    }
+    renderAll();
+    toast('✅ Sincronizado', 'ok');
+  } catch(e) {
+    toast('Sin conexión, modo local', 'err');
+    if (!S.p.includes(ME)) S.p.push(ME);
+    renderAll();
+  }
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function toast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (type || '');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.className = 'toast', 3000);
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function showTab(t) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + t).classList.add('active');
+  const btn = document.getElementById('tab-btn-' + t);
+  if (btn) btn.classList.add('active');
+  if (t === 'predicciones') rPred();
+  if (t === 'clasificacion') rLB();
+  if (t === 'partidos') rMatch();
+  if (t === 'resultados') rRes();
+  if (t === 'admin') initAdmin();
+}
+
+// ============================================================
+// GRUPOS
+// ============================================================
+function rGrp() {
+  document.getElementById('gc').innerHTML = Object.entries(GR).map(([g, ts]) =>
+    '<div class="group-card"><div class="gh">GRUPO ' + g + '</div>' +
+    ts.map(t => '<div class="tr">' + (FL[t]||'') + ' <span>' + t + '</span></div>').join('') +
+    '</div>').join('');
+}
+
+// ============================================================
+// PARTIDOS
+// ============================================================
+let cMD = 0;
+function rMatch() {
+  document.getElementById('mf').innerHTML = [['Todos',0],['Jornada 1',1],['Jornada 2',2],['Jornada 3',3]].map(([l,v]) =>
+    '<button class="' + (cMD===v?'active':'') + '" data-md="' + v + '">' + l + '</button>').join('');
+  document.querySelectorAll('#mf button').forEach(b => {
+    b.addEventListener('click', function() { cMD = parseInt(this.dataset.md); rMatch(); });
+  });
+  const ms = cMD === 0 ? MA : MA.filter(x => x.m === cMD);
+  const bd = {};
+  ms.forEach(x => { if (!bd[x.d]) bd[x.d] = []; bd[x.d].push(x); });
+  document.getElementById('mcc').innerHTML = Object.entries(bd).map(([d, xs]) =>
+    '<div class="mdh">' + d + ' 2026</div>' + xs.map(x => {
+      const r = S.r[x.i]; const hr = r && r.h !== '' && r.a !== '';
+      return '<div class="mc' + (hr?' hr':'') + '"><div class="th">' + x.h + ' ' + (FL[x.h]||'') + '</div><div class="vs"><div class="gb">Grupo ' + x.g + '</div>' +
+        (hr ? '<div style="font-size:1.1rem;font-weight:700;color:var(--gold)">' + r.h + ' - ' + r.a + '</div>' : '<div>vs</div>') +
+        '</div><div class="ta">' + (FL[x.a]||'') + ' ' + x.a + '</div></div>';
+    }).join('')).join('');
+}
+
+// ============================================================
+// MIS PREDICCIONES
+// ============================================================
+let pMD = 0;
+let myPreds = {};
+
+function rPred() {
+  const pr = S.pr[ME] || {};
+  myPreds = JSON.parse(JSON.stringify(pr));
+  const sc = document.getElementById('my-stats');
+  const cc = document.getElementById('pcc');
+  const fc = document.getElementById('pmf');
+
+  fc.innerHTML = [['Todos',0],['J1',1],['J2',2],['J3',3]].map(([l,v]) =>
+    '<button class="' + (pMD===v?'active':'') + '" data-pmd="' + v + '">' + l + '</button>').join('');
+  document.querySelectorAll('#pmf button').forEach(b => {
+    b.addEventListener('click', function() { pMD = parseInt(this.dataset.pmd); rPred(); });
+  });
+
+  let ex=0, oc=0, wr=0, tot=0;
+  MA.forEach(x => {
+    const p = pr[x.i]; const r = S.r[x.i];
+    if (p && p.h !== '' && p.a !== '') {
+      tot++;
+      if (r && r.h !== '' && r.a !== '') {
+        const pt = cP(p, r);
+        if (pt===3) ex++; else if (pt===1) oc++; else wr++;
+      }
+    }
+  });
+
+  sc.innerHTML =
+    '<div class="psi to"><div class="n">' + (ex*3+oc) + '</div><div class="l">PUNTOS</div></div>' +
+    '<div class="psi ex"><div class="n">' + ex + '</div><div class="l">EXACTOS</div></div>' +
+    '<div class="psi oc"><div class="n">' + oc + '</div><div class="l">SIGNOS</div></div>' +
+    '<div class="psi wr"><div class="n">' + wr + '</div><div class="l">FALLOS</div></div>' +
+    '<div class="psi"><div class="n">' + tot + '/72</div><div class="l">HECHOS</div></div>';
+
+  const ms = pMD === 0 ? MA : MA.filter(x => x.m === pMD);
+  const bd = {};
+  ms.forEach(x => { if (!bd[x.d]) bd[x.d] = []; bd[x.d].push(x); });
+
+  cc.innerHTML = Object.entries(bd).map(([d, xs]) =>
+    '<div class="mdh">' + d + ' 2026</div>' + xs.map(x => {
+      const p = pr[x.i] || {h:'', a:''};
+      const r = S.r[x.i];
+      const hr = r && r.h !== '' && r.a !== '';
+      const hp = p.h !== '' && p.a !== '';
+      let rc = '', bg = '';
+      if (hr && hp) {
+        const pt = cP(p, r);
+        if (pt===3) { rc=' re'; bg='<span class="pb p3">+3</span>'; }
+        else if (pt===1) { rc=' ro'; bg='<span class="pb p1">+1</span>'; }
+        else { rc=' rw'; bg='<span class="pb p0">0</span>'; }
+      }
+      return '<div class="mc' + rc + '"><div class="th">' + x.h + ' ' + (FL[x.h]||'') + '</div><div class="vs">' +
+        '<div class="gb">Grupo ' + x.g + ' ' + bg + '</div>' +
+        '<div class="si">' +
+        '<input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="20" value="' + p.h + '" data-i="' + x.i + '" data-s="h" placeholder="-">' +
+        '<span style="font-weight:700">-</span>' +
+        '<input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="20" value="' + p.a + '" data-i="' + x.i + '" data-s="a" placeholder="-">' +
+        '</div>' +
+        (hr ? '<div style="font-size:.72rem;color:var(--text2)">Real: ' + r.h + '-' + r.a + '</div>' : '') +
+        '</div><div class="ta">' + (FL[x.a]||'') + ' ' + x.a + '</div></div>';
+    }).join('')).join('');
+
+  // Eventos en los inputs de predicciones (delegación para iOS)
+  cc.querySelectorAll('input[type=number]').forEach(el => {
+    el.addEventListener('change', function() { uP(this); });
+    el.addEventListener('input', function() { uP(this); });
+  });
+}
+
+function uP(el) {
+  const id = el.dataset.i, s = el.dataset.s;
+  if (!myPreds[id]) myPreds[id] = {h:'', a:''};
+  myPreds[id][s] = el.value === '' ? '' : parseInt(el.value);
+}
+
+async function saveMine() {
+  const data = [];
+  for (const [mid, v] of Object.entries(myPreds)) {
+    if (v.h !== '' || v.a !== '') data.push({mid, h:v.h, a:v.a});
+  }
+  if (!data.length) { toast('No has rellenado nada', 'err'); return; }
+  try {
+    toast('Guardando...', 'ok');
+    await api('savePredictions', {name: ME, data: data});
+    S.pr[ME] = myPreds;
+    rPred();
+    toast('✅ Guardado (' + data.length + ' partidos)', 'ok');
+  } catch(e) {
+    toast('Error al guardar: ' + e.message, 'err');
+  }
+}
+
+// ============================================================
+// RESULTADOS (admin)
+// ============================================================
+let rMD = 0;
+let pendR = {};
+
+function rRes() {
+  pendR = JSON.parse(JSON.stringify(S.r));
+  document.getElementById('rmf').innerHTML = [['Todos',0],['J1',1],['J2',2],['J3',3]].map(([l,v]) =>
+    '<button class="' + (rMD===v?'active':'') + '" data-rmd="' + v + '">' + l + '</button>').join('');
+  document.querySelectorAll('#rmf button').forEach(b => {
+    b.addEventListener('click', function() { rMD = parseInt(this.dataset.rmd); rRes(); });
+  });
+  const ms = rMD === 0 ? MA : MA.filter(x => x.m === rMD);
+  const bd = {};
+  ms.forEach(x => { if (!bd[x.d]) bd[x.d] = []; bd[x.d].push(x); });
+  const rcc = document.getElementById('rcc');
+  rcc.innerHTML = Object.entries(bd).map(([d, xs]) =>
+    '<div class="mdh">' + d + ' 2026</div>' + xs.map(x => {
+      const r = S.r[x.i] || {h:'', a:''};
+      return '<div class="mc"><div class="th">' + x.h + ' ' + (FL[x.h]||'') + '</div><div class="vs">' +
+        '<div class="gb">Grupo ' + x.g + '</div>' +
+        '<div class="si">' +
+        '<input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="20" value="' + r.h + '" data-i="' + x.i + '" data-s="h" placeholder="-" style="border-color:var(--gold)">' +
+        '<span style="font-weight:700;color:var(--gold)">-</span>' +
+        '<input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="20" value="' + r.a + '" data-i="' + x.i + '" data-s="a" placeholder="-" style="border-color:var(--gold)">' +
+        '</div></div><div class="ta">' + (FL[x.a]||'') + ' ' + x.a + '</div></div>';
+    }).join('')).join('');
+  rcc.querySelectorAll('input[type=number]').forEach(el => {
+    el.addEventListener('change', function() { uR(this); });
+    el.addEventListener('input', function() { uR(this); });
+  });
+}
+
+function uR(el) {
+  const id = el.dataset.i, s = el.dataset.s;
+  if (!pendR[id]) pendR[id] = {h:'', a:''};
+  pendR[id][s] = el.value === '' ? '' : parseInt(el.value);
+}
+
+async function saRes() {
+  const data = [];
+  for (const [mid, v] of Object.entries(pendR)) {
+    if (v.h !== '' || v.a !== '') data.push({mid, h:v.h, a:v.a});
+  }
+  try {
+    toast('Guardando...', 'ok');
+    await api('saveResults', {data: data});
+    S.r = pendR;
+    toast('✅ Resultados guardados (' + data.length + ')', 'ok');
+  } catch(e) {
+    toast('Error: ' + e.message, 'err');
+  }
+}
+
+// ============================================================
+// PUNTUACIÓN
+// ============================================================
+function cP(p, r) {
+  if (p.h==='' || p.a==='' || r.h==='' || r.a==='') return -1;
+  const ph=+p.h, pa=+p.a, rh=+r.h, ra=+r.a;
+  if (isNaN(ph)||isNaN(pa)||isNaN(rh)||isNaN(ra)) return -1;
+  if (ph===rh && pa===ra) return 3;
+  if (Math.sign(ph-pa) === Math.sign(rh-ra)) return 1;
+  return 0;
+}
+
+// ============================================================
+// RANKING
+// ============================================================
+function rLB() {
+  const st = S.p.map(nm => {
+    const pr = S.pr[nm] || {};
+    let ex=0, oc=0, wr=0, pd=0;
+    MA.forEach(x => {
+      const p = pr[x.i]; const r = S.r[x.i];
+      if (p && p.h!=='' && p.a!=='' && r && r.h!=='' && r.a!=='') {
+        pd++;
+        const pt = cP(p, r);
+        if (pt===3) ex++; else if (pt===1) oc++; else wr++;
+      }
+    });
+    return {nm, pts:ex*3+oc, ex, oc, wr, pd};
+  }).sort((a,b) => b.pts-a.pts || b.ex-a.ex || b.oc-a.oc);
+
+  const mw = MA.filter(x => { const r=S.r[x.i]; return r && r.h!=='' && r.a!==''; }).length;
+  document.getElementById('lst').innerHTML =
+    '<div class="psi"><div class="n">' + S.p.length + '</div><div class="l">JUGADORES</div></div>' +
+    '<div class="psi"><div class="n">' + mw + '/72</div><div class="l">PARTIDOS</div></div>';
+
+  const c = document.getElementById('lcc');
+  if (!st.length) { c.innerHTML = '<div class="es"><div class="em">🏆</div><p>Aún no hay datos</p></div>'; return; }
+  const md = ['🥇','🥈','🥉'];
+  c.innerHTML = '<table><thead><tr><th>#</th><th>Nombre</th><th>Pts</th><th>✅</th><th>~</th><th>❌</th></tr></thead><tbody>' +
+    st.map((s,i) => '<tr class="' + (s.nm===ME?'me':'') + '"><td class="rk">' + (md[i]||(i+1)) + '</td><td class="nm">' + s.nm + (s.nm===ME?' ⬅':'') + '</td><td class="pt">' + s.pts + '</td><td class="se">' + s.ex + '</td><td class="so">' + s.oc + '</td><td class="sw">' + s.wr + '</td></tr>').join('') +
+    '</tbody></table>';
+}
+
+// ============================================================
+// ADMIN
+// ============================================================
+function initAdmin() {
+  document.getElementById('admin-name-display').textContent = ADMIN || ME;
+  document.getElementById('admin-name-input').value = ADMIN;
+}
+function saveAdmin() {
+  ADMIN = document.getElementById('admin-name-input').value.trim();
+  localStorage.setItem('porra_admin', ADMIN);
+  toast('Admin: ' + ADMIN, 'ok');
+}
+
+// ============================================================
+// RENDER ALL
+// ============================================================
+function renderAll() { rGrp(); rPred(); rMatch(); rLB(); }
+
+// ============================================================
+// INIT — addEventListener para máxima compatibilidad iOS/Android
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+  // Login
+  document.getElementById('login-btn').addEventListener('click', login);
+  document.getElementById('login-name').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') login();
+  });
+
+  // App buttons
+  document.getElementById('logout-btn').addEventListener('click', logout);
+  document.getElementById('sync-btn').addEventListener('click', syncAll);
+  document.getElementById('save-btn').addEventListener('click', saveMine);
+  document.getElementById('save-res-btn').addEventListener('click', saRes);
+  document.getElementById('save-admin-btn').addEventListener('click', saveAdmin);
+  document.getElementById('admin-nav-btn').addEventListener('click', function() { showTab('admin'); });
+
+  // Tabs
+  document.getElementById('tab-btn-predicciones').addEventListener('click', function() { showTab('predicciones'); });
+  document.getElementById('tab-btn-clasificacion').addEventListener('click', function() { showTab('clasificacion'); });
+  document.getElementById('tab-btn-grupos').addEventListener('click', function() { showTab('grupos'); });
+  document.getElementById('tab-btn-partidos').addEventListener('click', function() { showTab('partidos'); });
+  document.getElementById('tab-btn-resultados').addEventListener('click', function() { showTab('resultados'); });
+
+  // Auto-login si ya hay nombre guardado
+  const saved = localStorage.getItem('porra_me');
+  if (saved) { ME = saved; startApp(); }
+});
+
+// Sincronización automática cada 60 segundos
+setInterval(function() { if (ME) syncAll(); }, 60000);
+</script>
+</body>
+</html>

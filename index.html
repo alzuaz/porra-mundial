@@ -142,8 +142,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 /* ── BRACKET / CUADRO ──────────────────────────────────── */
 .cg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
 .cg-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.cg-card .cg-head{background:linear-gradient(135deg,var(--accent2),var(--accent));padding:8px 14px;font-weight:700;font-size:.85rem;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center}
-.cg-head .cg-hint{font-size:.62rem;font-weight:400;opacity:.85}
+.cg-card .cg-head{background:linear-gradient(135deg,var(--accent2),var(--accent));padding:7px 10px;font-weight:700;font-size:.82rem;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center;gap:4px}
+.cg-head .cg-grp-name{white-space:nowrap;flex-shrink:0}
+.cg-head .cg-hint{font-size:.58rem;font-weight:400;opacity:.85;text-align:right;line-height:1.2}
 .cg-row{display:flex;align-items:center;padding:7px 10px;border-bottom:1px solid var(--border);font-size:.84rem;gap:8px;cursor:grab;user-select:none;transition:background .15s}
 .cg-row:last-child{border-bottom:none}
 .cg-row:hover{background:rgba(255,255,255,.03)}
@@ -164,7 +165,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .cg-third-selectable{cursor:pointer !important;transition:background .15s}
 .cg-third-selectable:hover{background:rgba(245,197,24,.1)}
 .cg-third-qualified{background:rgba(245,197,24,.13);border-left:3px solid var(--gold)}
-.cg-third-badge{display:inline-block;margin-left:6px;font-size:.62rem;padding:2px 6px;background:var(--gold);color:var(--primary);border-radius:8px;font-weight:800;letter-spacing:.3px}
+.cg-third-badge{display:inline-flex;align-items:center;gap:2px;margin-left:4px;font-size:.55rem;padding:2px 5px;background:var(--gold);color:var(--primary);border-radius:6px;font-weight:800;letter-spacing:.2px;white-space:nowrap;flex-shrink:0}
 
 .cg-row.drag-over-top{box-shadow:inset 0 2px 0 var(--gold)}
 .cg-row.drag-over-bottom{box-shadow:inset 0 -2px 0 var(--gold)}
@@ -173,7 +174,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .cg-pos-2{background:rgba(122,179,224,.2);color:#7ab3e0;border:1px solid #7ab3e0}
 .cg-pos-3{background:rgba(231,76,60,.2);color:var(--wrong);border:1px solid var(--wrong)}
 .cg-pos-4{background:rgba(160,160,184,.15);color:var(--text2);border:1px solid var(--text2)}
-.cg-team{flex:1;display:flex;align-items:center;gap:6px;font-weight:600;font-size:.82rem}
+.cg-team{flex:1;display:flex;align-items:center;gap:4px;font-weight:600;font-size:.8rem;min-width:0;overflow:hidden}
 .cg-arrows{display:none;flex-direction:column;gap:2px}
 .cg-arrow{width:24px;height:18px;border:1px solid var(--border);background:var(--bg);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.6rem;padding:0;border-radius:3px;-webkit-tap-highlight-color:transparent}
 .cg-arrow:hover{background:var(--accent2);color:var(--gold);border-color:var(--gold)}
@@ -207,18 +208,14 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   /* 9 columns: R32L R16L QFL SFL CENTER SFR QFR R16R R32R */
   grid-template-columns:140px 140px 140px 140px 170px 140px 140px 140px 140px;
   /* 16 rows for vertical balancing */
-  grid-template-rows:repeat(16, 42px);
+  grid-template-rows:28px repeat(16, 42px);
   gap:0 8px;
   min-width:1320px;
-  padding:0 0 10px;
+  padding:30px 0 10px;
   position:relative;
 }
-.br-titles-row{
-  display:grid;
-  grid-template-columns:140px 140px 140px 140px 170px 140px 140px 140px 140px;
-  gap:0 8px;min-width:1320px;margin-bottom:8px;padding:4px 0;
-}
 .br-title{
+  position:absolute;top:0;
   font-size:.62rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);font-weight:700;
   text-align:center;padding:4px 0;
 }
@@ -226,7 +223,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   background:var(--card);border:1px solid var(--border);border-radius:8px;
   overflow:hidden;font-size:.7rem;
   display:flex;flex-direction:column;justify-content:center;
-  width:100%;min-height:76px;max-height:76px;
+  width:100%;height:76px;
 }
 .br-meta{background:var(--secondary);padding:2px 7px;font-size:.55rem;color:var(--text2);display:flex;justify-content:space-between;line-height:1.2}
 .br-meta .br-mid{color:var(--gold);font-weight:700}
@@ -244,7 +241,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .cuadro-pending{background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.25);border-radius:10px;padding:12px 16px;margin:14px 0;font-size:.82rem;color:var(--wrong);text-align:center}
 .cuadro-ready{background:rgba(39,174,96,.08);border:1px solid rgba(39,174,96,.25);border-radius:10px;padding:10px 16px;margin:14px 0;font-size:.82rem;color:var(--exact);text-align:center}
 
-@media(max-width:600px){.cg-grid{grid-template-columns:1fr 1fr}.br-titles-row{grid-template-columns:115px 115px 115px 115px 140px 115px 115px 115px 115px;min-width:1100px}.br-tree{grid-template-columns:115px 115px 115px 115px 140px 115px 115px 115px 115px;grid-template-rows:repeat(16,40px);min-width:1100px}}
+@media(max-width:600px){.cg-grid{grid-template-columns:1fr 1fr}.br-tree{grid-template-columns:115px 115px 115px 115px 140px 115px 115px 115px 115px;grid-template-rows:28px repeat(16,40px);min-width:1100px}}
 
 .admin-only{display:none}
 .is-admin .admin-only{display:block}
@@ -330,9 +327,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
         <div class="ib">Rellena tus predicciones y pulsa <strong>Guardar</strong>. Se bloquean <strong>15 min antes</strong> del partido.<br>🟢 Resultado Exacto = 3 | 🟡 Ganador Acertado = 1 | 🔴 Fallo = 0</div>
         <div class="mdt" id="pmf"></div>
         <div id="pcc"></div>
-        <div style="margin-top:16px;text-align:center">
-          <button class="btn btn-g" id="save-btn" style="padding:14px 40px;font-size:1rem">💾 Guardar predicciones</button>
-        </div>
+        <!-- auto-save enabled, manual button removed -->
       </div>
       <!-- Sub-panel: Premios -->
       <div id="pred-panel-premios" style="display:none">
@@ -798,6 +793,7 @@ function rMatch(){
 let pMD=0;
 let myPreds={};
 let myAwardPreds={};
+let _predSaveTimer=null;
 let predSubTab='partidos';
 
 function showPredSubTab(t){
@@ -822,14 +818,11 @@ function rPred(){
   MA.forEach(x=>{const p=pr[x.i];const r=S.r[x.i];
     if(p&&p.h!==''&&p.a!==''){tot++;if(r&&r.h!==''&&r.a!==''){const pt=cP(p,r);if(pt===3)ex++;else if(pt===1)oc++;else wr++;}}
   });
-  const allPts=calcAllPoints(ME);
   document.getElementById('my-stats').innerHTML=
-    '<div class="psi to"><div class="n">'+allPts.total+'</div><div class="l">Total</div></div>'+
-    '<div class="psi"><div class="n">'+allPts.matchPts+'</div><div class="l">⚽ Partidos</div></div>'+
-    '<div class="psi"><div class="n">'+allPts.bracketPts+'</div><div class="l">🏆 Cuadro</div></div>'+
-    '<div class="psi"><div class="n">'+allPts.awardPts+'</div><div class="l">🏅 Premios</div></div>'+
-    '<div class="psi ex"><div class="n">'+ex+'</div><div class="l">Exactos</div></div>'+
-    '<div class="psi oc"><div class="n">'+oc+'</div><div class="l">Signos</div></div>'+
+    '<div class="psi to"><div class="n">'+(ex*3+oc)+'</div><div class="l">Puntos</div></div>'+
+    '<div class="psi ex"><div class="n">'+ex+'</div><div class="l">Resultados Exactos</div></div>'+
+    '<div class="psi oc"><div class="n">'+oc+'</div><div class="l">Ganadores Acertados</div></div>'+
+    '<div class="psi wr"><div class="n">'+wr+'</div><div class="l">Fallos</div></div>'+
     '<div class="psi"><div class="n">'+tot+'/72</div><div class="l">Predicciones</div></div>';
 
   // Partidos
@@ -879,6 +872,29 @@ function uP(el){
   const id=el.dataset.i,s=el.dataset.s;
   if(!myPreds[id])myPreds[id]={h:'',a:''};
   myPreds[id][s]=el.value===''?'':parseInt(el.value);
+  scheduleAutoSave();
+}
+
+function scheduleAutoSave(){
+  clearTimeout(_predSaveTimer);
+  _predSaveTimer = setTimeout(autoSavePreds, 1200);
+}
+
+async function autoSavePreds(){
+  const data=[];
+  for(const [mid,v] of Object.entries(myPreds)){
+    const match=MA.find(x=>String(x.i)===String(mid));
+    if(match&&isLocked(match)) continue;
+    if(v.h!==''&&v.a!=='') data.push({mid,h:v.h,a:v.a});
+  }
+  if(!data.length) return;
+  try{
+    await api('savePredictions',{name:ME,data:data});
+    S.pr[ME]=JSON.parse(JSON.stringify(myPreds));
+    toast('💾 Guardado automáticamente','ok');
+  }catch(e){
+    // Silent fail — don't annoy user on network hiccup
+  }
 }
 
 // PREMIOS — vista predicciones con cards de candidatos
@@ -1029,73 +1045,17 @@ function cP(p,r){
   if(Math.sign(ph-pa)===Math.sign(rh-ra))return 1;
   return 0;
 }
-// ============================================================
-// BRACKET + AWARDS SCORING
-// ============================================================
-const BRACKET_PTS = {r32:1, r16:2, qf:3, sf:4, final:5};
-
-function getBracketTeamsForRound(bData, roundName){
-  if(!bData) return [];
-  const sv={o:bracketOrder,w:bracketWinners,c:confirmedGroups,t:qualifiedThirdGroups};
-  bracketOrder=bData.order||{};bracketWinners=bData.winners||{};confirmedGroups=bData.confirmed||{};qualifiedThirdGroups=bData.thirds||{};
-  let teams=[];
-  try{
-    if(roundName==='r32'){R32.forEach(m=>{const t=getMatchTeams(m.id);if(t.home)teams.push(t.home);if(t.away)teams.push(t.away);});}
-    else if(roundName==='r16'){getR16Pairs().forEach(m=>{const w=bData.winners[m.prev[0]],w2=bData.winners[m.prev[1]];if(w)teams.push(w);if(w2)teams.push(w2);});}
-    else if(roundName==='qf'){getQFPairs().forEach(m=>{const w=bData.winners[m.prev[0]],w2=bData.winners[m.prev[1]];if(w)teams.push(w);if(w2)teams.push(w2);});}
-    else if(roundName==='sf'){getSFPairs().forEach(m=>{const w=bData.winners[m.prev[0]],w2=bData.winners[m.prev[1]];if(w)teams.push(w);if(w2)teams.push(w2);});}
-    else if(roundName==='final'){const ft=getFinalAndThird();const w1=bData.winners[ft.final.prev[0]],w2=bData.winners[ft.final.prev[1]];if(w1)teams.push(w1);if(w2)teams.push(w2);}
-  }catch(e){}
-  bracketOrder=sv.o;bracketWinners=sv.w;confirmedGroups=sv.c;qualifiedThirdGroups=sv.t;
-  return[...new Set(teams)];
-}
-function getR32MatchTeamsMap(bData){
-  const sv={o:bracketOrder,w:bracketWinners,c:confirmedGroups,t:qualifiedThirdGroups};
-  bracketOrder=bData.order||{};bracketWinners=bData.winners||{};confirmedGroups=bData.confirmed||{};qualifiedThirdGroups=bData.thirds||{};
-  const map={};try{R32.forEach(m=>{const t=getMatchTeams(m.id);map[m.id]={home:t.home,away:t.away};});}catch(e){}
-  bracketOrder=sv.o;bracketWinners=sv.w;confirmedGroups=sv.c;qualifiedThirdGroups=sv.t;return map;
-}
-function calcBracketPoints(nm){
-  const myAw=S.awPred[nm]||{};const raw=myAw.__bracket__;
-  if(!raw)return{total:0,detail:{}};
-  let bData;try{bData=typeof raw==='string'?JSON.parse(raw):raw;}catch(e){return{total:0,detail:{}};}
-  const realRaw=(S.aw||{}).__bracket__;if(!realRaw)return{total:0,detail:{}};
-  let rData;try{rData=typeof realRaw==='string'?JSON.parse(realRaw):realRaw;}catch(e){return{total:0,detail:{}};}
-  let total=0;const detail={};
-  // R32: bonus for exact match
-  const predMap=getR32MatchTeamsMap(bData),realMap=getR32MatchTeamsMap(rData);
-  const actualR32=getBracketTeamsForRound(rData,'r32'),predictedR32=getBracketTeamsForRound(bData,'r32');
-  let r32Pts=0,r32Hits=0,r32Exact=0;
-  for(const team of predictedR32){if(actualR32.includes(team)){r32Hits++;let exact=false;
-    for(const mid of Object.keys(predMap)){const p=predMap[mid],r=realMap[mid];if((p.home===team||p.away===team)&&(r.home===team||r.away===team)){exact=true;break;}}
-    if(exact){r32Pts+=2;r32Exact++;}else{r32Pts+=1;}}}
-  detail.r32={pts:r32Pts,hits:r32Hits,exact:r32Exact,total:predictedR32.length};total+=r32Pts;
-  for(const round of['r16','qf','sf','final']){
-    const predicted=getBracketTeamsForRound(bData,round),actual=getBracketTeamsForRound(rData,round);
-    let rPts=0,hits=0;for(const team of predicted){if(actual.includes(team)){rPts+=BRACKET_PTS[round];hits++;}}
-    detail[round]={pts:rPts,hits,total:predicted.length};total+=rPts;}
-  return{total,detail};
-}
-function calcAwardPoints(nm){
-  const myP=S.awPred[nm]||{},realA=S.aw||{};let pts=0,hits=0;
-  AWARDS.forEach(a=>{const pred=(myP[a.id]||'').trim().toLowerCase(),real=(realA[a.id]||'').trim().toLowerCase();
-    if(pred&&real&&pred===real){pts+=5;hits++;}});return{pts,hits};
-}
-function calcAllPoints(nm){
-  const pr=S.pr[nm]||{};let mEx=0,mOc=0,mWr=0;
-  MA.forEach(x=>{const p=pr[x.i],r=S.r[x.i];if(p&&p.h!==''&&p.a!==''&&r&&r.h!==''&&r.a!==''){const pt=cP(p,r);if(pt===3)mEx++;else if(pt===1)mOc++;else mWr++;}});
-  const mPts=mEx*3+mOc,br=calcBracketPoints(nm),aw=calcAwardPoints(nm);
-  return{matchPts:mPts,matchEx:mEx,matchOc:mOc,matchWr:mWr,bracketPts:br.total,bracketDetail:br.detail,awardPts:aw.pts,awardHits:aw.hits,total:mPts+br.total+aw.pts};
-}
-
 
 // ============================================================
 // RANKING
 // ============================================================
 function rLB(){
   const st=S.p.map(nm=>{
-    const all=calcAllPoints(nm);
-    return{nm,pts:all.total,matchPts:all.matchPts,ex:all.matchEx,oc:all.matchOc,wr:all.matchWr,bracketPts:all.bracketPts,awardPts:all.awardPts};
+    const pr=S.pr[nm]||{};let ex=0,oc=0,wr=0;
+    MA.forEach(x=>{const p=pr[x.i];const r=S.r[x.i];
+      if(p&&p.h!==''&&p.a!==''&&r&&r.h!==''&&r.a!==''){const pt=cP(p,r);if(pt===3)ex++;else if(pt===1)oc++;else wr++;}
+    });
+    return{nm,pts:ex*3+oc,ex,oc,wr};
   }).sort((a,b)=>b.pts-a.pts||b.ex-a.ex||b.oc-a.oc);
 
   const mw=MA.filter(x=>{const r=S.r[x.i];return r&&r.h!==''&&r.a!=='';}).length;
@@ -1106,14 +1066,11 @@ function rLB(){
   const c=document.getElementById('lcc');
   if(!st.length){c.innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)"><div style="font-size:3rem">🏆</div><p>Aún no hay datos</p></div>';return;}
   const md=['🥇','🥈','🥉'];
-  c.innerHTML='<table><thead><tr><th>#</th><th>Nombre</th><th>Total</th><th>⚽</th><th>🏆</th><th>🏅</th><th>✅</th><th>〜</th><th>❌</th></tr></thead><tbody>'+
+  c.innerHTML='<table><thead><tr><th>#</th><th>Nombre</th><th>Pts</th><th>✅</th><th>〜</th><th>❌</th></tr></thead><tbody>'+
     st.map((s,i)=>'<tr class="'+(s.nm===ME?'me':'')+'">'+
       '<td class="rk">'+(md[i]||(i+1))+'</td>'+
       '<td class="nm">'+s.nm+(s.nm===ME?' ⬅':'')+'</td>'+
       '<td class="pt">'+s.pts+'</td>'+
-      '<td style="color:var(--text2)">'+s.matchPts+'</td>'+
-      '<td style="color:var(--gold)">'+s.bracketPts+'</td>'+
-      '<td style="color:var(--outcome)">'+s.awardPts+'</td>'+
       '<td class="se">'+s.ex+'</td>'+
       '<td class="so">'+s.oc+'</td>'+
       '<td class="sw">'+s.wr+'</td>'+
@@ -1181,29 +1138,12 @@ function rParticipantes() {
   });
 }
 
-let partDetailCurrentNm = '';
-let partDetailSubTab = 'partidos';
 function showPartDetail(nm) {
   document.getElementById('part-list').style.display = 'none';
   document.getElementById('part-detail').style.display = '';
   document.getElementById('part-detail-name').textContent = nm + (nm===ME?' (tú)':'');
-  partDetailCurrentNm = nm;
   partDetailJornada = 0;
-  partDetailSubTab = 'partidos';
   renderPartDetail(nm);
-  renderPartSubTab();
-  document.querySelectorAll('#part-subtabs button').forEach(btn => {
-    btn.onclick = function(){ partDetailSubTab = this.dataset.partsub; renderPartSubTab(); };
-  });
-}
-function renderPartSubTab(){
-  document.querySelectorAll('#part-subtabs button').forEach(b => b.classList.toggle('active', b.dataset.partsub === partDetailSubTab));
-  document.getElementById('part-sub-partidos').style.display = partDetailSubTab==='partidos'?'':'none';
-  document.getElementById('part-sub-premios').style.display = partDetailSubTab==='premios'?'':'none';
-  document.getElementById('part-sub-cuadro').style.display = partDetailSubTab==='cuadro'?'':'none';
-  if(partDetailSubTab==='partidos') renderPartDetail(partDetailCurrentNm);
-  if(partDetailSubTab==='premios') renderPartDetailPremios(partDetailCurrentNm);
-  if(partDetailSubTab==='cuadro') renderPartDetailCuadro(partDetailCurrentNm);
 }
 
 function renderPartDetail(nm) {
@@ -1246,8 +1186,9 @@ function renderPartDetail(nm) {
         else if(pt===1){rc=' ro';badge='<span class="badge badge-oc">+1</span>';}
         else{rc=' rw';badge='<span class="badge badge-wr">0</span>';}
       }
-      if(!hasPred) return '';
-      const predDisplay = '<div class="mc-result" style="font-size:.85rem">'+p.h+' - '+p.a+'</div>';
+      const predDisplay = hasPred
+        ? '<div class="mc-result" style="font-size:.85rem">'+p.h+' - '+p.a+'</div>'
+        : '<div style="font-size:.72rem;color:var(--text2)">Sin pred.</div>';
       return '<div class="mc'+rc+'">'+
         (badge?'<div class="mc-pts">'+badge+'</div>':'')+
         '<div class="mc-home">'+es(x.h)+' '+flag(x.h)+'</div>'+
@@ -1266,70 +1207,6 @@ function renderPartDetail(nm) {
 
 
 // ═════════════════════════════════════════════════════════════
-
-// ── PARTICIPANT DETAIL: PREMIOS ─────────────────────────────
-function renderPartDetailPremios(nm){
-  const c=document.getElementById('part-sub-premios');
-  const myP=S.awPred[nm]||{},realA=S.aw||{};
-  c.innerHTML=AWARDS.map(a=>{
-    const pred=myP[a.id]||'',real=realA[a.id]||'';
-    if(!pred) return '';
-    const correct=real&&pred&&pred.trim().toLowerCase()===real.trim().toLowerCase();
-    const cand=a.candidates.find(x=>x.name===pred);
-    const fc2=cand?(FC[cand.country]||''):'';
-    const fi=fc2?'<img src="https://flagcdn.com/w40/'+fc2+'.png" width="20" height="14" style="vertical-align:middle;border-radius:2px">':'';
-    return '<div class="award-card"><div class="aw-title">'+a.emoji+' '+a.title+'</div>'+
-      '<div style="display:flex;align-items:center;gap:8px;margin-top:8px">'+
-      (cand?'<img src="'+cand.img+'" style="width:40px;height:40px;border-radius:50%;object-fit:cover">':'')+
-      '<div><div style="font-weight:700;font-size:.9rem">'+fi+' '+pred+'</div>'+
-      (real?'<div style="font-size:.75rem;margin-top:2px;color:var(--text2)">Real: <span style="color:var(--gold);font-weight:700">'+real+'</span>'+
-        (correct?' <span class="badge badge-ex" style="margin-left:4px">+5</span>':' <span class="badge badge-wr" style="margin-left:4px">\u2717</span>')+
-      '</div>':'')+
-      '</div></div></div>';
-  }).filter(x=>x).join('')||'<div style="text-align:center;padding:30px;color:var(--text2)">No ha predicho premios.</div>';
-}
-
-// ── PARTICIPANT DETAIL: CUADRO ──────────────────────────────
-function renderPartDetailCuadro(nm){
-  const c=document.getElementById('part-sub-cuadro');
-  const myAw=S.awPred[nm]||{},raw=myAw.__bracket__;
-  if(!raw){c.innerHTML='<div style="text-align:center;padding:30px;color:var(--text2)">No ha rellenado el cuadro.</div>';return;}
-  let data;try{data=typeof raw==='string'?JSON.parse(raw):raw;}catch(e){c.innerHTML='Error';return;}
-  const order=data.order||{},winners=data.winners||{},confirmed=data.confirmed||{},thirds=data.thirds||{};
-  let h='<div style="font-weight:700;font-size:.95rem;margin-bottom:10px">Prediccion de grupos</div><div class="cg-grid">';
-  for(const g of Object.keys(GR)){
-    const teams=order[g]||GR[g];
-    h+='<div class="group-card"><div class="gh">GRUPO '+g+(confirmed[g]?' ✅':'')+'</div>';
-    teams.forEach((t,i)=>{
-      const lbl=['1º','2º','3º','4º'][i];
-      const tq=i===2&&thirds[g];
-      h+='<div class="tr"><span style="font-size:.7rem;color:var(--text2);width:20px">'+lbl+'</span> '+flag(t)+' <span>'+es(t)+'</span>'+(tq?'<span style="font-size:.6rem;background:var(--gold);color:var(--primary);padding:1px 5px;border-radius:6px;margin-left:4px;font-weight:700">3º</span>':'')+'</div>';
-    });
-    h+='</div>';
-  }
-  h+='</div><div style="font-weight:700;font-size:.95rem;margin:18px 0 10px">Prediccion del cuadro</div>';
-  const rn={r32:'Dieciseisavos',r16:'Octavos',qf:'Cuartos',sf:'Semifinales',final:'Final'};
-  const rt={};
-  const sv={o:bracketOrder,w:bracketWinners,c:confirmedGroups,t:qualifiedThirdGroups};
-  bracketOrder=order;bracketWinners=winners;confirmedGroups=confirmed;qualifiedThirdGroups=thirds;
-  try{
-    rt.r32=[];R32.forEach(m=>{const t=getMatchTeams(m.id);if(t.home)rt.r32.push(t.home);if(t.away)rt.r32.push(t.away);});
-    rt.r16=[];getR16Pairs().forEach(m=>{const w=winners[m.prev[0]],w2=winners[m.prev[1]];if(w)rt.r16.push(w);if(w2)rt.r16.push(w2);});
-    rt.qf=[];getQFPairs().forEach(m=>{const w=winners[m.prev[0]],w2=winners[m.prev[1]];if(w)rt.qf.push(w);if(w2)rt.qf.push(w2);});
-    rt.sf=[];getSFPairs().forEach(m=>{const w=winners[m.prev[0]],w2=winners[m.prev[1]];if(w)rt.sf.push(w);if(w2)rt.sf.push(w2);});
-    rt.final=[];const ft=getFinalAndThird();const fw1=winners[ft.final.prev[0]],fw2=winners[ft.final.prev[1]];if(fw1)rt.final.push(fw1);if(fw2)rt.final.push(fw2);
-    const champ=winners[104];
-    if(champ) h+='<div style="text-align:center;margin-bottom:14px"><div class="br-champion-box" style="display:inline-block"><div class="ch-label">Campeon predicho</div><div class="ch-name">'+flag(champ)+' '+es(champ)+'</div></div></div>';
-  }catch(e){}
-  bracketOrder=sv.o;bracketWinners=sv.w;confirmedGroups=sv.c;qualifiedThirdGroups=sv.t;
-  for(const[round,label] of Object.entries(rn)){
-    const teams=[...new Set(rt[round]||[])];if(!teams.length)continue;
-    h+='<div style="margin-bottom:10px"><div style="font-size:.8rem;font-weight:700;color:var(--gold);margin-bottom:4px">'+label+' ('+teams.length+')</div><div style="display:flex;flex-wrap:wrap;gap:6px">'+
-      teams.map(t=>'<span style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:.78rem;display:inline-flex;align-items:center;gap:4px">'+flag(t)+' '+es(t)+'</span>').join('')+'</div></div>';
-  }
-  c.innerHTML=h;
-}
-
 // CUADRO ELIMINATORIO (BRACKET)
 // ═════════════════════════════════════════════════════════════
 
@@ -1659,7 +1536,7 @@ function rCuadroGroups(){
         : (isTouchDevice() ? 'usa ↑↓ y confirma' : 'arrastra y confirma');
       return `<div class="${cardClass}">
         <div class="cg-head">
-          <span>GRUPO ${g}</span>
+          <span class="cg-grp-name">GRUPO ${g}</span>
           <span class="cg-hint">${hint}</span>
         </div>
         ${teams.map((t, idx) => {
@@ -2031,18 +1908,18 @@ function rCuadroBracket(){
   // Each match: column, rowStart, rowSpan
   const cells = [];
   // Left R32: column 1, rows 1-2,3-4,...,15-16
-  leftR32.forEach((id,i)=>cells.push({id, col:1, row:i*2+1, span:2}));
+  leftR32.forEach((id,i)=>cells.push({id, col:1, row:i*2+2, span:2}));
   // Right R32: column 9
-  rightR32.forEach((id,i)=>cells.push({id, col:9, row:i*2+1, span:2}));
+  rightR32.forEach((id,i)=>cells.push({id, col:9, row:i*2+2, span:2}));
   // Left R16: column 2, rows 1-4, 5-8, 9-12, 13-16
-  leftR16.forEach((id,i)=>cells.push({id, col:2, row:i*4+1, span:4}));
-  rightR16.forEach((id,i)=>cells.push({id, col:8, row:i*4+1, span:4}));
+  leftR16.forEach((id,i)=>cells.push({id, col:2, row:i*4+2, span:4}));
+  rightR16.forEach((id,i)=>cells.push({id, col:8, row:i*4+2, span:4}));
   // Left QF: column 3, rows 1-8, 9-16
-  leftQF.forEach((id,i)=>cells.push({id, col:3, row:i*8+1, span:8}));
-  rightQF.forEach((id,i)=>cells.push({id, col:7, row:i*8+1, span:8}));
+  leftQF.forEach((id,i)=>cells.push({id, col:3, row:i*8+2, span:8}));
+  rightQF.forEach((id,i)=>cells.push({id, col:7, row:i*8+2, span:8}));
   // SF: column 4 and 6, full 16
-  cells.push({id:leftSF, col:4, row:1, span:16});
-  cells.push({id:rightSF, col:6, row:1, span:16});
+  cells.push({id:leftSF, col:4, row:2, span:16});
+  cells.push({id:rightSF, col:6, row:2, span:16});
 
   // Determine medals
   const champion = bracketWinners[finalId];
@@ -2064,12 +1941,12 @@ function rCuadroBracket(){
 
   // FINAL: column 5, rows 7-10 (4 rows centered)
   const finalInfo = mInfo(finalId);
-  const finalCardHTML = `<div style="grid-column:5;grid-row:7 / span 4;display:flex;align-items:center" id="match-cell-${finalId}">
+  const finalCardHTML = `<div style="grid-column:5;grid-row:8 / span 4;display:flex;align-items:center" id="match-cell-${finalId}">
     ${renderMatchTree(finalId, finalInfo.date, finalInfo.v, true, '')}
   </div>`;
 
   // CHAMPION box: column 5, rows 1-5
-  const championBoxHTML = `<div style="grid-column:5;grid-row:2 / span 4;display:flex;align-items:center;justify-content:center" id="champion-box-cell">
+  const championBoxHTML = `<div style="grid-column:5;grid-row:3 / span 4;display:flex;align-items:center;justify-content:center" id="champion-box-cell">
     ${champion
       ? `<div class="br-champion-box"><div class="ch-label">🏆 Campeón</div><div class="ch-name">${flag(champion)} ${es(champion)}</div></div>`
       : ``}
@@ -2077,29 +1954,28 @@ function rCuadroBracket(){
 
   // 3rd place: column 5, rows 12-15
   const thirdInfo = mInfo(thirdId);
-  const thirdCardHTML = `<div style="grid-column:5;grid-row:12 / span 4;display:flex;flex-direction:column;justify-content:center;gap:4px" id="match-cell-${thirdId}">
+  const thirdCardHTML = `<div style="grid-column:5;grid-row:13 / span 4;display:flex;flex-direction:column;justify-content:center;gap:4px" id="match-cell-${thirdId}">
     <div style="font-size:.6rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);text-align:center;font-weight:700">3er puesto</div>
     ${renderMatchTree(thirdId, thirdInfo.date, thirdInfo.v, false, '')}
   </div>`;
 
   // Column titles (positioned absolutely above col 1)
   const titlesHTML = `
-    <div class="br-titles-row">
-    <div class="br-title">Dieciseisavos</div>
-    <div class="br-title">Octavos</div>
-    <div class="br-title">Cuartos</div>
-    <div class="br-title">Semis</div>
-    <div class="br-title">🏆 Final</div>
-    <div class="br-title">Semis</div>
-    <div class="br-title">Cuartos</div>
-    <div class="br-title">Octavos</div>
-    <div class="br-title">Dieciseisavos</div>
-    </div>`;
+    <div class="br-title" style="grid-column:1;grid-row:1">Dieciseisavos</div>
+    <div class="br-title" style="grid-column:2;grid-row:1">Octavos</div>
+    <div class="br-title" style="grid-column:3;grid-row:1">Cuartos</div>
+    <div class="br-title" style="grid-column:4;grid-row:1">Semis</div>
+    <div class="br-title" style="grid-column:5;grid-row:1">🏆 Final</div>
+    <div class="br-title" style="grid-column:6;grid-row:1">Semis</div>
+    <div class="br-title" style="grid-column:7;grid-row:1">Cuartos</div>
+    <div class="br-title" style="grid-column:8;grid-row:1">Octavos</div>
+    <div class="br-title" style="grid-column:9;grid-row:1">Dieciseisavos</div>
+  `;
 
   container.innerHTML = warningHTML + `
     <div class="br-rounds">
-      ${titlesHTML}
       <div class="br-tree">
+        ${titlesHTML}
         ${matchesHTML}
         ${finalCardHTML}
         ${championBoxHTML}
@@ -2108,30 +1984,26 @@ function rCuadroBracket(){
     </div>`;
 
   // Wire winner selection — partial updates
-  setupBracketDelegation();
+  wireBracketTeamClicks(container);
 }
 
-let _bracketDelegated = false;
-function setupBracketDelegation(){
-  if(_bracketDelegated) return;
-  const container = document.getElementById('cuadro-panel-bracket');
-  if(!container) return;
-  container.addEventListener('click', function(e){
-    const teamEl = e.target.closest('.br-team[data-mid]');
-    if(!teamEl) return;
-    const mid = parseInt(teamEl.dataset.mid);
-    const team = teamEl.dataset.team;
-    if(!team) return;
-    const scrollX = window.scrollX, scrollY = window.scrollY;
-    const rounds = document.querySelector('.br-rounds');
-    const innerScrollLeft = rounds ? rounds.scrollLeft : 0;
-    selectWinnerPartial(mid, team);
-    requestAnimationFrame(()=>{
-      window.scrollTo(scrollX, scrollY);
-      if(rounds) rounds.scrollLeft = innerScrollLeft;
+function wireBracketTeamClicks(container){
+  container.querySelectorAll('.br-team[data-mid]').forEach(el => {
+    el.addEventListener('click', function(){
+      const mid = parseInt(this.dataset.mid);
+      const team = this.dataset.team;
+      if(!team) return;
+      const scrollX = window.scrollX, scrollY = window.scrollY;
+      const rounds = document.querySelector('.br-rounds');
+      const innerScrollLeft = rounds ? rounds.scrollLeft : 0;
+      selectWinnerPartial(mid, team);
+      // Restore scroll positions after DOM update
+      requestAnimationFrame(()=>{
+        window.scrollTo(scrollX, scrollY);
+        if(rounds) rounds.scrollLeft = innerScrollLeft;
+      });
     });
   });
-  _bracketDelegated = true;
 }
 
 // Partial update — only update affected matches, not whole bracket
@@ -2204,7 +2076,7 @@ function selectWinnerPartial(matchId, team){
   }
 
   // Re-wire click handlers for all bracket cells (only the affected ones changed inner HTML)
-  // delegation already set up
+  wireBracketTeamClicks(document.getElementById('cuadro-panel-bracket'));
 }
 
 // Keep old selectWinner for full-render path; not used by clicks anymore
@@ -2318,7 +2190,7 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('logout-btn').addEventListener('click',logout);
   document.getElementById('sync-btn').addEventListener('click',syncAll);
   document.getElementById('live-btn').addEventListener('click',fetchLiveResults);
-  document.getElementById('save-btn').addEventListener('click',saveMine);
+  // save-btn removed — auto-save via uP debounce
   document.getElementById('save-awards-btn').addEventListener('click',saveAwardsPred);
   document.getElementById('save-res-btn').addEventListener('click',saRes);
   document.getElementById('save-awards-admin-btn').addEventListener('click',saveAwardsAdmin);

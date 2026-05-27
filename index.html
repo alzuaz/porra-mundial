@@ -310,6 +310,24 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .aw-simple-team{font-size:.78rem;color:var(--text2);display:flex;align-items:center;gap:5px;margin-bottom:8px}
 .aw-simple-change{font-size:.72rem;color:var(--gold);text-decoration:underline;cursor:pointer;background:none;border:none;padding:0}
 
+
+/* ── PREDICTION STATES ─────────────────────────────────── */
+.mc.window-open{border:1px solid var(--gold);box-shadow:0 0 0 1px rgba(245,197,24,.15)}
+.mc.window-closed{opacity:.6}
+.mc-status{font-size:.62rem;font-weight:700;padding:2px 6px;border-radius:6px;text-align:center;margin-top:3px;letter-spacing:.3px}
+.mc-status.confirmed{background:rgba(39,174,96,.18);color:var(--exact)}
+.mc-status.pending{background:rgba(245,197,24,.18);color:var(--gold)}
+.mc-status.countdown{background:rgba(160,160,184,.12);color:var(--text2)}
+.mc-actions{display:flex;gap:6px;justify-content:center;margin-top:4px}
+.mc-btn-confirm,.mc-btn-del{border:none;border-radius:6px;font-size:.62rem;font-weight:700;cursor:pointer;padding:4px 10px;-webkit-tap-highlight-color:transparent}
+.mc-btn-confirm{background:var(--exact);color:#fff}
+.mc-btn-confirm:hover{background:#22a259}
+.mc-btn-del{background:rgba(231,76,60,.18);color:var(--wrong)}
+.mc-btn-del:hover{background:var(--wrong);color:#fff}
+.mc-lock{font-size:.72rem;color:var(--text2);text-align:center;padding:4px 0}
+
+.btn-d{background:rgba(231,76,60,.18);color:var(--wrong);border:1px solid var(--wrong)}
+.btn-d:hover{background:var(--wrong);color:#fff}
 .admin-only{display:none}
 .is-admin .admin-only{display:block}
 .is-admin .admin-tab{display:initial !important}
@@ -418,8 +436,11 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
         <div id="cuadro-panel-groups"></div>
         <div id="cuadro-panel-bracket" style="display:none"></div>
         <div style="margin-top:16px;text-align:center">
-          <button class="btn btn-g" id="save-bracket-btn" style="padding:14px 40px;font-size:1rem">💾 Guardar predicción del cuadro</button>
+          <button class="btn btn-g" id="save-bracket-btn" style="padding:12px 28px;font-size:.95rem">💾 Guardar</button>
+          <button class="btn btn-g" id="confirm-bracket-btn" style="padding:12px 28px;font-size:.95rem;background:var(--exact);border-color:var(--exact);color:#fff">✅ Confirmar definitivamente</button>
+          <button class="btn btn-d" id="delete-bracket-btn" style="padding:12px 28px;font-size:.95rem;background:rgba(231,76,60,.18);color:var(--wrong);border:1px solid var(--wrong)">🗑️ Eliminar predicción</button>
         </div>
+        <div id="bracket-confirm-status" style="text-align:center;margin-top:10px"></div>
       </div>
     </div>
 
@@ -515,7 +536,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 // ============================================================
 // CONFIG
 // ============================================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbygnsZrfwYx1fueixcG1SKoBFE1aicu-kau0JXb27y6nKN0KYH7ZWa-PZtuUEyiy6Wm3A/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxPSvqFzY8iFxYkj52gxqZnjUGYR4cmRO4LCzwAR5hNlFn_OVevg6HXLjicXlfG1t09Sg/exec';
 const ADMIN_HASH = 'ef62ae87d68dc864970d30e60a1f448c8480a0b839d801fe49b6667c35bed4e3';
 
 // ── API RESULTADOS EN DIRECTO ────────────────────────────────
@@ -786,7 +807,7 @@ const MA=[
 // ============================================================
 // ESTADO
 // ============================================================
-let S={p:[],pr:{},r:{},aw:{},awPred:{}};
+let S={cf:{},p:[],pr:{},r:{},aw:{},awPred:{}};
 let ME='';
 let IS_ADMIN=false;
 
@@ -797,7 +818,53 @@ function koDate(m){
   const[y,mo,d,h,mi]=m.ko;
   return new Date(Date.UTC(y,mo-1,d,h-2,mi)); // CEST = UTC+2
 }
-function isLocked(m){return Date.now()>=koDate(m).getTime()-15*60*1000;}
+const LOCK_MS = 15*60*1000;      // 15 min before kickoff: lock prediction
+const WINDOW_MS = 24*60*60*1000; // 24 hours before kickoff: prediction opens
+
+// First-day matches are always available (June 11, 2026 — opening day)
+const FIRST_DAY_MATCH_IDS = [1, 2]; // Mexico-RSA, Korea-Czechia
+
+function isLocked(m){return Date.now()>=koDate(m).getTime()-LOCK_MS;}
+
+function isPredictionOpen(m){
+  // Always open for first-day matches
+  if(FIRST_DAY_MATCH_IDS.includes(m.i)) return true;
+  // Open if kickoff is within next 24h
+  const ko = koDate(m).getTime();
+  const now = Date.now();
+  return (ko - now) <= WINDOW_MS;
+}
+
+function timeUntilWindow(m){
+  // Returns ms until prediction window opens (negative if already open)
+  if(FIRST_DAY_MATCH_IDS.includes(m.i)) return -1;
+  const ko = koDate(m).getTime();
+  return (ko - Date.now()) - WINDOW_MS;
+}
+
+function fmtCountdown(ms){
+  if(ms<=0) return '';
+  const days = Math.floor(ms/(24*60*60*1000));
+  const hrs = Math.floor((ms%(24*60*60*1000))/(60*60*1000));
+  const mins = Math.floor((ms%(60*60*1000))/(60*1000));
+  if(days>0) return days+'d '+hrs+'h';
+  if(hrs>0) return hrs+'h '+mins+'m';
+  return mins+'m';
+}
+
+// Confirmation state — separate from predictions
+// S.cf = {matchId: true, 'aw_mvp': true, 'br': true}
+function isConfirmed(key){ return !!(S.cf && S.cf[key]); }
+
+function isMatchConfirmed(m){
+  if(!S.cf) return false;
+  return !!S.cf[m.i] || isLocked(m); // auto-confirm at lock time
+}
+
+function canEdit(m){
+  if(isMatchConfirmed(m)) return false;
+  return isPredictionOpen(m);
+}
 function fmtTime(m){const[,,,h,mi]=m.ko;return h.toString().padStart(2,'0')+':'+(mi===0?'00':mi.toString().padStart(2,'0'))+' h';}
 
 // ============================================================
@@ -930,6 +997,94 @@ function totalAwardPoints(nm){
   return total;
 }
 
+
+// ── CONFIRMATION API ──────────────────────────────────────
+async function confirmPrediction(key){
+  if(!S.cf) S.cf={};
+  S.cf[key] = true;
+  try{
+    await api('saveConfirmations',{name:ME,data:S.cf});
+    toast('✅ Confirmado','ok');
+    renderAll();
+  }catch(e){
+    delete S.cf[key];
+    toast('Error: '+e.message,'err');
+  }
+}
+
+async function unconfirmPrediction(key){
+  // Allowed only if not yet locked by time
+  if(!S.cf || !S.cf[key]) return;
+  delete S.cf[key];
+  try{
+    await api('saveConfirmations',{name:ME,data:S.cf});
+    toast('🔓 Desconfirmado','ok');
+    renderAll();
+  }catch(e){
+    S.cf[key] = true;
+    toast('Error: '+e.message,'err');
+  }
+}
+
+async function deletePrediction(matchId){
+  // Don't allow if confirmed (by user or by time)
+  const m = MA.find(x=>String(x.i)===String(matchId));
+  if(!m) return;
+  if(isMatchConfirmed(m)){
+    toast('No puedes borrar una predicción confirmada','err');
+    return;
+  }
+  delete myPreds[matchId];
+  try{
+    await api('deletePrediction',{name:ME,matchId:matchId});
+    if(S.pr[ME]) delete S.pr[ME][matchId];
+    toast('🗑️ Predicción eliminada','ok');
+    rPred();
+  }catch(e){
+    toast('Error: '+e.message,'err');
+  }
+}
+
+async function deleteAwardPrediction(awardId){
+  const cfKey = 'aw_'+awardId;
+  if(isConfirmed(cfKey)){
+    toast('No puedes borrar un premio confirmado','err');
+    return;
+  }
+  delete myAwardPreds[awardId];
+  if(S.awPred[ME]) delete S.awPred[ME][awardId];
+  try{
+    await api('deleteAwardPrediction',{name:ME,awardId:awardId});
+    toast('🗑️ Predicción eliminada','ok');
+    rAwardsPred();
+  }catch(e){
+    toast('Error: '+e.message,'err');
+  }
+}
+
+async function deleteBracketPrediction(){
+  if(isConfirmed('br')){
+    toast('No puedes borrar un cuadro confirmado','err');
+    return;
+  }
+  bracketOrder = {};
+  bracketWinners = {};
+  confirmedGroups = {};
+  qualifiedThirdGroups = {};
+  // Clear from awPred
+  if(myAwardPreds.__bracket__) delete myAwardPreds.__bracket__;
+  if(S.awPred[ME]&&S.awPred[ME].__bracket__) delete S.awPred[ME].__bracket__;
+  try{
+    await api('saveAwardPredictions',{name:ME,data:myAwardPreds});
+    toast('🗑️ Cuadro eliminado','ok');
+    rCuadroGroups();
+    rCuadroBracket();
+  }catch(e){
+    toast('Error: '+e.message,'err');
+  }
+}
+
+
 // ── RESULTADOS EN DIRECTO ───────────────────────────────────
 async function fetchLiveResults(){
   if(!WC_API_KEY){toast('Sin API key configurada','err');return false;}
@@ -968,18 +1123,31 @@ async function fetchLiveResults(){
 async function syncAll(){
   try{
     toast('Sincronizando...','ok');
-    const r=await api('getAll');
-    S.p=r.participants||[];S.pr=r.predictions||{};S.r=r.results||{};
-    S.aw=r.awards||{};
-    S.awPred=r.awardPredictions||{};
+    const r = await api('getAll');
+    if(!r || r.error) throw new Error(r ? r.error : 'Respuesta vacía del servidor');
+    S.p  = r.participants    || [];
+    S.pr = r.predictions     || {};
+    S.r  = r.results         || {};
+    S.aw = r.awards          || {};
+    S.awPred = r.awardPredictions || {};
+    // Confirmations: {userName: {matchId: true, 'aw_mvp': true, ...}}
+    const allCf = r.cf || {};
+    S.cf = allCf[ME] || {};
     if(!S.p.includes(ME)){
       try{ await api('addParticipant',{name:ME}); }catch(_){}
       if(!S.p.includes(ME)) S.p.push(ME);
     }
+    // Init local preds from server (only if empty)
+    const serverPr = S.pr[ME] || {};
+    if(!myPreds || Object.keys(myPreds).length === 0)
+      myPreds = JSON.parse(JSON.stringify(serverPr));
+    if(!myAwardPreds || Object.keys(myAwardPreds).length === 0)
+      myAwardPreds = JSON.parse(JSON.stringify(S.awPred[ME] || {}));
     renderAll();
     toast('✅ Sincronizado','ok');
   }catch(e){
-    toast('Sin conexión — cargando en local','err');
+    console.error('syncAll error:', e);
+    toast('Error: ' + e.message,'err');
     if(!S.p.includes(ME)) S.p.push(ME);
     renderAll();
   }
@@ -1062,7 +1230,7 @@ function showPredSubTab(t){
   document.getElementById('pred-tab-premios').classList.toggle('active',t==='premios');
   document.getElementById('pred-tab-cuadro').classList.toggle('active',t==='cuadro');
   if(t==='premios') rAwardsPred();
-  if(t==='cuadro'){ loadBracket(); showCuadroStep('groups'); }
+  if(t==='cuadro'){ loadBracket(); showCuadroStep('groups'); updateBracketConfirmStatus(); }
 }
 
 function rPred(){
@@ -1094,31 +1262,60 @@ function rPred(){
   cc.innerHTML=Object.entries(bd).map(([d,xs])=>
     '<div class="mdh">'+d+' 2026</div>'+xs.map(x=>{
       const p=pr[x.i]||{h:'',a:''};const r=S.r[x.i];
-      const locked=isLocked(x);const hasResult=r&&r.h!==''&&r.a!=='';const hasPred=p.h!==''&&p.a!=='';
+      const locked=isLocked(x);
+      const windowOpen=isPredictionOpen(x);
+      const isConfirmedByUser=!!(S.cf&&S.cf[x.i]);
+      const isConfirmedByTime=locked;
+      const isFullyConfirmed=isConfirmedByUser||isConfirmedByTime;
+      const editable=windowOpen&&!isFullyConfirmed;
+      const hasResult=r&&r.h!==''&&r.a!=='';const hasPred=p.h!==''&&p.a!==''
       let rc='',badge='';
       if(hasResult&&hasPred){const pt=cP(p,r);
         if(pt===3){rc=' re';badge='<span class="badge badge-ex">+3</span>';}
         else if(pt===1){rc=' ro';badge='<span class="badge badge-oc">+1</span>';}
         else{rc=' rw';badge='<span class="badge badge-wr">0</span>';}
       }
-      return '<div class="mc'+rc+(locked?' locked':'')+'">'+
+      // Card status indicator
+      let statusBadge = '';
+      let cardClass = 'mc'+rc;
+      if(isFullyConfirmed){ cardClass += ' locked'; statusBadge='<div class="mc-status confirmed">🔒 Confirmado</div>'; }
+      else if(!windowOpen){
+        const t = timeUntilWindow(x);
+        cardClass += ' window-closed';
+        statusBadge = '<div class="mc-status countdown">⏳ Abre en '+fmtCountdown(t)+'</div>';
+      } else {
+        cardClass += ' window-open';
+        if(hasPred && !isConfirmedByUser) statusBadge='<div class="mc-status pending">✏️ Sin confirmar</div>';
+      }
+
+      return '<div class="'+cardClass+'">'+
         (badge?'<div class="mc-pts">'+badge+'</div>':'')+
         '<div class="mc-home">'+es(x.h)+' '+flag(x.h)+'</div>'+
         '<div class="mc-center"><div class="mc-meta">Grupo '+x.g+'</div>'+
         '<div class="mc-time">'+fmtTime(x)+'</div>'+
-        (locked&&!hasPred
-          ?'<div class="mc-lock">🔒 Cerrado</div>'
-          :'<div class="mc-score">'+
-            '<div class="mc-stepper">'+
-              (locked?'':'<div class="mc-step-btns mc-step-btns-left"><button class="mc-step-btn" data-i="'+x.i+'" data-s="h" data-dir="1">▲</button><button class="mc-step-btn" data-i="'+x.i+'" data-s="h" data-dir="-1">▼</button></div>')+
-              '<input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="20" value="'+p.h+'" data-i="'+x.i+'" data-s="h" placeholder="-"'+(locked?' disabled':'')+'>'+
-            '</div>'+
-            '<span class="sep" style="font-size:1.1rem;font-weight:700;color:var(--text2)">-</span>'+
-            '<div class="mc-stepper">'+
-              '<input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="20" value="'+p.a+'" data-i="'+x.i+'" data-s="a" placeholder="-"'+(locked?' disabled':'')+'>'+
-              (locked?'':'<div class="mc-step-btns"><button class="mc-step-btn" data-i="'+x.i+'" data-s="a" data-dir="1">▲</button><button class="mc-step-btn" data-i="'+x.i+'" data-s="a" data-dir="-1">▼</button></div>')+
-            '</div>'+
-          '</div>')+
+        ((!windowOpen)
+          ?'<div class="mc-lock">'+statusBadge+'</div>'
+          : (isFullyConfirmed&&!hasPred)
+            ?'<div class="mc-lock">🔒 Cerrado</div>'
+            :'<div class="mc-score">'+
+              '<div class="mc-stepper">'+
+                (!editable?'':'<div class="mc-step-btns mc-step-btns-left"><button class="mc-step-btn" data-i="'+x.i+'" data-s="h" data-dir="1">▲</button><button class="mc-step-btn" data-i="'+x.i+'" data-s="h" data-dir="-1">▼</button></div>')+
+                '<input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="20" value="'+p.h+'" data-i="'+x.i+'" data-s="h" placeholder="-"'+(!editable?' disabled':'')+'>'+
+              '</div>'+
+              '<span class="sep" style="font-size:1.1rem;font-weight:700;color:var(--text2)">-</span>'+
+              '<div class="mc-stepper">'+
+                '<input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="20" value="'+p.a+'" data-i="'+x.i+'" data-s="a" placeholder="-"'+(!editable?' disabled':'')+'>'+
+                (!editable?'':'<div class="mc-step-btns"><button class="mc-step-btn" data-i="'+x.i+'" data-s="a" data-dir="1">▲</button><button class="mc-step-btn" data-i="'+x.i+'" data-s="a" data-dir="-1">▼</button></div>')+
+              '</div>'+
+            '</div>')+
+        // Status row at bottom of mc-center
+        (windowOpen && hasPred && !isFullyConfirmed ?
+          '<div class="mc-actions">'+
+            '<button class="mc-btn-confirm" data-confirm="'+x.i+'">✅ Confirmar</button>'+
+            '<button class="mc-btn-del" data-del="'+x.i+'">🗑️</button>'+
+          '</div>' : '')+
+        (windowOpen && isConfirmedByUser && !isConfirmedByTime ?
+          '<div class="mc-actions"><span style="font-size:.65rem;color:var(--exact);font-weight:700">✓ Confirmado</span></div>' : '')+
         (hasResult?'<div class="mc-real">Real: '+r.h+'-'+r.a+'</div>':'')+
         '</div><div class="mc-away">'+flag(x.a)+' '+es(x.a)+'</div></div>';
     }).join('')).join('');
@@ -1127,6 +1324,20 @@ function rPred(){
     el.addEventListener('change',function(){uP(this);});
     el.addEventListener('input',function(){uP(this);});
   });
+  // Confirm and delete buttons
+  cc.querySelectorAll('.mc-btn-confirm').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      const mid = this.dataset.confirm;
+      confirmPrediction(mid);
+    });
+  });
+  cc.querySelectorAll('.mc-btn-del').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      const mid = this.dataset.del;
+      if(confirm('¿Eliminar tu predicción de este partido?')) deletePrediction(mid);
+    });
+  });
+
   // Step buttons use event delegation so they survive re-renders
   cc.removeEventListener('click', _stepBtnHandler);
   _stepBtnHandler = function(e){
@@ -1191,6 +1402,7 @@ let _awStep = 'teams';
 let _awTeam = null;
 
 function openAwardPicker(awardId, slot){
+  if(isConfirmed('aw_'+awardId)){ toast('Premio confirmado, no editable','err'); return; }
   _awModalAwardId = awardId;
   _awModalSlot = slot || null; // 'p1','p2','p3' or null for simple
   _awStep = 'teams';
@@ -1320,16 +1532,28 @@ function rAwardsPred(){
           </div>`;
         }
       }).join('');
-      return `<div class="award-card">
+      const cfKey='aw_'+a.id;
+      const isConf = isConfirmed(cfKey);
+      const hasPicks = pick && (pick.p1||pick.p2||pick.p3);
+      const actionsHTML = !isConf && hasPicks ?
+        '<div class="mc-actions" style="margin-top:8px"><button class="mc-btn-confirm" data-confaw="'+a.id+'">✅ Confirmar premio</button><button class="mc-btn-del" data-delaw="'+a.id+'">🗑️ Eliminar</button></div>' :
+        isConf ? '<div class="mc-actions" style="margin-top:8px"><span style="font-size:.65rem;color:var(--exact);font-weight:700">🔒 Confirmado</span></div>' : '';
+      return `<div class="award-card ${isConf?'locked':''}">
         <div class="aw-title">${a.emoji} ${a.title} ${ptsHTML}</div>
         <div class="aw-sub">${a.sub}</div>
         <div class="aw-hero" style="margin-top:10px">${slotsHTML}</div>
+        ${actionsHTML}
         ${real?renderAwardReal(a,real):''}
       </div>`;
     } else {
       const photoUrl = pick ? playerPhoto(pick.name) : '';
       const flagCode = pick ? (FC[pick.team]||'') : '';
-      return `<div class="award-card">
+      const cfKey2='aw_'+a.id;
+      const isConf2 = isConfirmed(cfKey2);
+      const actionsHTML2 = !isConf2 && pick ?
+        '<div class="mc-actions" style="margin-top:8px"><button class="mc-btn-confirm" data-confaw="'+a.id+'">✅ Confirmar premio</button><button class="mc-btn-del" data-delaw="'+a.id+'">🗑️ Eliminar</button></div>' :
+        isConf2 ? '<div class="mc-actions" style="margin-top:8px"><span style="font-size:.65rem;color:var(--exact);font-weight:700">🔒 Confirmado</span></div>' : '';
+      return `<div class="award-card ${isConf2?'locked':''}">
         <div class="aw-title">${a.emoji} ${a.title} ${ptsHTML}</div>
         <div class="aw-sub">${a.sub}</div>
         ${pick ? `<div class="aw-simple-hero">
@@ -1341,6 +1565,7 @@ function rAwardsPred(){
           </div>
         </div>` : ''}
         <button class="aw-pick-btn" data-award="${a.id}">${pick?'🔄 Cambiar':'🔍 Seleccionar jugador'}</button>
+        ${actionsHTML2}
         ${real?renderAwardReal(a,real):''}
       </div>`;
     }
@@ -1354,6 +1579,18 @@ function rAwardsPred(){
   container.querySelectorAll('.aw-sel-change,.aw-simple-change').forEach(el=>{
     el.addEventListener('click',function(e){ e.stopPropagation(); openAwardPicker(this.dataset.award, null); });
   });
+  // Confirm and delete award buttons
+  container.querySelectorAll('[data-confaw]').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      confirmPrediction('aw_'+this.dataset.confaw);
+    });
+  });
+  container.querySelectorAll('[data-delaw]').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      if(confirm('¿Eliminar tu predicción de este premio?')) deleteAwardPrediction(this.dataset.delaw);
+    });
+  });
+
   // Eagerly fetch wiki photos for selected players
   AWARDS.forEach(a=>{
     const pick = myAwardPreds[a.id];
@@ -1695,11 +1932,21 @@ function renderPartDetail(nm) {
 function renderPartMatches(nm){
   const pr = S.pr[nm] || {};
   const ms = partDetailJornada===0 ? MA : MA.filter(x=>x.m===partDetailJornada);
-  // Only show matches with a prediction
-  const predicted = ms.filter(x=>{ const p=pr[x.i]; return p&&p.h!==''&&p.a!==''; });
+  // Only show matches that the VIEWER has confirmed (or that are time-locked)
+  // and that the participant has predicted
+  const showAll = (nm === ME);
+  const viewerCf = S.cf||{};
+  const predicted = ms.filter(x=>{
+    const p=pr[x.i];
+    if(!p || p.h==='' || p.a==='') return false;
+    // Viewing your own: always show your predicted ones
+    if(nm===ME) return true;
+    // Viewing someone else: only if YOU confirmed that match (or it's locked)
+    return !!viewerCf[x.i] || isLocked(x);
+  });
   const el = document.getElementById('part-detail-matches');
   if(predicted.length===0){
-    el.innerHTML='<div style="text-align:center;padding:32px 16px;color:var(--text2)"><div style="font-size:2rem;margin-bottom:8px">📭</div><div>Sin predicciones'+(partDetailJornada>0?' en esta jornada':'')+'</div></div>';
+    el.innerHTML='<div style="text-align:center;padding:32px 16px;color:var(--text2)"><div style="font-size:2rem;margin-bottom:8px">📭</div><div>'+(nm===ME?'Sin predicciones'+(partDetailJornada>0?' en esta jornada':''):'No has confirmado predicciones aún. Confirma para ver las de '+nm)+'</div></div>';
     return;
   }
   const bd = {};
@@ -1734,7 +1981,9 @@ function renderPartAwards(nm){
   if(!container) return;
   const medals = ['🥇','🥈','🥉'];
   container.innerHTML = AWARDS.map(a=>{
-    const pick = awPred[a.id];
+    let pick = awPred[a.id];
+    // For viewing others: only show if viewer has confirmed this award
+    if(!showAll && !viewerCf['aw_'+a.id]){ pick = null; }
     const real = S.aw[a.id];
     const pts = calcAwardPoints(a.id, pick, real);
     const ptsHTML = real && pick ? ' <span class="badge '+(pts>0?'badge-ex':'badge-wr')+'">'+pts+' pts</span>' : '';
@@ -1772,6 +2021,11 @@ function renderPartAwards(nm){
 function renderPartBracket(nm){
   const container = document.getElementById('part-detail-bracket');
   if(!container) return;
+  // Only show bracket if viewer has confirmed their own (or viewing self)
+  if(nm!==ME && !(S.cf&&S.cf.br)){
+    container.innerHTML = '<div style="text-align:center;padding:32px 16px;color:var(--text2)"><div style="font-size:2rem;margin-bottom:8px">🔒</div><div>Confirma tu cuadro para ver el de '+nm+'</div></div>';
+    return;
+  }
   const awPred = S.awPred[nm] || {};
   const raw = awPred['__bracket__'];
   if(!raw){ container.innerHTML='<div style="text-align:center;padding:20px;color:var(--text2)">Sin predicción del cuadro</div>'; return; }
@@ -2142,7 +2396,7 @@ function rCuadroGroups(){
           const thirdQualified = isThird && confirmed && qualifiedThirdGroups[g];
           const thirdSelectable = isThird && confirmed;
           const rowExtra = thirdQualified ? ' cg-third-qualified' : (thirdSelectable ? ' cg-third-selectable' : '');
-          const thirdBadge = thirdQualified ? '<span class="cg-third-badge">⭐ Mejor 3º</span>' : '';
+          const thirdBadge = '';
           return `<div class="cg-row${rowExtra}" ${draggable} data-g="${g}" data-idx="${idx}" ${thirdSelectable?`data-third-toggle="${g}"`:''}>
             <div class="cg-pos ${posClass}">${lbl}</div>
             <div class="cg-team">${flag(t)} ${es(t)}${thirdBadge}</div>
@@ -2729,6 +2983,24 @@ function renderMatchTree(matchId, date, venue, isFinal, extraClass){
 // renderMatch replaced by renderMatchTree above
 
 // ── SUB-TAB SWITCHING ─────────────────────────────────────────
+
+function updateBracketConfirmStatus(){
+  const el = document.getElementById('bracket-confirm-status');
+  if(!el) return;
+  if(isConfirmed('br')){
+    el.innerHTML = '<span style="font-size:.85rem;color:var(--exact);font-weight:700">🔒 Cuadro confirmado — no se puede modificar</span>';
+    // Disable bracket editing
+    document.getElementById('save-bracket-btn').style.display='none';
+    document.getElementById('confirm-bracket-btn').style.display='none';
+    document.getElementById('delete-bracket-btn').style.display='none';
+  } else {
+    el.innerHTML = '';
+    document.getElementById('save-bracket-btn').style.display='';
+    document.getElementById('confirm-bracket-btn').style.display='';
+    document.getElementById('delete-bracket-btn').style.display='';
+  }
+}
+
 function showCuadroStep(step){
   document.getElementById('cuadro-panel-groups').style.display = step==='groups'?'':'none';
   document.getElementById('cuadro-panel-bracket').style.display = step==='bracket'?'':'none';
@@ -2916,6 +3188,24 @@ function renderMatchTree(matchId, date, venue, isFinal, extraClass){
 // renderMatch replaced by renderMatchTree above
 
 // ── SUB-TAB SWITCHING ─────────────────────────────────────────
+
+function updateBracketConfirmStatus(){
+  const el = document.getElementById('bracket-confirm-status');
+  if(!el) return;
+  if(isConfirmed('br')){
+    el.innerHTML = '<span style="font-size:.85rem;color:var(--exact);font-weight:700">🔒 Cuadro confirmado — no se puede modificar</span>';
+    // Disable bracket editing
+    document.getElementById('save-bracket-btn').style.display='none';
+    document.getElementById('confirm-bracket-btn').style.display='none';
+    document.getElementById('delete-bracket-btn').style.display='none';
+  } else {
+    el.innerHTML = '';
+    document.getElementById('save-bracket-btn').style.display='';
+    document.getElementById('confirm-bracket-btn').style.display='';
+    document.getElementById('delete-bracket-btn').style.display='';
+  }
+}
+
 function showCuadroStep(step){
   document.getElementById('cuadro-panel-groups').style.display = step==='groups'?'':'none';
   document.getElementById('cuadro-panel-bracket').style.display = step==='bracket'?'':'none';
@@ -3238,6 +3528,18 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('cuadro-step-groups').addEventListener('click',function(){showCuadroStep('groups');});
   document.getElementById('cuadro-step-bracket').addEventListener('click',function(){showCuadroStep('bracket');});
   document.getElementById('save-bracket-btn').addEventListener('click',saveBracket);
+  document.getElementById('confirm-bracket-btn').addEventListener('click', async function(){
+    if(isConfirmed('br')){ toast('Ya confirmado','err'); return; }
+    if(!confirm('Una vez confirmado, no podrás cambiar tu cuadro. ¿Continuar?')) return;
+    await saveBracket();
+    await confirmPrediction('br');
+    updateBracketConfirmStatus();
+  });
+  document.getElementById('delete-bracket-btn').addEventListener('click', function(){
+    if(isConfirmed('br')){ toast('Cuadro confirmado, no se puede eliminar','err'); return; }
+    if(!confirm('¿Eliminar toda tu predicción del cuadro?')) return;
+    deleteBracketPrediction();
+  });
 
   // Admin modal
   document.getElementById('admin-cancel-btn').addEventListener('click',function(){

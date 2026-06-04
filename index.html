@@ -333,6 +333,17 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 
 .btn-d{background:rgba(231,76,60,.18);color:var(--wrong);border:1px solid var(--wrong)}
 .btn-d:hover{background:var(--wrong);color:#fff}
+.award-card.locked{opacity:.85}
+.award-card.locked .aw-pick-btn,.award-card.locked .aw-hero-btn,.award-card.locked .aw-simple-change{
+  display:none
+}
+.award-card.locked .aw-hero-slot{cursor:default}
+.award-card.locked .aw-simple-img,.award-card.locked .aw-hero-img{filter:none}
+.award-card.locked::after{
+  content:'🔒 Confirmado';display:block;text-align:center;
+  font-size:.65rem;font-weight:700;color:var(--exact);
+  padding:6px 0 2px;letter-spacing:.3px
+}
 .admin-only{display:none}
 .is-admin .admin-only{display:block}
 .is-admin .admin-tab{display:initial !important}
@@ -442,7 +453,6 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
         <div id="cuadro-panel-bracket" style="display:none"></div>
         <div style="margin-top:16px;text-align:center">
           <button class="btn btn-g" id="save-bracket-btn" style="padding:12px 28px;font-size:.95rem">💾 Guardar</button>
-          <button class="btn btn-g" id="confirm-bracket-btn" style="padding:12px 28px;font-size:.95rem;background:var(--exact);border-color:var(--exact);color:#fff">✅ Confirmar definitivamente</button>
           <button class="btn btn-d" id="delete-bracket-btn" style="padding:12px 28px;font-size:.95rem;background:rgba(231,76,60,.18);color:var(--wrong);border:1px solid var(--wrong)">🗑️ Eliminar predicción</button>
         </div>
         <div id="bracket-confirm-status" style="text-align:center;margin-top:10px"></div>
@@ -1345,6 +1355,7 @@ async function syncAll(){
     S.r  = r.results         || {};
     S.aw = r.awards          || {};
     S.awPred = r.awardPredictions || {};
+    console.log('[porra] awPred[ME]:', JSON.stringify(S.awPred[ME]).slice(0,200));
     // Confirmations: {userName: {matchId: true, 'aw_mvp': true, ...}}
     const allCf = r.cf || {};
     S.cf = allCf[ME] || {};
@@ -1438,6 +1449,18 @@ let predSubTab='partidos';
 
 function showPredSubTab(t){
   predSubTab=t;
+  // Sync myAwardPreds from server before showing awards tab
+  if(t==='premios'){
+    const serverAw = S.awPred[ME]||{};
+    function _pAw2(v){if(typeof v==='string'){try{const p=JSON.parse(v);if(typeof p==='object')return p;}catch(_){}}return v;}
+    const parsedAw={};for(const k of Object.keys(serverAw)){parsedAw[k]=_pAw2(serverAw[k]);}
+    // Sync from server — always overwrite confirmed awards
+    for(const k of Object.keys(parsedAw)){
+      if(isConfirmed('aw_'+k) || !myAwardPreds[k]){
+        myAwardPreds[k] = JSON.parse(JSON.stringify(parsedAw[k]));
+      }
+    }
+  }
   document.getElementById('pred-panel-partidos').style.display=t==='partidos'?'':'none';
   document.getElementById('pred-panel-premios').style.display=t==='premios'?'':'none';
   document.getElementById('pred-panel-cuadro').style.display=t==='cuadro'?'':'none';
@@ -1681,7 +1704,7 @@ function renderAwardModal(){
           const photoUrl = playerPhoto(name);
           const posIcon = {GK:'🧤',DEF:'🛡️',MID:'⚙️',FWD:'⚽'}[p.p]||'';
           return `<button class="aw-player-btn${sel?' selected':''}" data-name="${name}" data-team="${_awTeam}">
-            <img class="aw-player-photo" src="${photoUrl}" alt="${name}" loading="lazy" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name.split(' ').map(w=>w[0]).slice(0,2).join('')).toUpperCase()}&background=0f3460&color=f5c518&size=80'">
+            <img class="aw-player-photo" src="${photoUrl}" alt="${name}" loading="lazy" onerror="this.src='https://ui-avatars.com/api/?background=0f3460&color=f5c518&size=80&bold=true'">>
             <div class="aw-player-name">${name}</div>
             <div style="font-size:.55rem;color:var(--text2)">${posIcon}</div>
           </button>`;
@@ -1714,99 +1737,150 @@ function renderAwardModal(){
 
 // PREMIOS — vista predicciones
 function rAwardsPred(){
-  const container=document.getElementById('awards-pred-container');
-  container.innerHTML=AWARDS.map(a=>{
-    const pick = myAwardPreds[a.id];
-    const real = S.aw[a.id];
-    const pts = calcAwardPoints(a.id, pick, real);
-    const ptsHTML = real && pick ? '<span class="badge '+(pts>0?'badge-ex':'badge-wr')+'" style="margin-left:8px">'+pts+' pts</span>' : '';
+  const container = document.getElementById('awards-pred-container');
+  if(!container){ console.error('awards-pred-container not found'); return; }
 
-    const medals = ['🥇','🥈','🥉'];
-    if(a.podium){
-      const slots = ['p1','p2','p3'];
-      const slotClasses = ['s-p1','s-p2','s-p3'];
-      const slotsHTML = slots.map((s,i)=>{
-        const p = pick ? pick[s] : null;
-        const photoUrl = p ? playerPhoto(p.name) : '';
-        const flagCode = p ? (FC[p.team]||'') : '';
-        if(p){
-          return `<div class="aw-hero-slot ${slotClasses[i]}">
-            <div class="aw-hero-medal">${medals[i]}</div>
-            <img class="aw-hero-img" src="${photoUrl}" alt="${p.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(p.name.split(' ').map(w=>w[0]).slice(0,2).join(''))}&background=0f3460&color=f5c518&size=80'">
-            <div class="aw-hero-name">${p.name}</div>
-            <div class="aw-hero-team">${flagCode?`<img src="https://flagcdn.com/w40/${flagCode}.png" width="14" height="9" style="border-radius:1px">`:''}${es(p.team)}</div>
-            <button class="aw-hero-btn" data-award="${a.id}" data-slot="${s}">✏️ Cambiar</button>
-          </div>`;
-        } else {
-          return `<div class="aw-hero-slot ${slotClasses[i]}">
-            <div class="aw-hero-medal">${medals[i]}</div>
-            <div class="aw-hero-img placeholder" style="display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:1.5rem">?</div>
-            <div class="aw-hero-name" style="color:var(--text2)">Sin elegir</div>
-            <div class="aw-hero-team"></div>
-            <button class="aw-hero-btn" data-award="${a.id}" data-slot="${s}">🔍 Elegir</button>
-          </div>`;
+  // Sync from server — confirmed picks live in S.awPred[ME]
+  // For confirmed awards, server is always the source of truth
+  const serverAw = S.awPred[ME] || {};
+  function _parseAw(v){
+    if(!v) return null;
+    if(typeof v==='object' && v!==null) return v;
+    if(typeof v==='string'){
+      try{
+        const p = JSON.parse(v);
+        if(typeof p==='object' && p!==null) return p;
+        if(typeof p==='string'){
+          try{ const p2=JSON.parse(p); if(typeof p2==='object') return p2; }catch(_){}
         }
-      }).join('');
-      const cfKey='aw_'+a.id;
-      const isConf = isConfirmed(cfKey);
-      const hasPicks = pick && (pick.p1||pick.p2||pick.p3);
-      const actionsHTML = !isConf && hasPicks ?
-        '<div class="mc-actions" style="margin-top:8px"><button class="mc-btn-confirm" data-confaw="'+a.id+'">✅ Confirmar premio</button><button class="mc-btn-del" data-delaw="'+a.id+'">🗑️ Eliminar</button></div>' :
-        isConf ? '<div class="mc-actions" style="margin-top:8px"><span style="font-size:.65rem;color:var(--exact);font-weight:700">🔒 Confirmado</span></div>' : '';
-      return `<div class="award-card ${isConf?'locked':''}">
-        <div class="aw-title">${a.emoji} ${a.title} ${ptsHTML}</div>
-        <div class="aw-sub">${a.sub}</div>
-        <div class="aw-hero" style="margin-top:10px">${slotsHTML}</div>
-        ${actionsHTML}
-        ${real?renderAwardReal(a,real):''}
-      </div>`;
-    } else {
-      const photoUrl = pick ? playerPhoto(pick.name) : '';
-      const flagCode = pick ? (FC[pick.team]||'') : '';
-      const cfKey2='aw_'+a.id;
-      const isConf2 = isConfirmed(cfKey2);
-      const actionsHTML2 = !isConf2 && pick ?
-        '<div class="mc-actions" style="margin-top:8px"><button class="mc-btn-confirm" data-confaw="'+a.id+'">✅ Confirmar premio</button><button class="mc-btn-del" data-delaw="'+a.id+'">🗑️ Eliminar</button></div>' :
-        isConf2 ? '<div class="mc-actions" style="margin-top:8px"><span style="font-size:.65rem;color:var(--exact);font-weight:700">🔒 Confirmado</span></div>' : '';
-      return `<div class="award-card ${isConf2?'locked':''}">
-        <div class="aw-title">${a.emoji} ${a.title} ${ptsHTML}</div>
-        <div class="aw-sub">${a.sub}</div>
-        ${pick ? `<div class="aw-simple-hero">
-          <img class="aw-simple-img" src="${photoUrl}" alt="${pick.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(pick.name.split(' ').map(w=>w[0]).slice(0,2).join(''))}&background=0f3460&color=f5c518&size=90'">
-          <div class="aw-simple-info">
-            <div class="aw-simple-name">${pick.name}</div>
-            <div class="aw-simple-team">${flagCode?`<img src="https://flagcdn.com/w40/${flagCode}.png" width="20" height="14" style="border-radius:2px">`:''}${es(pick.team)}</div>
-            <button class="aw-simple-change" data-award="${a.id}">✏️ Cambiar jugador</button>
-          </div>
-        </div>` : ''}
-        <button class="aw-pick-btn" data-award="${a.id}">${pick?'🔄 Cambiar':'🔍 Seleccionar jugador'}</button>
-        ${actionsHTML2}
-        ${real?renderAwardReal(a,real):''}
-      </div>`;
+        return p;
+      }catch(_){}
     }
-  }).join('');
+    return v;
+  }
+  for(const k of Object.keys(serverAw)){
+    const parsed = _parseAw(serverAw[k]);
+    if(!parsed) continue;
+    // Always overwrite with server data for confirmed awards
+    // For unconfirmed, only fill if missing locally
+    if(isConfirmed('aw_'+k) || !myAwardPreds[k]){
+      myAwardPreds[k] = parsed;
+    }
+  }
+
+  const medals = ['🥇','🥈','🥉'];
+  const medalLabels = ['1º','2º','3º'];
+  let html = '';
+
+  for(const a of AWARDS){
+    try{
+      const pick = myAwardPreds[a.id];
+      const real = S.aw[a.id];
+      const pts = calcAwardPoints(a.id, pick, real);
+      const ptsHTML = real && pick ? ' <span class="badge '+(pts>0?'badge-ex':'badge-wr')+'" style="margin-left:6px">'+pts+' pts</span>' : '';
+      const cfKey = 'aw_'+a.id;
+      const isConf = isConfirmed(cfKey);
+
+      // Header common to all award cards
+      let cardHTML = '<div class="award-card'+(isConf?' locked':'')+'"><div class="aw-title">'+a.emoji+' '+a.title+ptsHTML+'</div><div class="aw-sub">'+a.sub+'</div>';
+
+      if(a.podium){
+        const isPodiumPick = pick && typeof pick==='object' && !pick.name;
+        const hasPicks = isPodiumPick && (pick.p1||pick.p2||pick.p3);
+
+        if(isConf || hasPicks){
+          // Show as compact list — always readable, no photos needed
+          cardHTML += '<div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">';
+          for(let i=0;i<3;i++){
+            const s = ['p1','p2','p3'][i];
+            const p = isPodiumPick ? pick[s] : null;
+            const name = p && p.name ? p.name : null;
+            const team = p && p.team ? p.team : null;
+            const fc = team ? (FC[team]||'') : '';
+            cardHTML += '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">'
+              +'<span style="font-size:1rem;width:24px;text-align:center">'+medals[i]+'</span>'
+              +(name
+                ? '<div style="flex:1">'
+                    +(fc?'<img src="https://flagcdn.com/w40/'+fc+'.png" width="18" height="12" style="border-radius:2px;vertical-align:middle;margin-right:5px"> ':'')
+                    +'<span style="font-weight:600;font-size:.88rem">'+name+'</span>'
+                    +'<span style="font-size:.75rem;color:var(--text2);margin-left:6px">'+es(team)+'</span>'
+                    +'</div>'
+                : '<span style="color:var(--text2);font-size:.82rem;font-style:italic">Sin elegir</span>')
+              +(isConf?'':'<button class="aw-hero-btn" data-award="'+a.id+'" data-slot="'+s+'" style="font-size:.72rem;padding:4px 8px">'+(name?'✏️':'🔍')+'</button>')
+              +'</div>';
+          }
+          cardHTML += '</div>';
+          // Actions
+          if(isConf){
+            cardHTML += '<div class="mc-actions" style="margin-top:8px"><span style="font-size:.65rem;color:var(--exact);font-weight:700">🔒 Confirmado</span></div>';
+          } else {
+            cardHTML += '<div class="mc-actions" style="margin-top:10px"><button class="mc-btn-confirm" data-confaw="'+a.id+'">✅ Confirmar premio</button><button class="mc-btn-del" data-delaw="'+a.id+'">🗑️ Eliminar</button></div>';
+          }
+        } else {
+          // Nothing picked yet
+          cardHTML += '<div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">';
+          for(let i=0;i<3;i++){
+            const s = ['p1','p2','p3'][i];
+            cardHTML += '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg);border-radius:8px;border:1px dashed var(--border)">'
+              +'<span style="font-size:1rem;width:24px;text-align:center">'+medals[i]+'</span>'
+              +'<span style="color:var(--text2);font-size:.82rem;font-style:italic;flex:1">Sin elegir</span>'
+              +'<button class="aw-hero-btn" data-award="'+a.id+'" data-slot="'+s+'" style="font-size:.72rem;padding:4px 8px">🔍 Elegir</button>'
+              +'</div>';
+          }
+          cardHTML += '</div>';
+        }
+        cardHTML += (real ? renderAwardReal(a, real) : '');
+
+      } else {
+        // Simple award
+        const p = (pick && pick.name) ? pick : null;
+        const fc = p ? (FC[p.team]||'') : '';
+        if(p){
+          cardHTML += '<div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border-radius:8px;border:1px solid var(--border);margin-top:10px">'
+            +(fc?'<img src="https://flagcdn.com/w40/'+fc+'.png" width="22" height="15" style="border-radius:2px"> ':'')
+            +'<div style="flex:1"><div style="font-weight:700;font-size:.95rem">'+p.name+'</div><div style="font-size:.75rem;color:var(--text2)">'+es(p.team)+'</div></div>'
+            +(isConf?'':'<button class="aw-simple-change" data-award="'+a.id+'" style="font-size:.72rem;padding:4px 8px">✏️</button>')
+            +'</div>';
+          if(isConf){
+            cardHTML += '<div class="mc-actions" style="margin-top:8px"><span style="font-size:.65rem;color:var(--exact);font-weight:700">🔒 Confirmado</span></div>';
+          } else {
+            cardHTML += '<div class="mc-actions" style="margin-top:8px"><button class="mc-btn-confirm" data-confaw="'+a.id+'">✅ Confirmar premio</button><button class="mc-btn-del" data-delaw="'+a.id+'">🗑️ Eliminar</button></div>';
+          }
+        } else {
+          cardHTML += '<button class="aw-pick-btn" data-award="'+a.id+'" style="margin-top:10px;width:100%">🔍 Seleccionar jugador</button>';
+        }
+        cardHTML += (real ? renderAwardReal(a, real) : '');
+      }
+
+      cardHTML += '</div>';
+      html += cardHTML;
+
+    } catch(err){
+      console.error('rAwardsPred error for award', a.id, ':', err);
+      html += '<div class="award-card"><div class="aw-title">'+a.emoji+' '+a.title+'</div><div style="color:var(--wrong);font-size:.8rem;padding:8px">Error: '+err.message+'</div></div>';
+    }
+  }
+
+  container.innerHTML = html;
 
   container.querySelectorAll('.aw-pick-btn,.aw-hero-btn').forEach(el=>{
     el.addEventListener('click',function(){
-      openAwardPicker(this.dataset.award, this.dataset.slot||null);
+      const awardId = this.dataset.award;
+      if(isConfirmed('aw_'+awardId)){ toast('Premio ya confirmado — no se puede cambiar','err'); return; }
+      openAwardPicker(awardId, this.dataset.slot||null);
     });
   });
-  container.querySelectorAll('.aw-sel-change,.aw-simple-change').forEach(el=>{
+  container.querySelectorAll('.aw-simple-change').forEach(el=>{
     el.addEventListener('click',function(e){ e.stopPropagation(); openAwardPicker(this.dataset.award, null); });
   });
-  // Confirm and delete award buttons
   container.querySelectorAll('[data-confaw]').forEach(btn=>{
-    btn.addEventListener('click',function(){
-      confirmPrediction('aw_'+this.dataset.confaw);
-    });
+    btn.addEventListener('click',function(){ confirmPrediction('aw_'+this.dataset.confaw); });
   });
   container.querySelectorAll('[data-delaw]').forEach(btn=>{
     btn.addEventListener('click',function(){
       if(confirm('¿Eliminar tu predicción de este premio?')) deleteAwardPrediction(this.dataset.delaw);
     });
   });
-
-  // Eagerly fetch wiki photos for selected players
   AWARDS.forEach(a=>{
     const pick = myAwardPreds[a.id];
     if(!pick) return;
@@ -1832,12 +1906,9 @@ function renderAwardReal(award, real){
 async function saveAwardsPred(){
   try{
     toast('Guardando premios...','ok');
-    const safeData={};
-    for(const[k,v]of Object.entries(myAwardPreds)){
-      safeData[k]=(typeof v==='object'&&v!==null)?JSON.stringify(v):v;
-    }
-    await api('saveAwardPredictions',{name:ME,data:safeData});
-    S.awPred[ME]=JSON.parse(JSON.stringify(myAwardPreds));
+    // Send myAwardPreds directly as object — AppScript handles JSON.stringify
+    await api('saveAwardPredictions',{name:ME,data:myAwardPreds});
+    S.awPred[ME] = JSON.parse(JSON.stringify(myAwardPreds));
     toast('✅ Premios guardados','ok');
   }catch(e){toast('Error: '+e.message,'err');}
 }
@@ -3241,23 +3312,38 @@ function renderMatchTree(matchId, date, venue, isFinal, extraClass){
 function updateBracketConfirmStatus(){
   const el = document.getElementById('bracket-confirm-status');
   if(!el) return;
+  const inBracket = document.getElementById('cuadro-panel-bracket') &&
+                    document.getElementById('cuadro-panel-bracket').style.display !== 'none';
+  const savBtn = document.getElementById('save-bracket-btn');
+  const delBtn = document.getElementById('delete-bracket-btn');
+
   if(isConfirmed('br')){
-    el.innerHTML = '<span style="font-size:.85rem;color:var(--exact);font-weight:700">🔒 Cuadro confirmado — no se puede modificar</span>';
-    // Disable bracket editing
-    document.getElementById('save-bracket-btn').style.display='none';
-    document.getElementById('confirm-bracket-btn').style.display='none';
-    document.getElementById('delete-bracket-btn').style.display='none';
+    el.innerHTML = '<span style="font-size:.85rem;color:var(--exact);font-weight:700">🔒 Cuadro confirmado definitivamente — no se puede modificar</span>';
+    if(savBtn) savBtn.style.display = 'none';
+    if(delBtn) delBtn.style.display = 'none';
   } else {
-    el.innerHTML = '';
-    document.getElementById('save-bracket-btn').style.display='';
-    document.getElementById('confirm-bracket-btn').style.display='';
-    document.getElementById('delete-bracket-btn').style.display='';
+    el.innerHTML = inBracket
+      ? '<div style="margin-top:12px"><button class="btn btn-g" id="confirm-bracket-btn" style="padding:12px 28px;font-size:.95rem;background:var(--exact);border-color:var(--exact);color:#fff">✅ Confirmar cuadro definitivamente</button><div style="font-size:.72rem;color:var(--text2);margin-top:6px">Una vez confirmado no podrás cambiar el bracket</div></div>'
+      : '';
+    if(savBtn) savBtn.style.display = '';
+    if(delBtn) delBtn.style.display = '';
+    // Wire the confirm button if just rendered
+    const btn = document.getElementById('confirm-bracket-btn');
+    if(btn){
+      btn.addEventListener('click', async function(){
+        if(!confirm('¿Confirmar el cuadro definitivamente? No podrás cambiarlo después.')) return;
+        await saveBracket();
+        await confirmPrediction('br');
+        updateBracketConfirmStatus();
+      });
+    }
   }
 }
 
 function showCuadroStep(step){
   document.getElementById('cuadro-panel-groups').style.display = step==='groups'?'':'none';
   document.getElementById('cuadro-panel-bracket').style.display = step==='bracket'?'':'none';
+  updateBracketConfirmStatus();
   document.getElementById('cuadro-step-groups').classList.toggle('active', step==='groups');
   document.getElementById('cuadro-step-bracket').classList.toggle('active', step==='bracket');
   if(step==='groups') rCuadroGroups();
@@ -3430,23 +3516,38 @@ function renderMatchTree(matchId, date, venue, isFinal, extraClass){
 function updateBracketConfirmStatus(){
   const el = document.getElementById('bracket-confirm-status');
   if(!el) return;
+  const inBracket = document.getElementById('cuadro-panel-bracket') &&
+                    document.getElementById('cuadro-panel-bracket').style.display !== 'none';
+  const savBtn = document.getElementById('save-bracket-btn');
+  const delBtn = document.getElementById('delete-bracket-btn');
+
   if(isConfirmed('br')){
-    el.innerHTML = '<span style="font-size:.85rem;color:var(--exact);font-weight:700">🔒 Cuadro confirmado — no se puede modificar</span>';
-    // Disable bracket editing
-    document.getElementById('save-bracket-btn').style.display='none';
-    document.getElementById('confirm-bracket-btn').style.display='none';
-    document.getElementById('delete-bracket-btn').style.display='none';
+    el.innerHTML = '<span style="font-size:.85rem;color:var(--exact);font-weight:700">🔒 Cuadro confirmado definitivamente — no se puede modificar</span>';
+    if(savBtn) savBtn.style.display = 'none';
+    if(delBtn) delBtn.style.display = 'none';
   } else {
-    el.innerHTML = '';
-    document.getElementById('save-bracket-btn').style.display='';
-    document.getElementById('confirm-bracket-btn').style.display='';
-    document.getElementById('delete-bracket-btn').style.display='';
+    el.innerHTML = inBracket
+      ? '<div style="margin-top:12px"><button class="btn btn-g" id="confirm-bracket-btn" style="padding:12px 28px;font-size:.95rem;background:var(--exact);border-color:var(--exact);color:#fff">✅ Confirmar cuadro definitivamente</button><div style="font-size:.72rem;color:var(--text2);margin-top:6px">Una vez confirmado no podrás cambiar el bracket</div></div>'
+      : '';
+    if(savBtn) savBtn.style.display = '';
+    if(delBtn) delBtn.style.display = '';
+    // Wire the confirm button if just rendered
+    const btn = document.getElementById('confirm-bracket-btn');
+    if(btn){
+      btn.addEventListener('click', async function(){
+        if(!confirm('¿Confirmar el cuadro definitivamente? No podrás cambiarlo después.')) return;
+        await saveBracket();
+        await confirmPrediction('br');
+        updateBracketConfirmStatus();
+      });
+    }
   }
 }
 
 function showCuadroStep(step){
   document.getElementById('cuadro-panel-groups').style.display = step==='groups'?'':'none';
   document.getElementById('cuadro-panel-bracket').style.display = step==='bracket'?'':'none';
+  updateBracketConfirmStatus();
   document.getElementById('cuadro-step-groups').classList.toggle('active', step==='groups');
   document.getElementById('cuadro-step-bracket').classList.toggle('active', step==='bracket');
   if(step==='groups') rCuadroGroups();
@@ -3715,12 +3816,15 @@ function renderAll(){
   if(!myAwardPreds || Object.keys(myAwardPreds).length===0){
     myAwardPreds = JSON.parse(JSON.stringify(parsedAw));
   } else {
-    // Merge server data in for awards that are missing locally
+    // Sync from server — always overwrite confirmed awards
     for(const k of Object.keys(parsedAw)){
-      if(!myAwardPreds[k]) myAwardPreds[k] = JSON.parse(JSON.stringify(parsedAw[k]));
+      if(isConfirmed('aw_'+k) || !myAwardPreds[k]){
+        myAwardPreds[k] = JSON.parse(JSON.stringify(parsedAw[k]));
+      }
     }
   }
   rGrp();rPred();rMatch();rLB();prefetchSelectedPlayerPhotos();
+  if(predSubTab==="premios") rAwardsPred();
 }
 
 // ============================================================
@@ -3766,13 +3870,7 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('cuadro-step-groups').addEventListener('click',function(){showCuadroStep('groups');});
   document.getElementById('cuadro-step-bracket').addEventListener('click',function(){showCuadroStep('bracket');});
   document.getElementById('save-bracket-btn').addEventListener('click',saveBracket);
-  document.getElementById('confirm-bracket-btn').addEventListener('click', async function(){
-    if(isConfirmed('br')){ toast('Ya confirmado','err'); return; }
-    if(!confirm('Una vez confirmado, no podrás cambiar tu cuadro. ¿Continuar?')) return;
-    await saveBracket();
-    await confirmPrediction('br');
-    updateBracketConfirmStatus();
-  });
+  // confirm-bracket-btn wired dynamically in updateBracketConfirmStatus
   document.getElementById('delete-bracket-btn').addEventListener('click', function(){
     if(isConfirmed('br')){ toast('Cuadro confirmado, no se puede eliminar','err'); return; }
     if(!confirm('¿Eliminar toda tu predicción del cuadro?')) return;

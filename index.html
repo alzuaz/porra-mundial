@@ -36,18 +36,18 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .header h1{font-size:1.4rem;letter-spacing:2px}.header h1 span{color:var(--gold)}
 .user-bar{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;font-size:.82rem;color:var(--text2)}
 .user-bar .uname{color:var(--gold);font-weight:700}
-.user-bar .lnk{color:var(--text2);cursor:pointer;text-decoration:underline;font-size:.78rem;-webkit-tap-highlight-color:transparent}
+.user-bar .lnk{color:var(--text2);cursor:pointer;text-decoration:underline;font-size:.78rem;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .tabs-wrapper{position:sticky;top:58px;z-index:99;background:var(--secondary);border-bottom:2px solid var(--border)}
 .tabs{display:flex;overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
-.tabs button{flex:1;min-width:80px;padding:12px 4px;background:none;border:none;color:var(--text2);font-size:.78rem;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;transition:.2s;white-space:nowrap;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.tabs button{flex:1;min-width:80px;padding:12px 4px;background:none;border:none;color:var(--text2);font-size:.78rem;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;transition:.2s;white-space:nowrap;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .tabs button.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(245,197,24,.05)}
 .content{max-width:900px;margin:0 auto;padding:16px}
 .tab-panel{display:none}.tab-panel.active{display:block}
 
 /* SUB-TABS (Predicciones: Partidos / Premios) */
 .subtabs{display:flex;gap:0;margin-bottom:16px;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
-.subtabs button{flex:1;padding:10px;background:var(--card);border:none;color:var(--text2);font-size:.85rem;font-weight:600;cursor:pointer;transition:.2s;-webkit-tap-highlight-color:transparent}
+.subtabs button{flex:1;padding:10px;background:var(--card);border:none;color:var(--text2);font-size:.85rem;font-weight:600;cursor:pointer;transition:.2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .subtabs button.active{background:var(--accent2);color:var(--gold)}
 
 /* GRUPOS */
@@ -108,7 +108,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .award-result .lbl{color:var(--text2)}.award-result .val{color:var(--gold);font-weight:700}
 /* Candidate photo cards */
 .award-candidates{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:8px}
-.cand-card{background:var(--bg);border:2px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:.2s;position:relative;-webkit-tap-highlight-color:transparent}
+.cand-card{background:var(--bg);border:2px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:.2s;position:relative;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .cand-card:hover{border-color:var(--text2);transform:translateY(-2px)}
 .cand-card.cand-selected{border-color:var(--gold);background:rgba(245,197,24,.08)}
 .cand-card.cand-selected::after{content:'✓';position:absolute;top:6px;right:6px;background:var(--gold);color:var(--primary);border-radius:50%;width:18px;height:18px;font-size:.65rem;display:flex;align-items:center;justify-content:center;font-weight:900;line-height:18px;text-align:center}
@@ -138,7 +138,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 
 /* FILTER PILLS */
 .mdt{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
-.mdt button{padding:7px 14px;background:var(--card);border:1px solid var(--border);border-radius:20px;color:var(--text2);cursor:pointer;font-size:.8rem;font-weight:600;transition:.2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.mdt button{padding:7px 14px;background:var(--card);border:1px solid var(--border);border-radius:20px;color:var(--text2);cursor:pointer;font-size:.8rem;font-weight:600;transition:.2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .mdt button.active{background:var(--accent);border-color:var(--accent);color:#fff}
 
 /* INFO BOX */
@@ -146,7 +146,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .ib strong{color:var(--gold)}
 
 /* BUTTONS */
-.btn{padding:10px 20px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.9rem;transition:.2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.btn{padding:10px 20px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.9rem;transition:.2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .btn-p{background:var(--accent);color:#fff}.btn-s{background:var(--accent2);color:#fff}.btn-g{background:var(--gold);color:var(--primary)}.btn-n{background:var(--border);color:var(--text2)}
 .btn-sm{padding:6px 14px;font-size:.8rem}.btn-big{width:100%;padding:14px;font-size:1.1rem;border-radius:12px}
 .ios{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
@@ -168,7 +168,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .cg-card.confirmed{border:1px solid var(--exact)}
 .cg-card.confirmed .cg-head{background:linear-gradient(135deg,#1a6b3d,#27ae60)}
 .cg-actions{display:flex;gap:6px;padding:8px 10px;background:rgba(0,0,0,.15);border-top:1px solid var(--border)}
-.cg-actions button{flex:1;padding:6px 10px;border:none;border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.cg-actions button{flex:1;padding:6px 10px;border:none;border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .cg-btn-confirm{background:var(--exact);color:#fff}
 .cg-btn-confirm:hover{background:#22a259}
 .cg-btn-edit{background:var(--accent2);color:var(--gold)}
@@ -190,7 +190,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .cg-pos-4{background:rgba(160,160,184,.15);color:var(--text2);border:1px solid var(--text2)}
 .cg-team{flex:1;display:flex;align-items:center;gap:6px;font-weight:600;font-size:.82rem}
 .cg-arrows{display:none;flex-direction:column;gap:2px}
-.cg-arrow{width:24px;height:18px;border:1px solid var(--border);background:var(--bg);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.6rem;padding:0;border-radius:3px;-webkit-tap-highlight-color:transparent}
+.cg-arrow{width:24px;height:18px;border:1px solid var(--border);background:var(--bg);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.6rem;padding:0;border-radius:3px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .cg-arrow:hover{background:var(--accent2);color:var(--gold);border-color:var(--gold)}
 .cg-arrow:disabled{opacity:.2;cursor:not-allowed}
 .cg-arrow:disabled:hover{background:var(--bg);color:var(--text2);border-color:var(--border)}
@@ -216,7 +216,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .br-match{position:relative}
 
 /* BRACKET — pyramid shape, two halves converging to center */
-.br-rounds{overflow-x:auto;overflow-y:hidden;padding-bottom:10px;-webkit-overflow-scrolling:touch}
+.br-rounds{overflow-x:auto;overflow-y:hidden;padding-bottom:10px;-webkit-overflow-scrolling:touch;touch-action:pan-x}
 .br-tree{
   display:grid;
   /* 9 columns: R32L R16L QFL SFL CENTER SFR QFR R16R R32R */
@@ -239,7 +239,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 }
 .br-meta{background:var(--secondary);padding:2px 7px;font-size:.55rem;color:var(--text2);display:flex;justify-content:space-between;line-height:1.2}
 .br-meta .br-mid{color:var(--gold);font-weight:700}
-.br-team{display:flex;align-items:center;gap:4px;padding:4px 7px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;min-height:0;font-size:.7rem}
+.br-team{display:flex;align-items:center;gap:4px;padding:6px 7px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;min-height:44px;font-size:.7rem;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .br-team:last-child{border-bottom:none}
 .br-team:hover:not(.br-tbd):not(.br-eliminated){background:rgba(245,197,24,.08)}
 .br-team.br-winner{background:rgba(39,174,96,.18);font-weight:700}
@@ -248,6 +248,11 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .br-team.br-tbd{cursor:default;color:var(--text2);font-style:italic;font-size:.7rem}
 .br-team img{width:16px;height:11px;border-radius:1px;flex-shrink:0}
 .br-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:600px){
+  .br-tree{grid-template-rows:28px repeat(16,48px);grid-template-columns:130px 130px 130px 130px 160px 130px 130px 130px 130px;gap:3px 6px;min-width:1220px}
+  .br-team{padding:8px 6px;min-height:48px;font-size:.68rem}
+  .br-rounds{padding-bottom:20px}
+}
 .br-final{background:linear-gradient(135deg,rgba(245,197,24,.12),rgba(15,52,96,.4));border-color:var(--gold)}
 
 .cuadro-pending{background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.25);border-radius:10px;padding:12px 16px;margin:14px 0;font-size:.82rem;color:var(--wrong);text-align:center}
@@ -265,7 +270,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .aw-close{background:none;border:none;color:var(--text2);font-size:1.4rem;cursor:pointer;line-height:1;padding:0 4px}
 .aw-close:hover{color:var(--text)}
 .aw-teams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;padding:16px}
-.aw-team-btn{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 6px;cursor:pointer;text-align:center;transition:.15s;-webkit-tap-highlight-color:transparent}
+.aw-team-btn{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 6px;cursor:pointer;text-align:center;transition:.15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .aw-team-btn:hover{border-color:var(--gold);background:rgba(245,197,24,.07)}
 .aw-team-btn.no-squad{opacity:.45;cursor:not-allowed}
 .aw-team-btn.no-squad:hover{border-color:var(--border);background:var(--bg)}
@@ -275,7 +280,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .aw-back:hover{border-color:var(--gold);color:var(--gold)}
 .aw-team-title{padding:10px 16px 4px;font-size:.95rem;font-weight:700;display:flex;align-items:center;gap:8px;color:var(--gold)}
 .aw-players-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;padding:12px 16px 20px}
-.aw-player-btn{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 6px 8px;cursor:pointer;text-align:center;transition:.15s;-webkit-tap-highlight-color:transparent}
+.aw-player-btn{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 6px 8px;cursor:pointer;text-align:center;transition:.15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .aw-player-btn:hover{border-color:var(--gold);background:rgba(245,197,24,.07)}
 .aw-player-btn.selected{border-color:var(--exact);background:rgba(39,174,96,.12)}
 .aw-player-photo{width:56px;height:56px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 6px;background:var(--accent2)}
@@ -286,7 +291,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .aw-sel-info .aw-sel-name{font-weight:700;font-size:.95rem;color:var(--text)}
 .aw-sel-info .aw-sel-team{font-size:.75rem;color:var(--text2);display:flex;align-items:center;gap:5px;margin-top:3px}
 .aw-sel-change{margin-top:6px;font-size:.72rem;color:var(--gold);text-decoration:underline;cursor:pointer;background:none;border:none;padding:0}
-.award-card .aw-pick-btn{width:100%;padding:9px;background:var(--accent2);border:none;border-radius:8px;color:var(--text);font-size:.82rem;font-weight:600;cursor:pointer;margin-top:10px;-webkit-tap-highlight-color:transparent}
+.award-card .aw-pick-btn{width:100%;padding:9px;background:var(--accent2);border:none;border-radius:8px;color:var(--text);font-size:.82rem;font-weight:600;cursor:pointer;margin-top:10px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .award-card .aw-pick-btn:hover{background:#1a4a80;color:var(--gold)}
 /* Podium hero card */
 .aw-hero{background:linear-gradient(135deg,var(--secondary),var(--accent2));border:1px solid var(--exact);border-radius:14px;padding:0;overflow:hidden;margin-bottom:10px;display:flex;gap:0}
@@ -319,7 +324,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .mc-status.pending{background:rgba(245,197,24,.18);color:var(--gold)}
 .mc-status.countdown{background:rgba(160,160,184,.12);color:var(--text2)}
 .mc-actions{display:flex;gap:6px;justify-content:center;margin-top:4px}
-.mc-btn-confirm,.mc-btn-del{border:none;border-radius:6px;font-size:.62rem;font-weight:700;cursor:pointer;padding:4px 10px;-webkit-tap-highlight-color:transparent}
+.mc-btn-confirm,.mc-btn-del{border:none;border-radius:6px;font-size:.62rem;font-weight:700;cursor:pointer;padding:4px 10px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .mc-btn-confirm{background:var(--exact);color:#fff}
 .mc-btn-confirm:hover{background:#22a259}
 .mc-btn-del{background:rgba(231,76,60,.18);color:var(--wrong)}
@@ -1297,6 +1302,37 @@ async function fetchLiveResults(){
     } else toast('Sin nuevos resultados','ok');
     return true;
   }catch(e){toast('Error API: '+e.message,'err');return false;}
+}
+
+
+// ── BRACKET AUTO-SAVE (debounced) ────────────────────────
+let _bracketSaveTimer = null;
+
+function scheduleBracketAutoSave(){
+  if(_bracketSaveTimer) clearTimeout(_bracketSaveTimer);
+  _bracketSaveTimer = setTimeout(async ()=>{
+    _bracketSaveTimer = null;
+    await _autoSaveBracket();
+  }, 1500); // 1.5s after last change
+}
+
+async function _autoSaveBracket(){
+  const data = {
+    order: bracketOrder,
+    winners: bracketWinners,
+    confirmed: confirmedGroups,
+    thirds: qualifiedThirdGroups,
+  };
+  if(!myAwardPreds) myAwardPreds = {};
+  myAwardPreds['__bracket__'] = JSON.stringify(data);
+  if(!S.awPred[ME]) S.awPred[ME] = {};
+  S.awPred[ME]['__bracket__'] = myAwardPreds['__bracket__'];
+  try{
+    await api('saveAwardPredictions', {name:ME, data:myAwardPreds});
+    // silent save — no toast to avoid interrupting flow
+  }catch(e){
+    console.warn('Bracket auto-save failed:', e.message);
+  }
 }
 
 async function syncAll(){
@@ -3016,23 +3052,58 @@ function rCuadroBracket(){
   wireBracketTeamClicks(container);
 }
 
+// Bracket uses event delegation — one listener on the container,
+// never re-wired after partial updates. Avoids iOS thread blocking.
+let _bracketPtDown = null;
+let _bracketDelegated = false;
+
 function wireBracketTeamClicks(container){
-  container.querySelectorAll('.br-team[data-mid]').forEach(el => {
-    el.addEventListener('click', function(){
-      const mid = parseInt(this.dataset.mid);
-      const team = this.dataset.team;
-      if(!team) return;
-      const scrollX = window.scrollX, scrollY = window.scrollY;
-      const rounds = document.querySelector('.br-rounds');
-      const innerScrollLeft = rounds ? rounds.scrollLeft : 0;
+  if(_bracketDelegated) return; // already wired
+  _bracketDelegated = false; // reset so next bracket panel wires correctly
+  _setupBracketDelegation(container);
+}
+
+function _setupBracketDelegation(container){
+  container.addEventListener('pointerdown', function(e){
+    const el = e.target.closest('.br-team[data-mid]');
+    if(!el) return;
+    _bracketPtDown = {x: e.clientX, y: e.clientY, el};
+  }, {passive:true});
+
+  container.addEventListener('pointerup', function(e){
+    if(!_bracketPtDown) return;
+    const pd = _bracketPtDown;
+    _bracketPtDown = null;
+    const dx = Math.abs(e.clientX - pd.x);
+    const dy = Math.abs(e.clientY - pd.y);
+    // More than 10px movement = scroll gesture, ignore
+    if(dx > 10 || dy > 10) return;
+    const el = pd.el;
+    if(!el || !el.isConnected) return;
+    const mid = parseInt(el.dataset.mid);
+    const team = el.dataset.team;
+    if(!team) return;
+    e.preventDefault();
+    // Save scroll position
+    const rounds = container.closest('.br-rounds') || document.querySelector('.br-rounds');
+    const savedInner = rounds ? rounds.scrollLeft : 0;
+    const savedPage = {x: window.scrollX, y: window.scrollY};
+    // Visual feedback immediately before heavy work
+    el.style.opacity = '0.6';
+    // Defer DOM update to next frame so iOS can paint the feedback first
+    requestAnimationFrame(()=>{
       selectWinnerPartial(mid, team);
-      // Restore scroll positions after DOM update
+      el.style.opacity = '';
+      // Restore scroll after DOM update
       requestAnimationFrame(()=>{
-        window.scrollTo(scrollX, scrollY);
-        if(rounds) rounds.scrollLeft = innerScrollLeft;
+        window.scrollTo({left: savedPage.x, top: savedPage.y, behavior:'instant'});
+        if(rounds) rounds.scrollLeft = savedInner;
       });
     });
   });
+
+  // Cancel if pointer leaves
+  container.addEventListener('pointercancel', ()=>{ _bracketPtDown = null; }, {passive:true});
 }
 
 // Partial update — only update affected matches, not whole bracket
@@ -3044,6 +3115,8 @@ function selectWinnerPartial(matchId, team){
     bracketWinners[matchId] = team;
   }
   cascadeClear(matchId);
+  // Trigger auto-save debounced
+  scheduleBracketAutoSave();
 
   // Re-render warning + only the affected match cells
   // Affected: this match + all downstream matches (any match where this match's
@@ -3104,7 +3177,8 @@ function selectWinnerPartial(matchId, team){
       : ``;
   }
 
-  // Re-wire click handlers for all bracket cells (only the affected ones changed inner HTML)
+  // Wire delegation on fresh render
+  _bracketDelegated = false;
   wireBracketTeamClicks(document.getElementById('cuadro-panel-bracket'));
 }
 
@@ -3221,25 +3295,6 @@ function loadBracket(){
 }
 
 
-function wireBracketTeamClicks(container){
-  container.querySelectorAll('.br-team[data-mid]').forEach(el => {
-    el.addEventListener('click', function(){
-      const mid = parseInt(this.dataset.mid);
-      const team = this.dataset.team;
-      if(!team) return;
-      const scrollX = window.scrollX, scrollY = window.scrollY;
-      const rounds = document.querySelector('.br-rounds');
-      const innerScrollLeft = rounds ? rounds.scrollLeft : 0;
-      selectWinnerPartial(mid, team);
-      // Restore scroll positions after DOM update
-      requestAnimationFrame(()=>{
-        window.scrollTo(scrollX, scrollY);
-        if(rounds) rounds.scrollLeft = innerScrollLeft;
-      });
-    });
-  });
-}
-
 // Partial update — only update affected matches, not whole bracket
 function selectWinnerPartial(matchId, team){
   const prev = bracketWinners[matchId];
@@ -3249,6 +3304,8 @@ function selectWinnerPartial(matchId, team){
     bracketWinners[matchId] = team;
   }
   cascadeClear(matchId);
+  // Trigger auto-save debounced
+  scheduleBracketAutoSave();
 
   // Re-render warning + only the affected match cells
   // Affected: this match + all downstream matches (any match where this match's
@@ -3309,7 +3366,8 @@ function selectWinnerPartial(matchId, team){
       : ``;
   }
 
-  // Re-wire click handlers for all bracket cells (only the affected ones changed inner HTML)
+  // Wire delegation on fresh render
+  _bracketDelegated = false;
   wireBracketTeamClicks(document.getElementById('cuadro-panel-bracket'));
 }
 

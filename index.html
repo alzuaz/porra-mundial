@@ -339,11 +339,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 }
 .award-card.locked .aw-hero-slot{cursor:default}
 .award-card.locked .aw-simple-img,.award-card.locked .aw-hero-img{filter:none}
-.award-card.locked::after{
-  content:'🔒 Confirmado';display:block;text-align:center;
-  font-size:.65rem;font-weight:700;color:var(--exact);
-  padding:6px 0 2px;letter-spacing:.3px
-}
+/* locked state indicated by action row only */
 .admin-only{display:none}
 .is-admin .admin-only{display:block}
 .is-admin .admin-tab{display:initial !important}
@@ -434,7 +430,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
       <div id="pred-panel-premios" style="display:none">
         <div class="ib">Elige quién crees que ganará cada premio. Se guardan junto con tus predicciones.</div>
         <div id="awards-pred-container"></div>
-        <div style="margin-top:16px;text-align:center">
+        <div style="margin-top:16px;text-align:center" id="awards-save-row">
           <button class="btn btn-g" id="save-awards-btn" style="padding:14px 40px;font-size:1rem">💾 Guardar premios</button>
         </div>
       </div>
@@ -865,8 +861,10 @@ async function fetchWikiPhoto(name){
     if(data.thumbnail && data.thumbnail.source){
       wikiPhotoCache[name] = data.thumbnail.source;
       // Update any displayed photo
-      document.querySelectorAll('img[alt="'+CSS.escape(name)+'"]').forEach(img=>{
+      // Update all images for this player — by data-player-name or alt
+      document.querySelectorAll('[data-pname="'+name+'"], img[data-player-name="'+name+'"]').forEach(img=>{
         img.src = data.thumbnail.source;
+        img.style.display = '';
       });
       return data.thumbnail.source;
     }
@@ -1744,19 +1742,16 @@ function rAwardsPred(){
   const container = document.getElementById('awards-pred-container');
   if(!container){ console.error('awards-pred-container not found'); return; }
 
-  // Sync from server — confirmed picks live in S.awPred[ME]
-  // For confirmed awards, server is always the source of truth
+  // Always sync confirmed awards from server
   const serverAw = S.awPred[ME] || {};
   function _parseAw(v){
     if(!v) return null;
     if(typeof v==='object' && v!==null) return v;
     if(typeof v==='string'){
       try{
-        const p = JSON.parse(v);
+        const p=JSON.parse(v);
         if(typeof p==='object' && p!==null) return p;
-        if(typeof p==='string'){
-          try{ const p2=JSON.parse(p); if(typeof p2==='object') return p2; }catch(_){}
-        }
+        if(typeof p==='string'){ try{ const p2=JSON.parse(p); if(typeof p2==='object') return p2; }catch(_){} }
         return p;
       }catch(_){}
     }
@@ -1765,117 +1760,166 @@ function rAwardsPred(){
   for(const k of Object.keys(serverAw)){
     const parsed = _parseAw(serverAw[k]);
     if(!parsed) continue;
-    // Always overwrite with server data for confirmed awards
-    // For unconfirmed, only fill if missing locally
-    if(isConfirmed('aw_'+k) || !myAwardPreds[k]){
-      myAwardPreds[k] = parsed;
-    }
+    if(isConfirmed('aw_'+k) || !myAwardPreds[k]) myAwardPreds[k] = parsed;
   }
 
-  const medals = ['🥇','🥈','🥉'];
-  const medalLabels = ['1º','2º','3º'];
+  const medals    = ['🥇','🥈','🥉'];
+  const medalBg   = ['rgba(245,197,24,.13)','rgba(192,192,192,.09)','rgba(205,127,50,.08)'];
+  const medalBd   = ['var(--gold)','#aaa','#cd7f32'];
   let html = '';
 
   for(const a of AWARDS){
     try{
-      const pick = myAwardPreds[a.id];
-      const real = S.aw[a.id];
-      const pts = calcAwardPoints(a.id, pick, real);
-      const ptsHTML = real && pick ? ' <span class="badge '+(pts>0?'badge-ex':'badge-wr')+'" style="margin-left:6px">'+pts+' pts</span>' : '';
-      const cfKey = 'aw_'+a.id;
-      const isConf = isConfirmed(cfKey);
+      const pick   = myAwardPreds[a.id];
+      const real   = S.aw[a.id];
+      const pts    = calcAwardPoints(a.id, pick, real);
+      const isConf = isConfirmed('aw_'+a.id);
+      const ptsHTML = real && pick
+        ? ' <span class="badge '+(pts>0?'badge-ex':'badge-wr')+'" style="margin-left:6px">'+pts+' pts</span>'
+        : '';
 
-      // Header common to all award cards
-      let cardHTML = '<div class="award-card'+(isConf?' locked':'')+'"><div class="aw-title">'+a.emoji+' '+a.title+ptsHTML+'</div><div class="aw-sub">'+a.sub+'</div>';
+      html += '<div class="award-card'+(isConf?' locked':'')+'"><div class="aw-title">'+a.emoji+' '+a.title+ptsHTML+'</div><div class="aw-sub">'+a.sub+'</div>';
 
       if(a.podium){
-        const isPodiumPick = pick && typeof pick==='object' && !pick.name;
-        const hasPicks = isPodiumPick && (pick.p1||pick.p2||pick.p3);
+        const isPodiumObj = pick && typeof pick==='object' && !pick.name;
+        const hasPicks    = isPodiumObj && (pick.p1||pick.p2||pick.p3);
 
-        if(isConf || hasPicks){
-          // Show as compact list — always readable, no photos needed
-          cardHTML += '<div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">';
+        if(hasPicks || isConf){
+          // Visual podium cards — 3 columns
+          html += '<div style="display:flex;gap:8px;margin-top:12px">';
           for(let i=0;i<3;i++){
-            const s = ['p1','p2','p3'][i];
-            const p = isPodiumPick ? pick[s] : null;
-            const name = p && p.name ? p.name : null;
-            const team = p && p.team ? p.team : null;
-            const fc = team ? (FC[team]||'') : '';
-            cardHTML += '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">'
-              +'<span style="font-size:1rem;width:24px;text-align:center">'+medals[i]+'</span>'
-              +(name
-                ? '<div style="flex:1">'
-                    +(fc?'<img src="https://flagcdn.com/w40/'+fc+'.png" width="18" height="12" style="border-radius:2px;vertical-align:middle;margin-right:5px"> ':'')
-                    +'<span style="font-weight:600;font-size:.88rem">'+name+'</span>'
-                    +'<span style="font-size:.75rem;color:var(--text2);margin-left:6px">'+es(team)+'</span>'
-                    +'</div>'
-                : '<span style="color:var(--text2);font-size:.82rem;font-style:italic">Sin elegir</span>')
-              +(isConf?'':'<button class="aw-hero-btn" data-award="'+a.id+'" data-slot="'+s+'" style="font-size:.72rem;padding:4px 8px">'+(name?'✏️':'🔍')+'</button>')
-              +'</div>';
+            const s    = ['p1','p2','p3'][i];
+            const p    = isPodiumObj ? pick[s] : null;
+            const name = p&&p.name ? p.name : null;
+            const team = p&&p.team ? p.team : null;
+            const fc   = team ? (FC[team]||'') : '';
+            const photo = name ? playerPhoto(name) : '';
+
+            html += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;'
+              +'background:'+medalBg[i]+';border:1px solid '+medalBd[i]+';border-radius:12px;padding:12px 8px 10px">';
+            html += '<div style="font-size:1.3rem;margin-bottom:8px">'+medals[i]+'</div>';
+
+            if(name){
+              html += '<div style="width:64px;height:64px;border-radius:50%;overflow:hidden;border:2px solid '+medalBd[i]+';margin-bottom:8px;background:var(--accent2);display:flex;align-items:center;justify-content:center">'
+                +(photo
+                  ? '<img src="'+photo+'" data-pname="'+name+'" width="64" height="64" style="width:100%;height:100%;object-fit:cover;object-position:top" onerror="this.style.display=\'none\'">'
+                  : '<span style="font-size:1.2rem">👤</span>')
+                +'</div>';
+              html += '<div style="font-size:.72rem;font-weight:700;text-align:center;line-height:1.3;color:var(--text)">'+name+'</div>';
+              if(team){
+                html += '<div style="font-size:.62rem;color:var(--text2);margin-top:3px;display:flex;align-items:center;gap:3px;justify-content:center">'
+                  +(fc?'<img src="https://flagcdn.com/w40/'+fc+'.png" width="14" height="9" style="border-radius:1px">':'')
+                  +es(team)+'</div>';
+              }
+            } else {
+              // Empty slot
+              html += '<div style="width:64px;height:64px;border-radius:50%;background:var(--bg);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:1.4rem;margin-bottom:8px">?</div>';
+              html += '<div style="font-size:.68rem;color:var(--text2);font-style:italic">Sin elegir</div>';
+              if(!isConf){
+                html += '<button class="aw-hero-btn" data-award="'+a.id+'" data-slot="'+s+'" '
+                  +'style="margin-top:8px;font-size:.65rem;padding:4px 8px">🔍 Elegir</button>';
+              }
+            }
+
+            if(!isConf && name){
+              html += '<button class="aw-hero-btn" data-award="'+a.id+'" data-slot="'+s+'" '
+                +'style="margin-top:8px;font-size:.65rem;padding:4px 8px">✏️</button>';
+            }
+            html += '</div>';
           }
-          cardHTML += '</div>';
-          // Actions
+          html += '</div>';
+
+          // Action row
           if(isConf){
-            cardHTML += '<div class="mc-actions" style="margin-top:8px"><span style="font-size:.65rem;color:var(--exact);font-weight:700">🔒 Confirmado</span></div>';
-          } else {
-            cardHTML += '<div class="mc-actions" style="margin-top:10px"><button class="mc-btn-confirm" data-confaw="'+a.id+'">✅ Confirmar premio</button><button class="mc-btn-del" data-delaw="'+a.id+'">🗑️ Eliminar</button></div>';
-          }
-        } else {
-          // Nothing picked yet
-          cardHTML += '<div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">';
-          for(let i=0;i<3;i++){
-            const s = ['p1','p2','p3'][i];
-            cardHTML += '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg);border-radius:8px;border:1px dashed var(--border)">'
-              +'<span style="font-size:1rem;width:24px;text-align:center">'+medals[i]+'</span>'
-              +'<span style="color:var(--text2);font-size:.82rem;font-style:italic;flex:1">Sin elegir</span>'
-              +'<button class="aw-hero-btn" data-award="'+a.id+'" data-slot="'+s+'" style="font-size:.72rem;padding:4px 8px">🔍 Elegir</button>'
+            html += '<div style="text-align:center;margin-top:10px"><span style="font-size:.68rem;color:var(--exact);font-weight:700">🔒 Confirmado</span></div>';
+          } else if(hasPicks){
+            html += '<div class="mc-actions" style="margin-top:12px">'
+              +'<button class="mc-btn-confirm" data-confaw="'+a.id+'">✅ Confirmar premio</button>'
+              +'<button class="mc-btn-del" data-delaw="'+a.id+'">🗑️ Eliminar</button>'
               +'</div>';
           }
-          cardHTML += '</div>';
+
+        } else {
+          // Nothing picked — show empty slots with pick buttons
+          html += '<div style="display:flex;gap:8px;margin-top:12px">';
+          for(let i=0;i<3;i++){
+            const s = ['p1','p2','p3'][i];
+            html += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;'
+              +'background:'+medalBg[i]+';border:1px dashed '+medalBd[i]+';border-radius:12px;padding:12px 8px 10px">'
+              +'<div style="font-size:1.3rem;margin-bottom:8px">'+medals[i]+'</div>'
+              +'<div style="width:64px;height:64px;border-radius:50%;background:var(--bg);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:1.4rem;margin-bottom:8px">?</div>'
+              +'<div style="font-size:.68rem;color:var(--text2);font-style:italic;margin-bottom:8px">Sin elegir</div>'
+              +'<button class="aw-hero-btn" data-award="'+a.id+'" data-slot="'+s+'" style="font-size:.65rem;padding:4px 8px">🔍 Elegir</button>'
+              +'</div>';
+          }
+          html += '</div>';
         }
-        cardHTML += (real ? renderAwardReal(a, real) : '');
 
       } else {
-        // Simple award
-        const p = (pick && pick.name) ? pick : null;
-        const fc = p ? (FC[p.team]||'') : '';
+        // Simple award — one big card
+        // pick may be object {name,team} or legacy string
+        let pRaw = pick;
+        if(typeof pRaw === 'string'){
+          try{ pRaw = JSON.parse(pRaw); }catch(_){ pRaw = {name: pRaw, team:''}; }
+        }
+        const p = (pRaw && pRaw.name) ? pRaw : null;
+        const fc   = p ? (FC[p.team]||'') : '';
+        const photo = p ? playerPhoto(p.name) : '';
+
         if(p){
-          cardHTML += '<div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border-radius:8px;border:1px solid var(--border);margin-top:10px">'
-            +(fc?'<img src="https://flagcdn.com/w40/'+fc+'.png" width="22" height="15" style="border-radius:2px"> ':'')
-            +'<div style="flex:1"><div style="font-weight:700;font-size:.95rem">'+p.name+'</div><div style="font-size:.75rem;color:var(--text2)">'+es(p.team)+'</div></div>'
-            +(isConf?'':'<button class="aw-simple-change" data-award="'+a.id+'" style="font-size:.72rem;padding:4px 8px">✏️</button>')
+          html += '<div style="display:flex;align-items:center;gap:16px;padding:14px;'
+            +'background:var(--bg);border:1px solid '+(isConf?'var(--exact)':'var(--border)')+';border-radius:12px;margin-top:12px">'
+            +'<div style="width:72px;height:72px;border-radius:50%;overflow:hidden;border:2px solid '+(isConf?'var(--exact)':'var(--border)')+';flex-shrink:0;background:var(--accent2);display:flex;align-items:center;justify-content:center">'
+            +(photo
+              ? '<img src="'+photo+'" data-pname="'+p.name+'" width="72" height="72" style="width:100%;height:100%;object-fit:cover;object-position:top" onerror="this.style.display=\'none\'">'
+              : '<span style="font-size:1.6rem">👤</span>')
+            +'</div>'
+            +'<div style="flex:1;min-width:0">'
+            +'<div style="font-size:1rem;font-weight:800;color:var(--text)">'+p.name+'</div>'
+            +'<div style="font-size:.78rem;color:var(--text2);display:flex;align-items:center;gap:5px;margin-top:3px">'
+            +(fc?'<img src="https://flagcdn.com/w40/'+fc+'.png" width="18" height="12" style="border-radius:2px">':'')
+            +es(p.team)+'</div>'
+            +(isConf?'<div style="font-size:.65rem;color:var(--exact);font-weight:700;margin-top:6px">🔒 Confirmado</div>'
+              :'<button class="aw-simple-change" data-award="'+a.id+'" style="margin-top:8px;font-size:.72rem;padding:4px 10px">✏️ Cambiar</button>')
+            +'</div>'
             +'</div>';
-          if(isConf){
-            cardHTML += '<div class="mc-actions" style="margin-top:8px"><span style="font-size:.65rem;color:var(--exact);font-weight:700">🔒 Confirmado</span></div>';
-          } else {
-            cardHTML += '<div class="mc-actions" style="margin-top:8px"><button class="mc-btn-confirm" data-confaw="'+a.id+'">✅ Confirmar premio</button><button class="mc-btn-del" data-delaw="'+a.id+'">🗑️ Eliminar</button></div>';
+          if(!isConf){
+            html += '<div class="mc-actions" style="margin-top:10px">'
+              +'<button class="mc-btn-confirm" data-confaw="'+a.id+'">✅ Confirmar premio</button>'
+              +'<button class="mc-btn-del" data-delaw="'+a.id+'">🗑️ Eliminar</button>'
+              +'</div>';
           }
         } else {
-          cardHTML += '<button class="aw-pick-btn" data-award="'+a.id+'" style="margin-top:10px;width:100%">🔍 Seleccionar jugador</button>';
+          html += '<button class="aw-pick-btn" data-award="'+a.id+'" style="margin-top:12px;width:100%;padding:12px">🔍 Seleccionar jugador</button>';
         }
-        cardHTML += (real ? renderAwardReal(a, real) : '');
       }
 
-      cardHTML += '</div>';
-      html += cardHTML;
+      html += (real ? renderAwardReal(a, real) : '');
+      html += '</div>';
 
     } catch(err){
       console.error('rAwardsPred error for award', a.id, ':', err);
-      html += '<div class="award-card"><div class="aw-title">'+a.emoji+' '+a.title+'</div><div style="color:var(--wrong);font-size:.8rem;padding:8px">Error: '+err.message+'</div></div>';
+      html += '<div class="award-card"><div class="aw-title">'+a.emoji+' '+a.title+'</div>'
+        +'<div style="color:var(--wrong);font-size:.8rem;padding:8px">Error: '+err.message+'</div></div>';
     }
   }
 
   container.innerHTML = html;
 
+  // Wire buttons
   container.querySelectorAll('.aw-pick-btn,.aw-hero-btn').forEach(el=>{
     el.addEventListener('click',function(){
-      const awardId = this.dataset.award;
-      if(isConfirmed('aw_'+awardId)){ toast('Premio ya confirmado — no se puede cambiar','err'); return; }
-      openAwardPicker(awardId, this.dataset.slot||null);
+      const aid = this.dataset.award;
+      if(isConfirmed('aw_'+aid)){ toast('Premio ya confirmado','err'); return; }
+      openAwardPicker(aid, this.dataset.slot||null);
     });
   });
   container.querySelectorAll('.aw-simple-change').forEach(el=>{
-    el.addEventListener('click',function(e){ e.stopPropagation(); openAwardPicker(this.dataset.award, null); });
+    el.addEventListener('click',function(e){
+      e.stopPropagation();
+      if(isConfirmed('aw_'+this.dataset.award)){ toast('Premio ya confirmado','err'); return; }
+      openAwardPicker(this.dataset.award, null);
+    });
   });
   container.querySelectorAll('[data-confaw]').forEach(btn=>{
     btn.addEventListener('click',function(){ confirmPrediction('aw_'+this.dataset.confaw); });
@@ -1885,11 +1929,31 @@ function rAwardsPred(){
       if(confirm('¿Eliminar tu predicción de este premio?')) deleteAwardPrediction(this.dataset.delaw);
     });
   });
+
+  // Show/hide save button — hide if all awards confirmed
+  const saveRow = document.getElementById('awards-save-row');
+  if(saveRow){
+    const allConfirmed = AWARDS.every(a => isConfirmed('aw_'+a.id));
+    saveRow.style.display = allConfirmed ? 'none' : '';
+  }
+
+  // Fetch photos progressively for all awards
   AWARDS.forEach(a=>{
-    const pick = myAwardPreds[a.id];
-    if(!pick) return;
-    if(a.podium){['p1','p2','p3'].forEach(s=>{if(pick[s]&&pick[s].name)fetchWikiPhoto(pick[s].name);});}
-    else if(pick.name) fetchWikiPhoto(pick.name);
+    try{
+      let pick = myAwardPreds[a.id];
+      if(!pick) return;
+      // Parse legacy string format
+      if(typeof pick === 'string'){
+        try{ pick = JSON.parse(pick); }catch(_){ return; }
+      }
+      if(a.podium){
+        ['p1','p2','p3'].forEach(s=>{
+          if(pick[s]&&pick[s].name&&typeof pick[s].name==='string') fetchWikiPhoto(pick[s].name);
+        });
+      } else if(pick.name && typeof pick.name==='string'){
+        fetchWikiPhoto(pick.name);
+      }
+    }catch(_){}
   });
 }
 

@@ -854,6 +854,7 @@ function tmPhoto(name){
 const wikiPhotoCache = {}; // {playerName: photoUrl}
 
 async function fetchWikiPhoto(name){
+  if(!name || typeof name !== 'string') return null;
   if(wikiPhotoCache[name]) return wikiPhotoCache[name];
   try{
     const query = encodeURIComponent(name + ' footballer');
@@ -875,6 +876,7 @@ async function fetchWikiPhoto(name){
 
 // Override playerPhoto to check wiki cache first
 function playerPhoto(name){
+  if(!name || typeof name !== 'string') return 'https://ui-avatars.com/api/?background=0f3460&color=f5c518&size=80';
   if(wikiPhotoCache[name]) return wikiPhotoCache[name];
   const tm = tmPhoto(name);
   if(tm) return tm;
@@ -903,13 +905,13 @@ const TEAM_CODE = {
 // NOMBRES EN ESPAÑOL
 // ============================================================
 const ES={'Mexico':'México','South Africa':'Sudáfrica','Korea Republic':'Corea del Sur','Czechia':'Chequia','Canada':'Canadá','Bosnia & Herzegovina':'Bosnia y Herzegovina','Qatar':'Catar','Switzerland':'Suiza','Brazil':'Brasil','Morocco':'Marruecos','Haiti':'Haití','Scotland':'Escocia','USA':'EE.UU.','Paraguay':'Paraguay','Australia':'Australia','Turkiye':'Turquía','Germany':'Alemania','Curacao':'Curazao','Ivory Coast':'Costa de Marfil','Ecuador':'Ecuador','Netherlands':'Países Bajos','Japan':'Japón','Sweden':'Suecia','Tunisia':'Túnez','Belgium':'Bélgica','Egypt':'Egipto','Iran':'Irán','New Zealand':'Nueva Zelanda','Spain':'España','Cape Verde':'Cabo Verde','Saudi Arabia':'Arabia Saudí','Uruguay':'Uruguay','France':'Francia','Senegal':'Senegal','Iraq':'Iraq','Norway':'Noruega','Argentina':'Argentina','Algeria':'Argelia','Austria ':'Austria ','Jordan ':'Jordania ','Portugal ':'Portugal ','DR Congo ':'RD Congo ','Uzbekistan ':'Uzbekistán ','Colombia ':'Colombia ','England ':'Inglaterra ','Croatia ':'Croacia ','Ghana ':'Ghana ','Panama ':'Panamá '};
-function es(n){return ES[n]||n;}
+function es(n){if(!n)return '';return ES[n]||n;}
 
 // ============================================================
 // FLAGS
 // ============================================================
 const FC={'Mexico':'mx','South Africa':'za','Korea Republic':'kr','Czechia':'cz','Canada':'ca','Bosnia & Herzegovina':'ba','Qatar':'qa','Switzerland':'ch','Brazil':'br','Morocco':'ma','Haiti':'ht','Scotland':'gb-sct','USA':'us','Paraguay':'py','Australia':'au','Turkiye':'tr','Germany':'de','Curacao':'cw','Ivory Coast':'ci','Ecuador':'ec','Netherlands':'nl','Japan':'jp','Sweden':'se','Tunisia':'tn','Belgium':'be','Egypt':'eg','Iran':'ir','New Zealand':'nz','Spain':'es','Cape Verde':'cv','Saudi Arabia':'sa','Uruguay':'uy','France':'fr','Senegal':'sn','Iraq':'iq','Norway':'no','Argentina':'ar','Algeria':'dz','Austria':'at','Jordan':'jo','Portugal':'pt','DR Congo':'cd','Uzbekistan':'uz','Colombia':'co','England':'gb-eng','Croatia':'hr','Ghana':'gh','Panama':'pa'};
-function flag(n){const c=FC[n];return c?'<img src="https://flagcdn.com/w40/'+c+'.png" width="20" height="14" alt="'+es(n)+'" style="vertical-align:middle;border-radius:2px">':'';}
+function flag(n){if(!n)return '';const c=FC[n];return c?'<img src="https://flagcdn.com/w40/'+c+'.png" width="20" height="14" alt="'+es(n)+'" style="vertical-align:middle;border-radius:2px">':'';}
 
 // ============================================================
 // GRUPOS
@@ -1009,7 +1011,9 @@ let IS_ADMIN=false;
 // TIEMPO
 // ============================================================
 function koDate(m){
+  if(!m||!m.ko||!Array.isArray(m.ko)||m.ko.length<5) return new Date(0);
   const[y,mo,d,h,mi]=m.ko;
+  if(y===undefined||h===undefined) return new Date(0);
   return new Date(Date.UTC(y,mo-1,d,h-2,mi)); // CEST = UTC+2
 }
 const LOCK_MS = 15*60*1000;      // 15 min before kickoff: lock prediction
@@ -1059,7 +1063,7 @@ function canEdit(m){
   if(isMatchConfirmed(m)) return false;
   return isPredictionOpen(m);
 }
-function fmtTime(m){const[,,,h,mi]=m.ko;return h.toString().padStart(2,'0')+':'+(mi===0?'00':mi.toString().padStart(2,'0'))+' h';}
+function fmtTime(m){if(!m||!m.ko||!Array.isArray(m.ko)||m.ko.length<5)return '--:--';const[,,,h,mi]=m.ko;if(h===undefined||h===null)return '--:--';return h.toString().padStart(2,'0')+':'+(mi===0?'00':mi.toString().padStart(2,'0'))+' h';}
 
 // ============================================================
 // ADMIN — SHA-256
@@ -3708,13 +3712,23 @@ function totalBracketPoints(nm){
 }
 
 function prefetchSelectedPlayerPhotos(){
-  const awPred=S.awPred[ME]||{};
-  AWARDS.forEach(a=>{
-    const pick=awPred[a.id];
-    if(!pick) return;
-    if(a.podium){['p1','p2','p3'].forEach(s=>{if(pick[s]&&pick[s].name)fetchWikiPhoto(pick[s].name);});}
-    else{if(pick.name)fetchWikiPhoto(pick.name);}
-  });
+  try{
+    const awPred=S.awPred[ME]||{};
+    AWARDS.forEach(a=>{
+      try{
+        const pick=awPred[a.id];
+        if(!pick) return;
+        if(typeof pick==='string') return; // legacy string, skip
+        if(a.podium){
+          ['p1','p2','p3'].forEach(s=>{
+            if(pick[s]&&pick[s].name&&typeof pick[s].name==='string') fetchWikiPhoto(pick[s].name);
+          });
+        } else {
+          if(pick.name&&typeof pick.name==='string') fetchWikiPhoto(pick.name);
+        }
+      }catch(_){}
+    });
+  }catch(_){}
 }
 
 

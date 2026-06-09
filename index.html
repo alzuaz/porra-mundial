@@ -220,11 +220,11 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .br-tree{
   display:grid;
   /* 9 columns: R32L R16L QFL SFL CENTER SFR QFR R16R R32R */
-  grid-template-columns:140px 140px 140px 140px 170px 140px 140px 140px 140px;
-  /* row 1 = titles (28px), rows 2-17 = bracket (42px each) */
-  grid-template-rows:28px repeat(16, 42px);
-  gap:4px 8px;
-  min-width:1320px;
+  grid-template-columns:165px 165px 165px 165px 185px 165px 165px 165px 165px;
+  /* row 1 = titles (34px), rows 2-17 = bracket (46px each) */
+  grid-template-rows:34px repeat(16, 46px);
+  gap:6px 10px;
+  min-width:1545px;
   padding:8px 0 10px;
 }
 .br-title{
@@ -233,9 +233,9 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 }
 .br-match{
   background:var(--card);border:1px solid var(--border);border-radius:8px;
-  overflow:hidden;font-size:.7rem;
+  overflow:visible;font-size:.72rem;
   display:flex;flex-direction:column;justify-content:center;
-  width:100%;min-height:76px;height:auto;
+  width:100%;min-height:80px;height:auto;
 }
 .br-meta{background:var(--secondary);padding:2px 7px;font-size:.55rem;color:var(--text2);display:flex;justify-content:space-between;line-height:1.2}
 .br-meta .br-mid{color:var(--gold);font-weight:700}
@@ -247,10 +247,10 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .br-team.br-eliminated{opacity:.35;cursor:default;text-decoration:line-through}
 .br-team.br-tbd{cursor:default;color:var(--text2);font-style:italic;font-size:.7rem}
 .br-team img{width:16px;height:11px;border-radius:1px;flex-shrink:0}
-.br-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.br-name{flex:1;white-space:normal;overflow:visible;line-height:1.15;font-size:.72rem}
 @media(max-width:600px){
-  .br-tree{grid-template-rows:28px repeat(16,48px);grid-template-columns:130px 130px 130px 130px 160px 130px 130px 130px 130px;gap:3px 6px;min-width:1220px}
-  .br-team{padding:8px 6px;min-height:48px;font-size:.68rem}
+  .br-tree{grid-template-rows:34px repeat(16,48px);grid-template-columns:150px 150px 150px 150px 165px 150px 150px 150px 150px;gap:5px 8px;min-width:1410px}
+  .br-team{padding:8px 7px;min-height:46px;font-size:.74rem}
   .br-rounds{padding-bottom:20px}
 }
 .br-final{background:linear-gradient(135deg,rgba(245,197,24,.12),rgba(15,52,96,.4));border-color:var(--gold)}
@@ -258,7 +258,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .cuadro-pending{background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.25);border-radius:10px;padding:12px 16px;margin:14px 0;font-size:.82rem;color:var(--wrong);text-align:center}
 .cuadro-ready{background:rgba(39,174,96,.08);border:1px solid rgba(39,174,96,.25);border-radius:10px;padding:10px 16px;margin:14px 0;font-size:.82rem;color:var(--exact);text-align:center}
 
-@media(max-width:600px){.cg-grid{grid-template-columns:1fr 1fr}.br-tree{grid-template-columns:115px 115px 115px 115px 140px 115px 115px 115px 115px;grid-template-rows:28px repeat(16,40px);min-width:1100px}}
+@media(max-width:600px){.cg-grid{grid-template-columns:1fr 1fr}}
 
 
 /* ── AWARDS SELECTOR ──────────────────────────────────── */
@@ -547,7 +547,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 // ============================================================
 // CONFIG
 // ============================================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbyDYHbLM6Grtne_wP_ytQdgGvjh6XXf8wyBfGUX1XLHuZXsfiePT9tflMIgFu9K1vkbRg/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxPSvqFzY8iFxYkj52gxqZnjUGYR4cmRO4LCzwAR5hNlFn_OVevg6HXLjicXlfG1t09Sg/exec';
 const ADMIN_HASH = 'ef62ae87d68dc864970d30e60a1f448c8480a0b839d801fe49b6667c35bed4e3';
 
 // ── API RESULTADOS EN DIRECTO ────────────────────────────────
@@ -1362,6 +1362,7 @@ async function syncAll(){
     _syncMyAwardPredsFromServer();
     // Confirmations: {userName: {matchId: true, 'aw_mvp': true, ...}}
     const allCf = r.cf || {};
+    S.cfAll = allCf;
     S.cf = allCf[ME] || {};
     if(!S.p.includes(ME)){
       // Retry up to 3 times — mobile connections can be slow/flaky
@@ -1771,7 +1772,9 @@ function rAwardsPred(){
     return v;
   }
   for(const k of Object.keys(serverAw)){
-    const parsed = _parseAw(serverAw[k]);
+    const aMeta = AWARDS.find(x=>x.id===k);
+    const isPod = aMeta ? aMeta.podium : false;
+    const parsed = (k==='__bracket__') ? _parseAw(serverAw[k]) : normalizeAwardPick(serverAw[k], isPod);
     if(!parsed) continue;
     if(isConfirmed('aw_'+k) || !myAwardPreds[k]) myAwardPreds[k] = parsed;
   }
@@ -2372,48 +2375,115 @@ function renderPartMatches(nm){
     }).join('')).join('');
 }
 
+
+// ── AWARD PICK NORMALIZATION ─────────────────────────────────
+// Find a player's team by searching all squads
+let _playerTeamCache = null;
+function findPlayerTeam(name){
+  if(!name || typeof name!=='string') return '';
+  if(!_playerTeamCache){
+    _playerTeamCache = {};
+    for(const team of Object.keys(SQUADS)){
+      for(const pl of SQUADS[team]){
+        _playerTeamCache[pl.n] = team;
+      }
+    }
+  }
+  return _playerTeamCache[name] || '';
+}
+
+// Normalize any stored award value into a usable object
+// Returns: for simple -> {name, team}; for podium -> {p1:{name,team}, p2, p3}
+function normalizeAwardPick(val, isPodium){
+  if(val === null || val === undefined || val === '') return null;
+  // Parse JSON strings
+  if(typeof val === 'string'){
+    const s = val.trim();
+    if(s.startsWith('{')){
+      try{ val = JSON.parse(s); }catch(_){ /* fall through as plain name */ }
+    }
+    // Still a plain string = just a player name (legacy simple award)
+    if(typeof val === 'string'){
+      const nm = val.trim();
+      if(!nm) return null;
+      return {name: nm, team: findPlayerTeam(nm)};
+    }
+  }
+  if(typeof val !== 'object' || val === null) return null;
+  // Podium object
+  if(isPodium){
+    const out = {};
+    for(const s of ['p1','p2','p3']){
+      const p = val[s];
+      if(!p) continue;
+      if(typeof p === 'string'){
+        out[s] = {name: p, team: findPlayerTeam(p)};
+      } else if(p && p.name){
+        out[s] = {name: p.name, team: p.team || findPlayerTeam(p.name)};
+      }
+    }
+    return out;
+  }
+  // Simple object {name, team}
+  if(val.name){
+    return {name: val.name, team: val.team || findPlayerTeam(val.name)};
+  }
+  // Maybe it's a podium-shaped object passed as simple — take p1
+  if(val.p1 && val.p1.name){
+    return {name: val.p1.name, team: val.p1.team || findPlayerTeam(val.p1.name)};
+  }
+  return null;
+}
+
 function renderPartAwards(nm){
-  const _rpAw=(S.awPred[nm])||{};
-  const awPred={};for(const[k,v]of Object.entries(_rpAw)){if(typeof v==='string'){try{const p=JSON.parse(v);if(typeof p==='object'){awPred[k]=p;continue;}}catch(_){}}awPred[k]=v;}
+  const _rpAw = (S.awPred[nm]) || {};
   const container = document.getElementById('part-detail-awards');
   if(!container) return;
-  // Only show other players' awards if YOU have confirmed that award
+
   const viewerIsOwn = (nm === ME);
   const medals = ['🥇','🥈','🥉'];
+
   container.innerHTML = AWARDS.map(a=>{
-    let pick = awPred[a.id];
+    let pick = normalizeAwardPick(_rpAw[a.id], a.podium);
+    // Gate: viewing someone else requires YOU to have confirmed this award
     if(!viewerIsOwn && !isConfirmed('aw_'+a.id)){ pick = null; }
+
     const real = S.aw[a.id];
     const pts = calcAwardPoints(a.id, pick, real);
     const ptsHTML = real && pick ? ' <span class="badge '+(pts>0?'badge-ex':'badge-wr')+'">'+pts+' pts</span>' : '';
+
     if(a.podium){
-      const slots = ['p1','p2','p3'];
       const pickedAny = pick && (pick.p1||pick.p2||pick.p3);
-      const slotsHTML = slots.map((s,i)=>{
-        const p = pick ? pick[s] : null;
-        if(!p) return '';
-        const fc = FC[p.team]||'';
-        return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)">'+
-          '<span style="font-size:.85rem;width:20px">'+medals[i]+'</span>'+
-          (fc?'<img src="https://flagcdn.com/w40/'+fc+'.png" width="18" height="12" style="border-radius:2px">':'')+
-          '<span style="font-size:.82rem;font-weight:600">'+p.name+'</span>'+
-          '<span style="font-size:.72rem;color:var(--text2);margin-left:4px">'+es(p.team)+'</span>'+
-        '</div>';
-      }).filter(Boolean).join('');
-      return '<div class="award-card"><div class="aw-title">'+a.emoji+' '+a.title+ptsHTML+'</div>'+
-        (pickedAny?'<div style="margin-top:8px">'+slotsHTML+'</div>':'<div style="color:var(--text2);font-size:.82rem;font-style:italic;padding:8px 0">Sin predicción</div>')+
-        (real?renderAwardReal(a,real):'')+
-      '</div>';
+      let slotsHTML = '';
+      if(pick){
+        for(let i=0;i<3;i++){
+          const s = ['p1','p2','p3'][i];
+          const p = pick[s];
+          if(!p || !p.name) continue;
+          const fc = FC[p.team]||'';
+          slotsHTML += '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)">'
+            +'<span style="font-size:.85rem;width:20px">'+medals[i]+'</span>'
+            +(fc?'<img src="https://flagcdn.com/w40/'+fc+'.png" width="18" height="12" style="border-radius:2px">':'')
+            +'<span style="font-size:.82rem;font-weight:600">'+p.name+'</span>'
+            +'<span style="font-size:.72rem;color:var(--text2);margin-left:4px">'+es(p.team)+'</span>'
+            +'</div>';
+        }
+      }
+      return '<div class="award-card"><div class="aw-title">'+a.emoji+' '+a.title+ptsHTML+'</div>'
+        +(pickedAny?'<div style="margin-top:8px">'+slotsHTML+'</div>':'<div style="color:var(--text2);font-size:.82rem;font-style:italic;padding:8px 0">Sin predicción</div>')
+        +(real?renderAwardReal(a,real):'')
+        +'</div>';
     } else {
-      const fc = pick ? (FC[pick.team]||'') : '';
-      return '<div class="award-card"><div class="aw-title">'+a.emoji+' '+a.title+ptsHTML+'</div>'+
-        (pick?'<div style="display:flex;align-items:center;gap:8px;padding:8px 0">'+
-          (fc?'<img src="https://flagcdn.com/w40/'+fc+'.png" width="20" height="14" style="border-radius:2px">':'')+
-          '<span style="font-size:.88rem;font-weight:700">'+pick.name+'</span>'+
-          '<span style="font-size:.74rem;color:var(--text2);margin-left:4px">'+es(pick.team)+'</span>'+
-        '</div>':'<div style="color:var(--text2);font-size:.82rem;font-style:italic;padding:8px 0">Sin predicción</div>')+
-        (real?renderAwardReal(a,real):'')+
-      '</div>';
+      const p = (pick && pick.name) ? pick : null;
+      const fc = p ? (FC[p.team]||'') : '';
+      return '<div class="award-card"><div class="aw-title">'+a.emoji+' '+a.title+ptsHTML+'</div>'
+        +(p?'<div style="display:flex;align-items:center;gap:8px;padding:8px 0">'
+          +(fc?'<img src="https://flagcdn.com/w40/'+fc+'.png" width="20" height="14" style="border-radius:2px">':'')
+          +'<span style="font-size:.88rem;font-weight:700">'+p.name+'</span>'
+          +'<span style="font-size:.74rem;color:var(--text2);margin-left:4px">'+es(p.team)+'</span>'
+          +'</div>':'<div style="color:var(--text2);font-size:.82rem;font-style:italic;padding:8px 0">Sin predicción</div>')
+        +(real?renderAwardReal(a,real):'')
+        +'</div>';
     }
   }).join('');
 }
@@ -2539,11 +2609,29 @@ function renderPartBracket(nm){
     '<div style="font-size:.82rem;font-weight:700;color:var(--gold);margin-bottom:8px">📋 Grupos</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">'+groupsHTML+'</div>'
     +'<div style="font-size:.82rem;font-weight:700;color:var(--gold);margin-bottom:8px">🔗 Bracket eliminatorio</div>'
-    +'<div class="br-rounds" style="pointer-events:none;touch-action:pan-x;overflow-x:auto;-webkit-overflow-scrolling:touch">'
-      +'<div class="br-tree">'
+    +'<div class="br-rounds" id="part-br-rounds" style="touch-action:pan-x;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;cursor:grab">'
+      +'<div class="br-tree" style="pointer-events:none">'
         +titlesHTML+matchesHTML+finalCardHTML+championBoxHTML+thirdCardHTML
       +'</div>'
     +'</div>';
+
+  // Enable drag-to-scroll with mouse (desktop)
+  const scroller = document.getElementById('part-br-rounds');
+  if(scroller){
+    let isDown=false, startX, scrollLeftStart;
+    scroller.addEventListener('mousedown',e=>{
+      isDown=true; scroller.style.cursor='grabbing';
+      startX=e.pageX-scroller.offsetLeft; scrollLeftStart=scroller.scrollLeft;
+    });
+    scroller.addEventListener('mouseleave',()=>{isDown=false;scroller.style.cursor='grab';});
+    scroller.addEventListener('mouseup',()=>{isDown=false;scroller.style.cursor='grab';});
+    scroller.addEventListener('mousemove',e=>{
+      if(!isDown) return;
+      e.preventDefault();
+      const x=e.pageX-scroller.offsetLeft;
+      scroller.scrollLeft = scrollLeftStart-(x-startX)*1.5;
+    });
+  }
 }
 
 

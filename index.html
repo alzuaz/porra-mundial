@@ -235,7 +235,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   background:var(--card);border:1px solid var(--border);border-radius:8px;
   overflow:hidden;font-size:.7rem;
   display:flex;flex-direction:column;justify-content:center;
-  width:100%;height:76px;
+  width:100%;min-height:76px;height:auto;
 }
 .br-meta{background:var(--secondary);padding:2px 7px;font-size:.55rem;color:var(--text2);display:flex;justify-content:space-between;line-height:1.2}
 .br-meta .br-mid{color:var(--gold);font-weight:700}
@@ -547,7 +547,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 // ============================================================
 // CONFIG
 // ============================================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbxPSvqFzY8iFxYkj52gxqZnjUGYR4cmRO4LCzwAR5hNlFn_OVevg6HXLjicXlfG1t09Sg/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyDYHbLM6Grtne_wP_ytQdgGvjh6XXf8wyBfGUX1XLHuZXsfiePT9tflMIgFu9K1vkbRg/exec';
 const ADMIN_HASH = 'ef62ae87d68dc864970d30e60a1f448c8480a0b839d801fe49b6667c35bed4e3';
 
 // ── API RESULTADOS EN DIRECTO ────────────────────────────────
@@ -1358,11 +1358,24 @@ async function syncAll(){
     S.aw = r.awards          || {};
     S.awPred = r.awardPredictions || {};
     console.log('[porra] awPred[ME]:', JSON.stringify(S.awPred[ME]).slice(0,200));
+    // Always sync myAwardPreds from server data after load
+    _syncMyAwardPredsFromServer();
     // Confirmations: {userName: {matchId: true, 'aw_mvp': true, ...}}
     const allCf = r.cf || {};
     S.cf = allCf[ME] || {};
     if(!S.p.includes(ME)){
-      try{ await api('addParticipant',{name:ME}); }catch(_){}
+      // Retry up to 3 times — mobile connections can be slow/flaky
+      let added = false;
+      for(let _try=0; _try<3 && !added; _try++){
+        try{
+          const addR = await api('addParticipant',{name:ME});
+          if(addR && addR.ok){ added=true; console.log('[porra] addParticipant ok'); }
+          else console.warn('[porra] addParticipant response:', JSON.stringify(addR));
+        }catch(addErr){
+          console.warn('[porra] addParticipant attempt',_try+1,'failed:', addErr.message);
+          if(_try < 2) await new Promise(res=>setTimeout(res, 1500));
+        }
+      }
       if(!S.p.includes(ME)) S.p.push(ME);
     }
     // Init local preds from server (only if empty)
@@ -1451,16 +1464,16 @@ let predSubTab='partidos';
 
 function showPredSubTab(t){
   predSubTab=t;
-  // Sync myAwardPreds from server before showing awards tab
   if(t==='premios'){
-    const serverAw = S.awPred[ME]||{};
-    function _pAw2(v){if(typeof v==='string'){try{const p=JSON.parse(v);if(typeof p==='object')return p;}catch(_){}}return v;}
-    const parsedAw={};for(const k of Object.keys(serverAw)){parsedAw[k]=_pAw2(serverAw[k]);}
-    // Sync from server — always overwrite confirmed awards
-    for(const k of Object.keys(parsedAw)){
-      if(isConfirmed('aw_'+k) || !myAwardPreds[k]){
-        myAwardPreds[k] = JSON.parse(JSON.stringify(parsedAw[k]));
-      }
+    // Sync from server first
+    _syncMyAwardPredsFromServer();
+    // If server data not loaded yet, trigger a fresh sync and re-render when done
+    const hasServerData = Object.keys(S.awPred[ME]||{}).length > 0;
+    if(!hasServerData){
+      syncAll().then(()=>{
+        _syncMyAwardPredsFromServer();
+        if(predSubTab==='premios') try{ rAwardsPred(); }catch(_){}
+      }).catch(()=>{});
     }
   }
   document.getElementById('pred-panel-partidos').style.display=t==='partidos'?'':'none';
@@ -1971,6 +1984,37 @@ function renderAwardReal(award, real){
 }
 
 
+function _syncMyAwardPredsFromServer(){
+  // Called after syncAll — always overwrites confirmed awards from server
+  const serverAw = S.awPred[ME] || {};
+  function _p(v){
+    if(!v) return null;
+    if(typeof v==='object' && v!==null) return v;
+    if(typeof v==='string'){
+      try{
+        const p=JSON.parse(v);
+        if(typeof p==='object' && p!==null) return p;
+        if(typeof p==='string'){ try{ return JSON.parse(p); }catch(_){} }
+        return p;
+      }catch(_){}
+    }
+    return v;
+  }
+  let changed = false;
+  for(const k of Object.keys(serverAw)){
+    const parsed = _p(serverAw[k]);
+    if(!parsed) continue;
+    if(isConfirmed('aw_'+k) || !myAwardPreds[k]){
+      myAwardPreds[k] = parsed;
+      changed = true;
+    }
+  }
+  // Re-render if on awards tab and something changed
+  if(changed && predSubTab==='premios'){
+    try{ rAwardsPred(); }catch(_){}
+  }
+}
+
 async function saveAwardsPred(){
   try{
     toast('Guardando premios...','ok');
@@ -2376,52 +2420,141 @@ function renderPartAwards(nm){
 function renderPartBracket(nm){
   const container = document.getElementById('part-detail-bracket');
   if(!container) return;
-  // Only show bracket if viewer has confirmed their own (or viewing self)
-  if(nm!==ME && !(S.cf&&S.cf.br)){
+
+  if(nm !== ME && !(S.cf && S.cf.br)){
     container.innerHTML = '<div style="text-align:center;padding:32px 16px;color:var(--text2)"><div style="font-size:2rem;margin-bottom:8px">🔒</div><div>Confirma tu cuadro para ver el de '+nm+'</div></div>';
     return;
   }
+
   const awPred = S.awPred[nm] || {};
   const raw = awPred['__bracket__'];
-  if(!raw){ container.innerHTML='<div style="text-align:center;padding:20px;color:var(--text2)">Sin predicción del cuadro</div>'; return; }
+  if(!raw){
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text2)">Sin predicción del cuadro</div>';
+    return;
+  }
   let bd;
   try { bd = typeof raw==='string' ? JSON.parse(raw) : raw; } catch(_){ bd={}; }
-  const order=bd.order||{}, winners=bd.winners||{}, confirmed=bd.confirmed||{}, thirds=bd.thirds||{};
-  if(!Object.keys(confirmed).some(g=>confirmed[g])){ container.innerHTML='<div style="text-align:center;padding:20px;color:var(--text2)">Sin predicción del cuadro</div>'; return; }
-  const groups = Object.keys(GR).filter(g=>confirmed[g]);
-  const groupsHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'+
-    groups.map(g=>{
-      const teams = order[g]||[];
-      return '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 10px">'+
-        '<div style="font-size:.7rem;font-weight:700;color:var(--gold);margin-bottom:4px">GRUPO '+g+'</div>'+
-        teams.map((t,i)=>'<div style="font-size:.78rem;display:flex;align-items:center;gap:4px;padding:2px 0'+(thirds[g]&&i===2?';color:var(--gold)':'')+'">'+
-          '<span style="width:18px">'+(i===0?'🥇':i===1?'🥈':i===2?'🥉':'4º')+'</span>'+flag(t)+' '+es(t)+(thirds[g]&&i===2?' ⭐':'')+'</div>').join('')+
-      '</div>';
-    }).join('')+'</div>';
-  const rnames={73:'R32',74:'R32',75:'R32',76:'R32',77:'R32',78:'R32',79:'R32',80:'R32',81:'R32',82:'R32',83:'R32',84:'R32',85:'R32',86:'R32',87:'R32',88:'R32',89:'Octavos',90:'Octavos',91:'Octavos',92:'Octavos',93:'Octavos',94:'Octavos',95:'Octavos',96:'Octavos',97:'Cuartos',98:'Cuartos',99:'Cuartos',100:'Cuartos',101:'Semis',102:'Semis',103:'3er puesto',104:'Final'};
-  const picksHTML = Object.entries(winners).filter(([,w])=>w).map(([mid,w])=>
-    '<div style="display:flex;align-items:center;gap:6px;padding:4px 8px;background:var(--bg);border-radius:6px;margin-bottom:4px;font-size:.78rem">'+
-    '<span style="color:var(--text2);font-size:.65rem;min-width:60px">'+(rnames[mid]||'M'+mid)+'</span>'+
-    flag(w)+' <strong>'+es(w)+'</strong>'+(mid==='104'?' 🏆':mid==='103'?' 🥉':'')+'</div>').join('');
-  container.innerHTML = groupsHTML + (picksHTML?'<div style="font-size:.82rem;font-weight:700;margin:10px 0 6px">Eliminatorias</div>'+picksHTML:'<div style="color:var(--text2);font-size:.82rem;font-style:italic">Sin predicciones eliminatorias</div>');
+  const pOrder    = bd.order    || {};
+  const pWinners  = bd.winners  || {};
+  const pConfirmed= bd.confirmed|| {};
+  const pThirds   = bd.thirds   || {};
+
+  if(!Object.keys(pConfirmed).some(g=>pConfirmed[g])){
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text2)">Sin predicción del cuadro</div>';
+    return;
+  }
+
+  // Swap global state so renderMatchTree reads participant data
+  const _bo = bracketOrder, _bw = bracketWinners, _bc = confirmedGroups, _bt = qualifiedThirdGroups;
+  bracketOrder         = pOrder;
+  bracketWinners       = pWinners;
+  confirmedGroups      = pConfirmed;
+  qualifiedThirdGroups = pThirds;
+
+  // Groups grid (same style as participant bracket view)
+  const groupsHTML = Object.keys(GR).filter(g=>pConfirmed[g]).map(g=>{
+    const teams = pOrder[g]||[];
+    return '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 10px">'
+      +'<div style="font-size:.7rem;font-weight:700;color:var(--gold);margin-bottom:4px">GRUPO '+g+'</div>'
+      +teams.map((t,i)=>'<div style="font-size:.78rem;display:flex;align-items:center;gap:4px;padding:2px 0'+(pThirds[g]&&i===2?';color:var(--gold)':'')+'">'
+        +'<span style="width:18px">'+(i===0?'🥇':i===1?'🥈':i===2?'🥉':'4º')+'</span>'
+        +flag(t)+' '+es(t)+(pThirds[g]&&i===2?' ⭐':'')
+        +'</div>').join('')
+      +'</div>';
+  }).join('');
+
+  // Same pyramid layout as rCuadroBracket
+  const leftR32  = [74, 77, 73, 75, 83, 84, 81, 82];
+  const leftR16  = [89, 90, 93, 94];
+  const leftQF   = [97, 98];
+  const rightR32 = [76, 78, 79, 80, 86, 88, 85, 87];
+  const rightR16 = [91, 92, 95, 96];
+  const rightQF  = [99, 100];
+  const finalId  = 104;
+  const thirdId  = 103;
+
+  function mInfoP(id){
+    const r32m = R32.find(m=>m.id===id);
+    if(r32m) return {date:r32m.date, v:r32m.venue};
+    return {date:'', v:''};
+  }
+
+  const cells = [];
+  leftR32.forEach((id,i) =>cells.push({id, col:1, row:i*2+2, span:2}));
+  rightR32.forEach((id,i)=>cells.push({id, col:9, row:i*2+2, span:2}));
+  leftR16.forEach((id,i) =>cells.push({id, col:2, row:i*4+2, span:4}));
+  rightR16.forEach((id,i)=>cells.push({id, col:8, row:i*4+2, span:4}));
+  leftQF.forEach((id,i)  =>cells.push({id, col:3, row:i*8+2, span:8}));
+  rightQF.forEach((id,i) =>cells.push({id, col:7, row:i*8+2, span:8}));
+  cells.push({id:101, col:4, row:2, span:16});
+  cells.push({id:102, col:6, row:2, span:16});
+
+  const champion   = pWinners[finalId];
+  const finalTeams = getMatchTeams(finalId);
+
+  let matchesHTML = '';
+  cells.forEach(cell=>{
+    const info = mInfoP(cell.id);
+    const medalClass = (cell.id===finalId && champion) ? ' medal-1' : '';
+    matchesHTML += '<div style="grid-column:'+cell.col+';grid-row:'+cell.row+' / span '+cell.span+';display:flex;align-items:center">'
+      +renderMatchTree(cell.id, info.date, info.v, false, medalClass)
+      +'</div>';
+  });
+
+  const finalInfo = mInfoP(finalId);
+  const finalCardHTML = '<div style="grid-column:5;grid-row:8 / span 4;display:flex;align-items:center">'
+    +renderMatchTree(finalId, finalInfo.date, finalInfo.v, true, '')
+    +'</div>';
+
+  const championBoxHTML = champion
+    ? '<div style="grid-column:5;grid-row:3 / span 4;display:flex;align-items:center;justify-content:center">'
+        +'<div class="br-champion-box"><div class="ch-label">🏆 Campeón</div><div class="ch-name">'+flag(champion)+' '+es(champion)+'</div></div>'
+        +'</div>'
+    : '<div style="grid-column:5;grid-row:3 / span 4"></div>';
+
+  const thirdInfo = mInfoP(thirdId);
+  const thirdCardHTML = '<div style="grid-column:5;grid-row:13 / span 4;display:flex;flex-direction:column;justify-content:center;gap:4px">'
+    +'<div style="font-size:.6rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);text-align:center;font-weight:700">3er puesto</div>'
+    +renderMatchTree(thirdId, thirdInfo.date, thirdInfo.v, false, '')
+    +'</div>';
+
+  const titlesHTML =
+    '<div class="br-title" style="grid-column:1;grid-row:1">Dieciseisavos</div>'
+    +'<div class="br-title" style="grid-column:2;grid-row:1">Octavos</div>'
+    +'<div class="br-title" style="grid-column:3;grid-row:1">Cuartos</div>'
+    +'<div class="br-title" style="grid-column:4;grid-row:1">Semis</div>'
+    +'<div class="br-title" style="grid-column:5;grid-row:1">🏆 Final</div>'
+    +'<div class="br-title" style="grid-column:6;grid-row:1">Semis</div>'
+    +'<div class="br-title" style="grid-column:7;grid-row:1">Cuartos</div>'
+    +'<div class="br-title" style="grid-column:8;grid-row:1">Octavos</div>'
+    +'<div class="br-title" style="grid-column:9;grid-row:1">Dieciseisavos</div>';
+
+  // Restore global state before writing to DOM
+  bracketOrder         = _bo;
+  bracketWinners       = _bw;
+  confirmedGroups      = _bc;
+  qualifiedThirdGroups = _bt;
+
+  container.innerHTML =
+    '<div style="font-size:.82rem;font-weight:700;color:var(--gold);margin-bottom:8px">📋 Grupos</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">'+groupsHTML+'</div>'
+    +'<div style="font-size:.82rem;font-weight:700;color:var(--gold);margin-bottom:8px">🔗 Bracket eliminatorio</div>'
+    +'<div class="br-rounds" style="pointer-events:none;touch-action:pan-x;overflow-x:auto;-webkit-overflow-scrolling:touch">'
+      +'<div class="br-tree">'
+        +titlesHTML+matchesHTML+finalCardHTML+championBoxHTML+thirdCardHTML
+      +'</div>'
+    +'</div>';
 }
 
 
-// ── RENDER BRACKET ────────────────────────────────────────────
+// ─── BRACKET STATE ───────────────────────────────────────────
+let bracketOrder = {};
+let bracketWinners = {};
+let confirmedGroups = {};
+let qualifiedThirdGroups = {};
+let cuadroStep = 'groups';
 
-// ═════════════════════════════════════════════════════════════
-
-// State: ordered groups, bracket winners
-let bracketOrder = {}; // {A: ['Mexico','Czechia','S.Africa','Korea'], ...}
-let bracketWinners = {}; // {73:'Mexico', 74:'Spain', ...} matchId -> winner team
-let confirmedGroups = {}; // {A: true, B: true, ...}
-let qualifiedThirdGroups = {}; // {A: true, B: true, ...} which groups' 3rd place qualifies (must be exactly 8)
-let cuadroStep = 'groups'; // 'groups' or 'bracket'
-
-// Round of 32 fixed structure
-// Format: {id, date, venue, home: slot, away: slot}
-// slot: {type:'W'|'R', g:GROUP} for winner/runner-up
-// slot: {type:'T3', opts:[groups]} for third-place (resolved via ANNEX_C)
+// Round of 32
 const R32 = [
   {id:73, date:'28 Jun', venue:'Los Ángeles',     home:{type:'R',g:'A'}, away:{type:'R',g:'B'}},
   {id:74, date:'29 Jun', venue:'Boston',          home:{type:'W',g:'E'}, away:{type:'T3',opts:['A','B','C','D','F']}},
@@ -2441,10 +2574,7 @@ const R32 = [
   {id:88, date:'3 Jul',  venue:'Dallas',          home:{type:'R',g:'D'}, away:{type:'R',g:'G'}},
 ];
 
-// FIFA Annex C — third-place slot allocation (495 combinations)
-// Key: 8 sorted group letters of advancing thirds. Value: [m79,m85,m81,m74,m82,m77,m87,m80]
-// where each element = group letter whose 3rd-place team plays in that match.
-// Source: Wikipedia 2026 FIFA World Cup knockout stage (from FIFA Annex C)
+// FIFA Annex C (495 combinations)
 const ANNEX_C = {
 "EFGHIJKL":["E","J","I","F","H","G","L","K"],"DFGHIJKL":["H","G","I","D","J","F","L","K"],
 "DEGHIJKL":["E","J","I","D","H","G","L","K"],"DEFHIJKL":["E","J","I","D","H","F","L","K"],
@@ -2699,7 +2829,6 @@ const ANNEX_C = {
 // Map: matchId -> position in ANNEX_C row
 const T3_SLOT_INDEX = {79:0, 85:1, 81:2, 74:3, 82:4, 77:5, 87:6, 80:7};
 
-// Detect touch device for arrow buttons
 function isTouchDevice(){
   return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 }

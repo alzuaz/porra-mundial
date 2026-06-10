@@ -1728,7 +1728,7 @@ function renderAwardModal(){
       </div>`;
     body.querySelector('#aw-back-btn').addEventListener('click',()=>{_awStep='teams';renderAwardModal();});
     body.querySelectorAll('.aw-player-btn').forEach(btn=>{
-      btn.addEventListener('click', function(){
+      btn.addEventListener('click', async function(){
         const name = this.dataset.name, team = this.dataset.team;
         const award = AWARDS.find(a=>a.id===_awModalAwardId);
         if(award && award.podium && _awModalSlot){
@@ -1745,7 +1745,7 @@ function renderAwardModal(){
         fetchWikiPhoto(name);
         closeAwardModal();
         rAwardsPred();
-        saveAwardsPred();
+        await saveAwardsPred();
       });
     });
   }
@@ -1938,7 +1938,7 @@ function rAwardsPred(){
     });
   });
   container.querySelectorAll('[data-confaw]').forEach(btn=>{
-    btn.addEventListener('click',function(){ confirmPrediction('aw_'+this.dataset.confaw); });
+    btn.addEventListener('click', async function(){ await confirmAwardPrediction(this.dataset.confaw); });
   });
   container.querySelectorAll('[data-delaw]').forEach(btn=>{
     btn.addEventListener('click',function(){
@@ -2018,6 +2018,17 @@ function _syncMyAwardPredsFromServer(){
   }
 }
 
+// Guarda los datos del premio Y LUEGO confirma — evita que la confirmación
+// llegue a la BD antes que los datos (problema en móvil con podium/mvp/top)
+async function confirmAwardPrediction(awardId){
+  const ok = await saveAwardsPred();
+  if(!ok){
+    toast('❌ No se pudo confirmar: error al guardar los datos','err');
+    return;
+  }
+  await confirmPrediction('aw_'+awardId);
+}
+
 async function saveAwardsPred(){
   try{
     toast('Guardando premios...','ok');
@@ -2025,7 +2036,11 @@ async function saveAwardsPred(){
     await api('saveAwardPredictions',{name:ME,data:myAwardPreds});
     S.awPred[ME] = JSON.parse(JSON.stringify(myAwardPreds));
     toast('✅ Premios guardados','ok');
-  }catch(e){toast('Error: '+e.message,'err');}
+    return true;
+  }catch(e){
+    toast('Error guardando premios: '+e.message,'err');
+    return false;
+  }
 }
 
 // ============================================================

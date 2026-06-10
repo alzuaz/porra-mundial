@@ -1747,7 +1747,7 @@ function renderAwardModal(){
         const _savedPick = JSON.parse(JSON.stringify(myAwardPreds[_savedAid]));
         try{
           const _single = {}; _single[_savedAid] = _savedPick;
-          console.log('[porra] picker: immediate save', _savedAid, JSON.stringify(_savedPick).slice(0,200));
+          console.log('[porra] picker: immediate save', _savedAid, JSON.stringify(_savedPick || null).slice(0,200));
           await api('saveAwardPredictions',{name:ME, data:_single});
         }catch(e){ console.error('[porra] picker: immediate save failed:', e); }
         fetchWikiPhoto(name);
@@ -2035,7 +2035,7 @@ async function confirmAwardPrediction(awardId){
   // 1) Validate data exists locally
   const award = AWARDS.find(a=>a.id===awardId);
   const pick = myAwardPreds[awardId];
-  console.log('[porra] confirmAward START:', awardId, JSON.stringify(pick).slice(0,300));
+  console.log('[porra] confirmAward START:', awardId, JSON.stringify(pick || null).slice(0,300));
   if(!pick || (typeof pick==='object' && !Array.isArray(pick) && Object.keys(pick).length===0)){
     toast('❌ No hay datos para confirmar. Selecciona primero.','err');
     return;
@@ -2050,7 +2050,7 @@ async function confirmAwardPrediction(awardId){
   // 2) Save THIS specific award individually (atomic — avoids data loss)
   try{
     const single = {}; single[awardId] = pick;
-    console.log('[porra] confirmAward saving single:', JSON.stringify(single).slice(0,300));
+    console.log('[porra] confirmAward saving single:', JSON.stringify(single || null).slice(0,300));
     await api('saveAwardPredictions',{name:ME, data:single});
   }catch(e){
     console.error('[porra] confirmAward single save FAILED:', e);
@@ -2075,7 +2075,7 @@ async function saveAwardsPred(){
     }
     console.log('[porra] saveAwardsPred keys:', Object.keys(cleanData));
     for(const k of Object.keys(cleanData)){
-      console.log('[porra]  ', k, '→', JSON.stringify(cleanData[k]).slice(0,200));
+      console.log('[porra]  ', k, '→', JSON.stringify(cleanData[k] || null).slice(0,200));
     }
     await api('saveAwardPredictions',{name:ME,data:cleanData});
     S.awPred[ME] = JSON.parse(JSON.stringify(myAwardPreds));

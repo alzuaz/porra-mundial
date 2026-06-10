@@ -1776,6 +1776,8 @@ function rAwardsPred(){
     const isPod = aMeta ? aMeta.podium : false;
     const parsed = (k==='__bracket__') ? _parseAw(serverAw[k]) : normalizeAwardPick(serverAw[k], isPod);
     if(!parsed) continue;
+    // FIX: skip empty objects — don't overwrite valid local picks with {}
+    if(typeof parsed === 'object' && !Array.isArray(parsed) && Object.keys(parsed).length === 0) continue;
     if(isConfirmed('aw_'+k) || !myAwardPreds[k]) myAwardPreds[k] = parsed;
   }
 
@@ -2007,6 +2009,8 @@ function _syncMyAwardPredsFromServer(){
   for(const k of Object.keys(serverAw)){
     const parsed = _p(serverAw[k]);
     if(!parsed) continue;
+    // FIX: don't overwrite local data with empty objects from server
+    if(typeof parsed === 'object' && !Array.isArray(parsed) && Object.keys(parsed).length === 0) continue;
     if(isConfirmed('aw_'+k) || !myAwardPreds[k]){
       myAwardPreds[k] = parsed;
       changed = true;
@@ -2021,23 +2025,57 @@ function _syncMyAwardPredsFromServer(){
 // Guarda los datos del premio Y LUEGO confirma — evita que la confirmación
 // llegue a la BD antes que los datos (problema en móvil con podium/mvp/top)
 async function confirmAwardPrediction(awardId){
-  const ok = await saveAwardsPred();
-  if(!ok){
-    toast('❌ No se pudo confirmar: error al guardar los datos','err');
+  // FIX: validate that award data actually exists before confirming
+  const award = AWARDS.find(a => a.id === awardId);
+  const pick = myAwardPreds[awardId];
+  if(!pick || (typeof pick === 'object' && !Array.isArray(pick) && Object.keys(pick).length === 0)){
+    toast('❌ No hay datos para confirmar. Selecciona primero.','err');
+    console.error('[porra] confirmAward: myAwardPreds['+awardId+'] is empty:', pick);
     return;
   }
+  if(award && award.podium){
+    const hasSlot = (pick.p1 && pick.p1.name) || (pick.p2 && pick.p2.name) || (pick.p3 && pick.p3.name);
+    if(!hasSlot){
+      toast('❌ Selecciona al menos un jugador para el podio','err');
+      console.error('[porra] confirmAward: podium has no valid slots:', JSON.stringify(pick));
+      return;
+    }
+  }
+  // FIX: save THIS specific award individually first (atomic, avoids data loss)
+  try{
+    const singleData = {};
+    singleData[awardId] = pick;
+    console.log('[porra] confirmAward: saving single award:', awardId, JSON.stringify(singleData).slice(0,300));
+    await api('saveAwardPredictions', {name:ME, data:singleData});
+  }catch(e){
+    console.error('[porra] confirmAward: single save failed:', e.message);
+    toast('❌ Error guardando '+awardId+': '+e.message,'err');
+    return;
+  }
+  // Then save all awards (belt and suspenders)
+  try{
+    await saveAwardsPred();
+  }catch(_){}
   await confirmPrediction('aw_'+awardId);
 }
 
 async function saveAwardsPred(){
   try{
     toast('Guardando premios...','ok');
-    // Send myAwardPreds directly as object — AppScript handles JSON.stringify
-    await api('saveAwardPredictions',{name:ME,data:myAwardPreds});
+    // FIX: build clean copy — skip truly empty objects ({}) that backend would discard
+    const cleanData = {};
+    for(const [k, v] of Object.entries(myAwardPreds)){
+      if(v === null || v === undefined) continue;
+      if(typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 0) continue;
+      cleanData[k] = v;
+    }
+    console.log('[porra] saveAwardsPred keys:', Object.keys(cleanData), 'full:', JSON.stringify(cleanData).slice(0,500));
+    await api('saveAwardPredictions',{name:ME,data:cleanData});
     S.awPred[ME] = JSON.parse(JSON.stringify(myAwardPreds));
     toast('✅ Premios guardados','ok');
     return true;
   }catch(e){
+    console.error('[porra] saveAwardsPred error:', e.message);
     toast('Error guardando premios: '+e.message,'err');
     return false;
   }
@@ -2437,7 +2475,8 @@ function normalizeAwardPick(val, isPodium){
         out[s] = {name: p.name, team: p.team || findPlayerTeam(p.name)};
       }
     }
-    return out;
+    // FIX: return null (not {}) when no valid podium slots found
+    return Object.keys(out).length > 0 ? out : null;
   }
   // Simple object {name, team}
   if(val.name){
@@ -4128,8 +4167,11 @@ function renderAll(){
   } else {
     // Sync from server — always overwrite confirmed awards
     for(const k of Object.keys(parsedAw)){
+      // FIX: don't overwrite local data with empty objects
+      const sv = parsedAw[k];
+      if(sv && typeof sv === 'object' && !Array.isArray(sv) && Object.keys(sv).length === 0) continue;
       if(isConfirmed('aw_'+k) || !myAwardPreds[k]){
-        myAwardPreds[k] = JSON.parse(JSON.stringify(parsedAw[k]));
+        myAwardPreds[k] = JSON.parse(JSON.stringify(sv));
       }
     }
   }

@@ -543,6 +543,62 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 
 <div id="toast" class="toast"></div>
 
+<!-- DEBUG LOG PANEL (visible en iOS donde no hay consola) -->
+<div id="dbg-panel" style="display:none;position:fixed;left:0;right:0;bottom:0;max-height:45vh;background:#0a0a14;border-top:2px solid var(--gold);z-index:9999;font-family:monospace;font-size:11px;color:#0f0">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#14142a;border-bottom:1px solid var(--border)">
+    <strong style="color:var(--gold)">🐞 LOG DEPURACIÓN</strong>
+    <span>
+      <button onclick="copyDbgLog()" style="font-size:10px;padding:3px 8px;background:var(--accent2);color:#fff;border:none;border-radius:5px;margin-right:4px">Copiar</button>
+      <button onclick="clearDbgLog()" style="font-size:10px;padding:3px 8px;background:var(--accent2);color:#fff;border:none;border-radius:5px;margin-right:4px">Limpiar</button>
+      <button onclick="toggleDbg()" style="font-size:10px;padding:3px 8px;background:var(--accent);color:#fff;border:none;border-radius:5px">Cerrar</button>
+    </span>
+  </div>
+  <div id="dbg-log" style="overflow-y:auto;max-height:38vh;padding:8px 10px;white-space:pre-wrap;word-break:break-word;line-height:1.4"></div>
+</div>
+<button id="dbg-toggle" onclick="toggleDbg()" style="position:fixed;right:10px;bottom:10px;z-index:9998;width:42px;height:42px;border-radius:50%;background:var(--accent2);color:var(--gold);border:1px solid var(--gold);font-size:18px;cursor:pointer;opacity:.55">🐞</button>
+
+<script>
+// ============================================================
+// DEBUG LOG — visible en pantalla (esencial para iOS sin consola)
+// ============================================================
+var _DBG_LINES = [];
+function dbg(){
+  var parts = [];
+  for(var i=0;i<arguments.length;i++){
+    var a = arguments[i];
+    if(typeof a === 'object'){ try{ a = JSON.stringify(a); }catch(_){ a = String(a); } }
+    parts.push(a);
+  }
+  var line = new Date().toLocaleTimeString() + '  ' + parts.join(' ');
+  _DBG_LINES.push(line);
+  if(_DBG_LINES.length > 300) _DBG_LINES.shift();
+  try{ console.log('[porra]', parts.join(' ')); }catch(_){}
+  var el = document.getElementById('dbg-log');
+  if(el){
+    el.textContent = _DBG_LINES.join('\n');
+    el.scrollTop = el.scrollHeight;
+  }
+}
+function toggleDbg(){
+  var p = document.getElementById('dbg-panel');
+  p.style.display = (p.style.display==='none' || !p.style.display) ? 'block' : 'none';
+}
+function clearDbgLog(){ _DBG_LINES = []; var el=document.getElementById('dbg-log'); if(el) el.textContent=''; }
+function copyDbgLog(){
+  var txt = _DBG_LINES.join('\n');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){ toast('Log copiado','ok'); }).catch(function(){ _fallbackCopy(txt); });
+  } else { _fallbackCopy(txt); }
+}
+function _fallbackCopy(txt){
+  var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();
+  try{ document.execCommand('copy'); toast('Log copiado','ok'); }catch(_){ toast('Copia manual','err'); }
+  document.body.removeChild(ta);
+}
+window.addEventListener('error', function(ev){ dbg('💥 JS ERROR:', ev.message, '@', (ev.filename||'')+':'+(ev.lineno||'')); });
+window.addEventListener('unhandledrejection', function(ev){ dbg('💥 PROMISE REJECT:', (ev.reason && ev.reason.message) ? ev.reason.message : String(ev.reason)); });
+</script>
+
 <script>
 // ============================================================
 // CONFIG
@@ -1115,6 +1171,20 @@ function startApp(){
 // ============================================================
 // API
 // ============================================================
+// ============================================================
+// COLA DE ESCRITURAS — serializa los POST para que NO se solapen.
+// En iOS con red móvil, dos saveAwardPredictions concurrentes provocan
+// una carrera lectura-modificación-escritura en el AppScript y se pierde
+// el podio. Encolando, garantizamos que se ejecutan de uno en uno.
+// ============================================================
+let _writeChain = Promise.resolve();
+function _enqueueWrite(fn){
+  const run = _writeChain.then(fn, fn); // sigue aunque la anterior fallara
+  // Evita que un rechazo rompa la cadena para las siguientes
+  _writeChain = run.catch(function(){});
+  return run;
+}
+
 async function api(action,params={}){
   // Use POST for large payloads (awards, predictions), GET for reads
   const readActions = ['getAll','getAwards'];
@@ -1126,17 +1196,34 @@ async function api(action,params={}){
     const j=await r.json();
     if(j.error)throw new Error(j.error);
     return j;
-  } else {
-    // POST with form data — action must be in the body for Apps Script to see it
+  }
+  // ESCRITURAS → van por la cola, una a una
+  return _enqueueWrite(async function(){
     const u=new URL(API_URL);
     const body=new URLSearchParams();
     body.set('action',action); // Apps Script reads action from body in POST
     for(const[k,v]of Object.entries(params)) body.set(k,typeof v==='object'?JSON.stringify(v):v);
-    const r=await fetch(u.toString(),{method:'POST',body:body,redirect:'follow'});
-    const j=await r.json();
-    if(j.error)throw new Error(j.error);
-    return j;
-  }
+    const _payloadPreview = (params && params.data!==undefined)
+      ? (typeof params.data==='object'?JSON.stringify(params.data):String(params.data)).slice(0,180)
+      : '';
+    dbg('→ POST', action, _payloadPreview);
+    try{
+      const r=await fetch(u.toString(),{method:'POST',body:body,redirect:'follow'});
+      const txt = await r.text();
+      let j;
+      try{ j = JSON.parse(txt); }
+      catch(parseErr){
+        dbg('✖ POST', action, 'respuesta NO-JSON (status '+r.status+'):', txt.slice(0,160));
+        throw new Error('Respuesta no válida del servidor ('+r.status+')');
+      }
+      if(j.error){ dbg('✖ POST', action, 'error servidor:', j.error); throw new Error(j.error); }
+      dbg('✓ OK ', action, JSON.stringify(j).slice(0,120));
+      return j;
+    }catch(netErr){
+      dbg('✖ FALLO RED', action, netErr.message);
+      throw netErr;
+    }
+  });
 }
 
 // ── AWARD SCORING ─────────────────────────────────────────
@@ -1357,7 +1444,7 @@ async function syncAll(){
     S.r  = r.results         || {};
     S.aw = r.awards          || {};
     S.awPred = r.awardPredictions || {};
-    console.log('[porra] awPred[ME]:', JSON.stringify(S.awPred[ME] || {}).slice(0,200));
+    dbg('SYNC awPred[ME]:', JSON.stringify(S.awPred[ME] || {}).slice(0,200));
     // Always sync myAwardPreds from server data after load
     _syncMyAwardPredsFromServer();
     // Confirmations: {userName: {matchId: true, 'aw_mvp': true, ...}}
@@ -1731,30 +1818,33 @@ function renderAwardModal(){
       btn.addEventListener('click', async function(){
         const name = this.dataset.name, team = this.dataset.team;
         const award = AWARDS.find(a=>a.id===_awModalAwardId);
+        const aid = _awModalAwardId;
         if(award && award.podium && _awModalSlot){
-          if(!myAwardPreds[_awModalAwardId] || typeof myAwardPreds[_awModalAwardId]!=='object' || myAwardPreds[_awModalAwardId].name){
-            myAwardPreds[_awModalAwardId] = {};
+          if(!myAwardPreds[aid] || typeof myAwardPreds[aid]!=='object' || myAwardPreds[aid].name){
+            myAwardPreds[aid] = {};
           }
-          myAwardPreds[_awModalAwardId][_awModalSlot] = {name, team};
+          myAwardPreds[aid][_awModalSlot] = {name, team};
         } else {
-          myAwardPreds[_awModalAwardId] = {name, team};
+          myAwardPreds[aid] = {name, team};
         }
         // Sync to S.awPred so rAwardsPred reads updated data
         if(!S.awPred[ME]) S.awPred[ME]={};
         S.awPred[ME] = Object.assign({}, S.awPred[ME], myAwardPreds);
-        // FIX: save this specific award IMMEDIATELY before any re-render can corrupt data
-        const _savedAid = _awModalAwardId;
-        const _savedPick = JSON.parse(JSON.stringify(myAwardPreds[_savedAid]));
-        try{
-          const _single = {}; _single[_savedAid] = _savedPick;
-          console.log('[porra] picker: immediate save', _savedAid, JSON.stringify(_savedPick || null).slice(0,200));
-          await api('saveAwardPredictions',{name:ME, data:_single});
-        }catch(e){ console.error('[porra] picker: immediate save failed:', e); }
         fetchWikiPhoto(name);
         closeAwardModal();
         rAwardsPred();
-        // Also save all awards as backup
-        try{ await saveAwardsPred(); }catch(_){}
+        // Guardar SOLO este premio, normalizado. La cola serializa, no se solapa.
+        const norm = (award && award.podium)
+          ? _normalizePodiumForSave(myAwardPreds[aid])
+          : _normalizeSimpleForSave(myAwardPreds[aid]);
+        dbg('PICK', aid, _awModalSlot||'(simple)', '=>', norm);
+        if(norm){
+          myAwardPreds[aid] = norm;
+          S.awPred[ME][aid] = norm;
+          const single = {}; single[aid] = norm;
+          try{ await api('saveAwardPredictions',{name:ME, data:single}); }
+          catch(e){ dbg('PICK ✖ fallo guardado', aid, e.message); toast('⚠️ No se pudo guardar, reintenta','err'); }
+        }
       });
     });
   }
@@ -2029,60 +2119,122 @@ function _syncMyAwardPredsFromServer(){
   }
 }
 
-// Guarda los datos del premio Y LUEGO confirma — evita que la confirmación
-// llegue a la BD antes que los datos (problema en móvil con podium/mvp/top)
+// Normaliza un premio de podio a una estructura limpia {p1:{name,team},...}
+// Acepta objeto o string JSON. Devuelve null si no hay nada útil.
+function _normalizePodiumForSave(val){
+  if(val == null) return null;
+  if(typeof val === 'string'){
+    try{ val = JSON.parse(val); }catch(_){ return null; }
+  }
+  if(typeof val !== 'object' || Array.isArray(val)) return null;
+  const out = {};
+  ['p1','p2','p3'].forEach(function(s){
+    const p = val[s];
+    if(p && typeof p==='object' && p.name){
+      out[s] = {name: String(p.name), team: String(p.team||'')};
+    } else if(typeof p === 'string' && p.trim()){
+      out[s] = {name: p.trim(), team:''};
+    }
+  });
+  return Object.keys(out).length ? out : null;
+}
+
+// Normaliza premio simple a {name,team}
+function _normalizeSimpleForSave(val){
+  if(val == null) return null;
+  if(typeof val === 'string'){
+    try{ const p = JSON.parse(val); if(p && typeof p==='object') val = p; else return {name:String(val), team:''}; }
+    catch(_){ return {name:String(val), team:''}; }
+  }
+  if(typeof val === 'object' && val.name) return {name:String(val.name), team:String(val.team||'')};
+  return null;
+}
+
+// Guarda el premio Y verifica que quedó en la BD ANTES de confirmar.
+// Así es imposible quedar "confirmado pero sin elección".
 async function confirmAwardPrediction(awardId){
-  // 1) Validate data exists locally
   const award = AWARDS.find(a=>a.id===awardId);
-  const pick = myAwardPreds[awardId];
-  console.log('[porra] confirmAward START:', awardId, JSON.stringify(pick || null).slice(0,300));
-  if(!pick || (typeof pick==='object' && !Array.isArray(pick) && Object.keys(pick).length===0)){
-    toast('❌ No hay datos para confirmar. Selecciona primero.','err');
+  const isPodium = !!(award && award.podium);
+  dbg('CONFIRM ▶', awardId, 'podium='+isPodium);
+
+  // 1) Normalizar el dato local a una estructura limpia
+  const clean = isPodium
+    ? _normalizePodiumForSave(myAwardPreds[awardId])
+    : _normalizeSimpleForSave(myAwardPreds[awardId]);
+
+  if(!clean){
+    dbg('CONFIRM ✖ sin datos locales para', awardId, '=>', JSON.stringify(myAwardPreds[awardId]||null));
+    toast('❌ Selecciona primero al menos un jugador','err');
     return;
   }
-  if(award && award.podium){
-    const hasSlot = (pick.p1&&pick.p1.name)||(pick.p2&&pick.p2.name)||(pick.p3&&pick.p3.name);
-    if(!hasSlot){
-      toast('❌ Selecciona al menos un jugador del podio','err');
-      return;
-    }
-  }
-  // 2) Save THIS specific award individually (atomic — avoids data loss)
+  dbg('CONFIRM dato limpio:', clean);
+
+  // Reflejar el dato limpio en local
+  myAwardPreds[awardId] = clean;
+  if(!S.awPred[ME]) S.awPred[ME] = {};
+  S.awPred[ME][awardId] = clean;
+
+  toast('Guardando '+(award?award.title:awardId)+'...','ok');
+
+  // 2) Guardar SOLO este premio (atómico)
   try{
-    const single = {}; single[awardId] = pick;
-    console.log('[porra] confirmAward saving single:', JSON.stringify(single || null).slice(0,300));
+    const single = {}; single[awardId] = clean;
     await api('saveAwardPredictions',{name:ME, data:single});
   }catch(e){
-    console.error('[porra] confirmAward single save FAILED:', e);
-    toast('❌ Error guardando '+awardId+': '+e.message,'err');
+    dbg('CONFIRM ✖ fallo al guardar', awardId, e.message);
+    toast('❌ Error guardando: '+e.message+'. No se confirmó.','err');
     return;
   }
-  // 3) Also save all awards (belt-and-suspenders)
-  try{ await saveAwardsPred(); }catch(_){}
-  // 4) Mark confirmed
+
+  // 3) VERIFICAR leyendo de la BD que el premio realmente está guardado
+  let verified = false;
+  try{
+    const check = await api('getAll');
+    const serverVal = check && check.awardPredictions && check.awardPredictions[ME]
+      ? check.awardPredictions[ME][awardId] : null;
+    const parsed = isPodium ? _normalizePodiumForSave(serverVal) : _normalizeSimpleForSave(serverVal);
+    verified = !!parsed;
+    dbg('CONFIRM verificación BD:', awardId, '=>', verified ? 'OK ('+JSON.stringify(parsed).slice(0,120)+')' : 'VACÍO/NO ENCONTRADO');
+    // Refrescar estado local con lo que diga el servidor
+    if(check && check.awardPredictions){ S.awPred = check.awardPredictions; }
+  }catch(e){
+    dbg('CONFIRM ✖ no se pudo verificar (getAll falló):', e.message);
+    toast('❌ No se pudo verificar el guardado. Reintenta.','err');
+    return;
+  }
+
+  if(!verified){
+    dbg('CONFIRM ✖ ABORTADA: la predicción NO está en la BD, no se confirma');
+    toast('❌ La predicción no llegó a guardarse. Reintenta (no se ha confirmado).','err');
+    return;
+  }
+
+  // 4) Solo ahora: marcar confirmado
   await confirmPrediction('aw_'+awardId);
+  dbg('CONFIRM ✓ COMPLETADO', awardId);
 }
 
 async function saveAwardsPred(){
   try{
-    toast('Guardando premios...','ok');
-    // Build clean copy — skip empty objects that backend would discard
+    // Build clean copy — normaliza y descarta vacíos
     const cleanData = {};
-    for(const [k,v] of Object.entries(myAwardPreds)){
-      if(v===null||v===undefined) continue;
-      if(typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).length===0) continue;
-      cleanData[k] = v;
+    for(const a of AWARDS){
+      const v = myAwardPreds[a.id];
+      const norm = a.podium ? _normalizePodiumForSave(v) : _normalizeSimpleForSave(v);
+      if(norm) cleanData[a.id] = norm;
     }
-    console.log('[porra] saveAwardsPred keys:', Object.keys(cleanData));
-    for(const k of Object.keys(cleanData)){
-      console.log('[porra]  ', k, '→', JSON.stringify(cleanData[k] || null).slice(0,200));
-    }
+    // Conservar el bracket si existe
+    if(myAwardPreds.__bracket__) cleanData.__bracket__ = myAwardPreds.__bracket__;
+
+    if(Object.keys(cleanData).length===0){ dbg('saveAwardsPred: nada que guardar'); return true; }
+    dbg('saveAwardsPred keys:', Object.keys(cleanData).join(','));
     await api('saveAwardPredictions',{name:ME,data:cleanData});
-    S.awPred[ME] = JSON.parse(JSON.stringify(myAwardPreds));
-    toast('✅ Premios guardados','ok');
+    // Reflejar en local lo normalizado
+    for(const k of Object.keys(cleanData)){ myAwardPreds[k] = cleanData[k]; }
+    S.awPred[ME] = Object.assign({}, S.awPred[ME], cleanData);
     return true;
   }catch(e){
-    console.error('[porra] saveAwardsPred ERROR:', e);
+    dbg('saveAwardsPred ERROR:', e.message);
     toast('Error guardando premios: '+e.message,'err');
     return false;
   }

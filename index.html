@@ -293,7 +293,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .aw-sel-change{margin-top:6px;font-size:.72rem;color:var(--gold);text-decoration:underline;cursor:pointer;background:none;border:none;padding:0}
 .award-card .aw-pick-btn{width:100%;padding:9px;background:var(--accent2);border:none;border-radius:8px;color:var(--text);font-size:.82rem;font-weight:600;cursor:pointer;margin-top:10px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .award-card .aw-pick-btn:hover{background:#1a4a80;color:var(--gold)}
-/* Podium hero cardd*/
+/* Podium hero card */
 .aw-hero{background:linear-gradient(135deg,var(--secondary),var(--accent2));border:1px solid var(--exact);border-radius:14px;padding:0;overflow:hidden;margin-bottom:10px;display:flex;gap:0}
 .aw-hero-slot{flex:1;display:flex;flex-direction:column;align-items:center;padding:12px 8px 10px;position:relative;border-right:1px solid rgba(255,255,255,.06)}
 .aw-hero-slot:last-child{border-right:none}
@@ -627,9 +627,13 @@ const TEAM_MAP = {
 // PREMIOS
 // ============================================================
 const AWARDS = [
-  {id:'mvp',   emoji:'🌟', title:'Mejor Jugador (MVP)',   sub:'¿Quién ganará el Balón de Oro del torneo?', podium:true},
-  {id:'top',   emoji:'👟', title:'Máximo Goleador',       sub:'¿Quién marcará más goles?', podium:true},
-  {id:'gk',    emoji:'🧤', title:'Mejor Portero',         sub:'¿Quién ganará el guante de oro?', podium:false},
+  {id:'mvp_1', emoji:'🌟', title:'MVP — 🥇 Oro',         sub:'¿Quién ganará el Balón de Oro?',       podium:false, group:'mvp', medal:0},
+  {id:'mvp_2', emoji:'🌟', title:'MVP — 🥈 Plata',       sub:'¿Quién quedará segundo?',              podium:false, group:'mvp', medal:1},
+  {id:'mvp_3', emoji:'🌟', title:'MVP — 🥉 Bronce',      sub:'¿Quién quedará tercero?',              podium:false, group:'mvp', medal:2},
+  {id:'top_1', emoji:'👟', title:'Goleador — 🥇 Oro',    sub:'¿Quién marcará más goles?',            podium:false, group:'top', medal:0},
+  {id:'top_2', emoji:'👟', title:'Goleador — 🥈 Plata',  sub:'¿Quién será segundo goleador?',        podium:false, group:'top', medal:1},
+  {id:'top_3', emoji:'👟', title:'Goleador — 🥉 Bronce', sub:'¿Quién será tercer goleador?',         podium:false, group:'top', medal:2},
+  {id:'gk',    emoji:'🧤', title:'Mejor Portero',         sub:'¿Quién ganará el guante de oro?',      podium:false},
   {id:'young', emoji:'🌱', title:'Mejor Jugador Joven',   sub:'¿Quién ganará el premio al mejor sub-21?', podium:false},
 ];
 
@@ -1230,42 +1234,12 @@ async function api(action,params={}){
 // real: same structure stored in S.aw[awardId]
 
 function calcAwardPoints(awardId, pred, real){
-  if(!pred || !real) return 0;
-  const award = AWARDS.find(a=>a.id===awardId);
-  if(!award) return 0;
-
-  // Helper: safely extract name string from any format
-  function getName(v){
-    if(!v) return '';
-    if(typeof v==='string') return v.trim();
-    if(typeof v==='object' && v.name) return String(v.name).trim();
-    return '';
-  }
-
-  if(!award.podium){
-    const predName = getName(pred);
-    const realName = getName(real);
-    if(!predName || !realName) return 0;
-    return predName.toLowerCase() === realName.toLowerCase() ? 5 : 0;
-  }
-
-  // Podium — pred and real must be objects with p1/p2/p3
-  if(typeof pred!=='object' || typeof real!=='object') return 0;
-  const pts = {p1:{p1:5,p2:2,p3:1}, p2:{p1:2,p2:3,p3:1}, p3:{p1:1,p2:1,p3:2}};
-  let total = 0;
-  for(const pp of ['p1','p2','p3']){
-    const pName = getName(pred[pp]);
-    if(!pName) continue;
-    for(const rp of ['p1','p2','p3']){
-      const rName = getName(real[rp]);
-      if(!rName) continue;
-      if(pName.toLowerCase() === rName.toLowerCase()){
-        total += (pts[pp][rp]||0);
-        break;
-      }
-    }
-  }
-  return total;
+  if(!pred||!real)return 0;const award=AWARDS.find(a=>a.id===awardId);if(!award)return 0;
+  function getName(v){if(!v)return'';if(typeof v==='string')return v.trim();if(typeof v==='object'&&v.name)return String(v.name).trim();return'';}
+  if(award.group){const pn=getName(pred);if(!pn)return 0;const suf=['_1','_2','_3'],ps=awardId.slice(-2);
+    const mx={'_1':{'_1':5,'_2':2,'_3':1},'_2':{'_1':2,'_2':3,'_3':1},'_3':{'_1':1,'_2':1,'_3':2}};
+    for(const rs of suf){const rn=getName(S.aw[award.group+rs]);if(rn&&pn.toLowerCase()===rn.toLowerCase())return(mx[ps]||{})[rs]||0;}return 0;}
+  const pn=getName(pred),rn=getName(real);if(!pn||!rn)return 0;return pn.toLowerCase()===rn.toLowerCase()?5:0;
 }
 
 function totalAwardPoints(nm){
@@ -1728,10 +1702,9 @@ async function autoSavePreds(){
 
 
 const AWARD_POSITIONS = {
-  'mvp':  null,         // all positions
-  'top':  ['FWD','MID'], // strikers and attacking midfielders
-  'gk':   ['GK'],       // only goalkeepers
-  'young': null,        // all positions
+  'mvp_1':null,'mvp_2':null,'mvp_3':null,
+  'top_1':['FWD','MID'],'top_2':['FWD','MID'],'top_3':['FWD','MID'],
+  'gk':['GK'],'young':null,
 };
 
 // ── AWARDS SELECTOR STATE ─────────────────────────────────
@@ -1876,13 +1849,34 @@ function rAwardsPred(){
     if(isConfirmed('aw_'+k) || !myAwardPreds[k]) myAwardPreds[k] = parsed;
   }
 
-  const medals    = ['🥇','🥈','🥉'];
-  const medalBg   = ['rgba(245,197,24,.13)','rgba(192,192,192,.09)','rgba(205,127,50,.08)'];
-  const medalBd   = ['var(--gold)','#aaa','#cd7f32'];
-  let html = '';
-
+  const medals=['🥇','🥈','🥉'],medalBg=['rgba(245,197,24,.13)','rgba(192,192,192,.09)','rgba(205,127,50,.08)'],medalBd=['var(--gold)','#aaa','#cd7f32'];
+  const groupTitles={mvp:{emoji:'🌟',title:'Mejor Jugador (MVP)',sub:'¿Quién ganará el Balón de Oro del torneo?'},top:{emoji:'👟',title:'Máximo Goleador',sub:'¿Quién marcará más goles?'}};
+  let html='';const renderedGroups=new Set();
+  for(const grp of Object.keys(groupTitles)){const gt=groupTitles[grp],subs=AWARDS.filter(a=>a.group===grp).sort((a,b)=>a.medal-b.medal);if(!subs.length)continue;renderedGroups.add(grp);
+    const allConf=subs.every(a=>isConfirmed('aw_'+a.id));let tPts=0;subs.forEach(a=>{tPts+=calcAwardPoints(a.id,myAwardPreds[a.id],S.aw[a.id]);});
+    const hasR=subs.some(a=>S.aw[a.id]),pH=hasR?' <span class="badge '+(tPts>0?'badge-ex':'badge-wr')+'" style="margin-left:6px">'+tPts+' pts</span>':'';
+    html+='<div class="award-card'+(allConf?' locked':'')+'">'+'<div class="aw-title">'+gt.emoji+' '+gt.title+pH+'</div><div class="aw-sub">'+gt.sub+'</div><div style="display:flex;gap:8px;margin-top:12px">';
+    for(let i=0;i<subs.length;i++){const a=subs[i],pick=myAwardPreds[a.id],isC=isConfirmed('aw_'+a.id);
+      let p=null;if(pick){let pR=pick;if(typeof pR==='string'){try{pR=JSON.parse(pR);}catch(_){pR={name:pR,team:''};}}if(pR&&pR.name)p=pR;}
+      const fc=p?(FC[p.team]||''):'',ph=p?playerPhoto(p.name):'';
+      html+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;background:'+medalBg[i]+';border:1px solid '+medalBd[i]+';border-radius:12px;padding:12px 8px 10px"><div style="font-size:1.3rem;margin-bottom:8px">'+medals[i]+'</div>';
+      if(p){html+='<div style="width:64px;height:64px;border-radius:50%;overflow:hidden;border:2px solid '+medalBd[i]+';margin-bottom:8px;background:var(--accent2);display:flex;align-items:center;justify-content:center">'+(ph?'<img src="'+ph+'" data-pname="'+p.name+'" width="64" height="64" style="width:100%;height:100%;object-fit:cover;object-position:top" onerror="this.style.display=\'none\'">':'<span style="font-size:1.2rem">👤</span>')+'</div>';
+        html+='<div style="font-size:.72rem;font-weight:700;text-align:center;line-height:1.3;color:var(--text)">'+p.name+'</div>';
+        if(p.team)html+='<div style="font-size:.62rem;color:var(--text2);margin-top:3px;display:flex;align-items:center;gap:3px;justify-content:center">'+(fc?'<img src="https://flagcdn.com/w40/'+fc+'.png" width="14" height="9" style="border-radius:1px">':'')+es(p.team)+'</div>';
+        if(isC)html+='<div style="font-size:.55rem;color:var(--exact);font-weight:700;margin-top:6px">🔒</div>';
+        else html+='<button class="aw-pick-btn" data-award="'+a.id+'" style="margin-top:8px;font-size:.65rem;padding:4px 8px">✏️</button>';
+      }else{html+='<div style="width:64px;height:64px;border-radius:50%;background:var(--bg);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:1.4rem;margin-bottom:8px">?</div><div style="font-size:.68rem;color:var(--text2);font-style:italic">Sin elegir</div>';
+        if(!isC)html+='<button class="aw-pick-btn" data-award="'+a.id+'" style="margin-top:8px;font-size:.65rem;padding:4px 8px">🔍 Elegir</button>';}
+      html+='</div>';}
+    html+='</div>';
+    const unc=subs.filter(a=>!isConfirmed('aw_'+a.id)&&myAwardPreds[a.id]);
+    if(unc.length>0){html+='<div class="mc-actions" style="margin-top:12px;flex-wrap:wrap">';unc.forEach(a=>{html+='<button class="mc-btn-confirm" data-confaw="'+a.id+'">✅ Confirmar '+medals[a.medal]+'</button>';});html+='<button class="mc-btn-del" data-delaw-grp="'+grp+'">🗑️ Eliminar todo</button></div>';}
+    else if(allConf)html+='<div style="text-align:center;margin-top:10px"><span style="font-size:.68rem;color:var(--exact);font-weight:700">🔒 Podio confirmado</span></div>';
+    if(hasR){const rn=subs.map((a,j)=>{const r=S.aw[a.id],n=r&&r.name?r.name:(typeof r==='string'?r:'');return n?medals[j]+' '+n:'';}).filter(Boolean).join(' · ');if(rn)html+='<div class="award-result"><span class="lbl">Real:</span> <span class="val">'+rn+'</span></div>';}
+    html+='</div>';}
   for(const a of AWARDS){
     try{
+      if(a.group && renderedGroups.has(a.group)) continue;
       const pick   = myAwardPreds[a.id];
       const real   = S.aw[a.id];
       const pts    = calcAwardPoints(a.id, pick, real);
@@ -2041,6 +2035,7 @@ function rAwardsPred(){
     btn.addEventListener('click',function(){
       if(confirm('¿Eliminar tu predicción de este premio?')) deleteAwardPrediction(this.dataset.delaw);
     });
+  container.querySelectorAll('[data-delaw-grp]').forEach(btn=>{btn.addEventListener('click',function(){const g=this.dataset.delawGrp;if(!confirm('¿Eliminar todo el podio?'))return;AWARDS.filter(a=>a.group===g).forEach(a=>deleteAwardPrediction(a.id));});});
   });
 
   // Show/hide save button — hide if all awards confirmed
@@ -2292,32 +2287,17 @@ function rRes(){
 
   // Premios admin
   const ac=document.getElementById('awards-admin-container');
-  ac.innerHTML=AWARDS.map(a=>{
-    const curr = S.aw[a.id]||{};
-    if(a.podium){
-      const slots=[{s:'p1',lbl:'🥇 1º'},{s:'p2',lbl:'🥈 2º'},{s:'p3',lbl:'🥉 3º'}];
-      return '<div class="award-card">'+
-        '<div class="aw-title">'+a.emoji+' '+a.title+'</div>'+
-        slots.map(({s,lbl})=>{
-          const val=curr[s]?curr[s].name:'';
-          return '<div style="margin-bottom:6px"><label style="font-size:.72rem;color:var(--text2)">'+lbl+'</label>'+
-            '<input type="text" data-awid="'+a.id+'" data-slot="'+s+'" value="'+val+'" placeholder="Nombre del jugador..." style="width:100%;padding:7px;background:var(--bg);border:1px solid var(--gold);border-radius:6px;color:var(--text);margin-top:3px">'+
-            '</div>';
-        }).join('')+
-      '</div>';
-    } else {
-      const val=curr.name||curr||'';
-      return '<div class="award-card">'+
-        '<div class="aw-title">'+a.emoji+' '+a.title+'</div>'+
-        '<input type="text" data-awid="'+a.id+'" value="'+val+'" placeholder="Nombre del ganador real..." style="width:100%;padding:7px;background:var(--bg);border:1px solid var(--gold);border-radius:6px;color:var(--text)">'+
-      '</div>';
-    }
-  }).join('');
+  const _aM=['🥇','🥈','🥉'],_aGT={mvp:'🌟 MVP',top:'👟 Máx. Goleador'};let _aH='';const _aD=new Set();
+  for(const a of AWARDS){if(a.group&&!_aD.has(a.group)){_aD.add(a.group);const su=AWARDS.filter(x=>x.group===a.group).sort((x,y)=>x.medal-y.medal);
+    _aH+='<div class="award-card"><div class="aw-title">'+(_aGT[a.group]||a.group)+'</div>';su.forEach(s=>{const c=S.aw[s.id]||{},v=c.name||c||'';
+      _aH+='<div style="margin-bottom:6px"><label style="font-size:.72rem;color:var(--text2)">'+_aM[s.medal]+' '+(s.medal===0?'1º':s.medal===1?'2º':'3º')+'</label><input type="text" data-awid="'+s.id+'" value="'+v+'" placeholder="Nombre..." style="width:100%;padding:7px;background:var(--bg);border:1px solid var(--gold);border-radius:6px;color:var(--text);margin-top:3px"></div>';});_aH+='</div>';
+  }else if(!a.group){const c=S.aw[a.id]||{},v=c.name||c||'';
+    _aH+='<div class="award-card"><div class="aw-title">'+a.emoji+' '+a.title+'</div><input type="text" data-awid="'+a.id+'" value="'+v+'" placeholder="Nombre del ganador real..." style="width:100%;padding:7px;background:var(--bg);border:1px solid var(--gold);border-radius:6px;color:var(--text)"></div>';}}
+  ac.innerHTML=_aH;
   // Wire admin award inputs
   ac.querySelectorAll('input[type=text][data-awid]').forEach(el=>{
     el.addEventListener('input',function(){
-      const aid=this.dataset.awid, slot=this.dataset.slot;
-      const award=AWARDS.find(a=>a.id===aid);
+      pendAw[this.dataset.awid]={name:this.value};
       if(award&&award.podium&&slot){
         if(!pendAw[aid]) pendAw[aid]={};
         pendAw[aid][slot]={name:this.value};
@@ -2656,9 +2636,14 @@ function renderPartAwards(nm){
   const viewerIsOwn = (nm === ME);
   const medals = ['🥇','🥈','🥉'];
 
-  container.innerHTML = AWARDS.map(a=>{
+  const _vM=['🥇','🥈','🥉'],_vGT={mvp:{e:'🌟',t:'Mejor Jugador (MVP)'},top:{e:'👟',t:'Máximo Goleador'}};let _vH='';
+  for(const g of Object.keys(_vGT)){const gt=_vGT[g],su=AWARDS.filter(a=>a.group===g).sort((a,b)=>a.medal-b.medal);if(!su.length)continue;let tp=0;const hr=su.some(a=>S.aw[a.id]);su.forEach(a=>{tp+=calcAwardPoints(a.id,normalizeAwardPick(_rpAw[a.id],false),S.aw[a.id]);});
+    const ph=hr?' <span class="badge '+(tp>0?'badge-ex':'badge-wr')+'">'+tp+' pts</span>':'';let sH='';
+    su.forEach((a,i)=>{let pk=normalizeAwardPick(_rpAw[a.id],false);if(!viewerIsOwn&&!isConfirmed('aw_'+a.id))pk=null;const p=(pk&&pk.name)?pk:null,fc=p?(FC[p.team]||''):'';
+      sH+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="font-size:.85rem;width:20px">'+_vM[i]+'</span>'+(p?(fc?'<img src="https://flagcdn.com/w40/'+fc+'.png" width="18" height="12" style="border-radius:2px">':'')+'<span style="font-size:.82rem;font-weight:600">'+(p.name||'')+'</span><span style="font-size:.72rem;color:var(--text2);margin-left:4px">'+es(p.team||'')+'</span>':'<span style="font-size:.82rem;color:var(--text2);font-style:italic">—</span>')+'</div>';});
+    _vH+='<div class="award-card"><div class="aw-title">'+gt.e+' '+gt.t+ph+'</div><div style="margin-top:8px">'+sH+'</div></div>';}
+  container.innerHTML = _vH + AWARDS.filter(a=>!a.group).map(a=>{
     let pick = normalizeAwardPick(_rpAw[a.id], a.podium);
-    // Gate: viewing someone else requires YOU to have confirmed this award
     if(!viewerIsOwn && !isConfirmed('aw_'+a.id)){ pick = null; }
 
     const real = S.aw[a.id];

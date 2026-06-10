@@ -1357,7 +1357,7 @@ async function syncAll(){
     S.r  = r.results         || {};
     S.aw = r.awards          || {};
     S.awPred = r.awardPredictions || {};
-    console.log('[porra] awPred[ME]:', JSON.stringify(S.awPred[ME]).slice(0,200));
+    console.log('[porra] awPred[ME]:', JSON.stringify(S.awPred[ME] || {}).slice(0,200));
     // Always sync myAwardPreds from server data after load
     _syncMyAwardPredsFromServer();
     // Confirmations: {userName: {matchId: true, 'aw_mvp': true, ...}}

@@ -269,6 +269,37 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .aw-modal-header h3{font-size:1rem;font-weight:700}
 .aw-close{background:none;border:none;color:var(--text2);font-size:1.4rem;cursor:pointer;line-height:1;padding:0 4px}
 .aw-close:hover{color:var(--text)}
+/* ── DETALLE DE PARTIDO (predicciones de todos) ── */
+.md-real{text-align:center;padding:14px 16px 4px}
+.md-real-score{font-size:1.6rem;font-weight:800;color:var(--gold);letter-spacing:1px}
+.md-real-lbl{font-size:.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.md-bars{display:flex;gap:8px;padding:14px 16px 6px}
+.md-bar{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center;position:relative;overflow:hidden}
+.md-bar .md-bar-fill{position:absolute;left:0;bottom:0;width:100%;opacity:.18;transition:height .4s}
+.md-bar.h .md-bar-fill{background:var(--exact)}
+.md-bar.d .md-bar-fill{background:var(--outcome)}
+.md-bar.a .md-bar-fill{background:var(--accent)}
+.md-bar .md-bar-n{font-size:1.5rem;font-weight:800;position:relative}
+.md-bar .md-bar-lbl{font-size:.66rem;color:var(--text2);position:relative;margin-top:2px;line-height:1.2}
+.md-bar .md-bar-pct{font-size:.62rem;color:var(--text2);position:relative}
+.md-sec-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);padding:14px 16px 4px;font-weight:700}
+.md-list{padding:4px 12px 16px;display:flex;flex-direction:column;gap:6px}
+.md-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:8px 12px}
+.md-row .md-name{font-size:.85rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.md-row .md-pred{display:flex;align-items:center;gap:8px}
+.md-row .md-score{font-weight:800;font-size:.95rem;min-width:44px;text-align:center}
+.md-row .md-tag{font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.4px}
+.md-tag.h{background:rgba(39,174,96,.15);color:var(--exact)}
+.md-tag.d{background:rgba(243,156,18,.15);color:var(--outcome)}
+.md-tag.a{background:rgba(108,99,255,.18);color:var(--accent)}
+.md-row.empty .md-name{color:var(--text2)}
+.md-pts{font-size:.62rem;font-weight:800;padding:2px 7px;border-radius:20px;margin-left:2px}
+.md-pts.ex{background:rgba(39,174,96,.18);color:var(--exact)}
+.md-pts.oc{background:rgba(243,156,18,.18);color:var(--outcome)}
+.md-pts.wr{background:rgba(231,76,60,.14);color:var(--wrong)}
+.mc-home,.mc-away{cursor:pointer}
+.mc[data-mid]{cursor:pointer}
+.mc-detail-hint{font-size:.6rem;color:var(--accent);text-align:center;margin-top:3px;opacity:.85;font-weight:600}
 .aw-teams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;padding:16px}
 .aw-team-btn{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 6px;cursor:pointer;text-align:center;transition:.15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .aw-team-btn:hover{border-color:var(--gold);background:rgba(245,197,24,.07)}
@@ -541,6 +572,16 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   </div>
 </div>
 
+<div class="aw-modal" id="md-modal">
+  <div class="aw-modal-box" style="max-width:640px">
+    <div class="aw-modal-header">
+      <h3 id="md-title">Predicciones del partido</h3>
+      <button class="aw-close" id="md-close-btn">&#x2715;</button>
+    </div>
+    <div class="aw-modal-body" id="md-body"></div>
+  </div>
+</div>
+
 <div id="toast" class="toast"></div>
 
 <!-- DEBUG LOG PANEL (visible en iOS donde no hay consola) -->
@@ -602,6 +643,12 @@ window.addEventListener('unhandledrejection', function(ev){ dbg('💥 PROMISE RE
 // ============================================================
 const API_URL = 'https://script.google.com/macros/s/AKfycbxPSvqFzY8iFxYkj52gxqZnjUGYR4cmRO4LCzwAR5hNlFn_OVevg6HXLjicXlfG1t09Sg/exec';
 const ADMIN_HASH = 'ef62ae87d68dc864970d30e60a1f448c8480a0b839d801fe49b6667c35bed4e3';
+
+// ── BLOQUEO DEL CUADRO ───────────────────────────────────────
+// Pon esto en true para CERRAR la edición del cuadro (grupos + eliminatorias)
+// para TODOS los usuarios. Ponlo en false para volver a abrirlo.
+const BRACKET_LOCKED = true;
+function bracketLocked(){ return BRACKET_LOCKED === true; }
 
 // ── API RESULTADOS EN DIRECTO ────────────────────────────────
 const WC_API_KEY = 'wc26_DbZU333vPsp9BSE3snYqWd';
@@ -1382,9 +1429,15 @@ async function deleteBracketPrediction(){
 async function fetchLiveResults(){
   if(!WC_API_KEY){toast('Sin API key configurada','err');return false;}
   try{
-    const res = await fetch(WC_API_BASE+'/matches',{headers:{'Authorization':'Bearer '+WC_API_KEY}});
+    // cache-busting: sin esto el navegador puede devolver una respuesta vieja
+    // cacheada y parecer que "no se actualiza nada"
+    const res = await fetch(WC_API_BASE+'/matches?_t='+Date.now(),{
+      headers:{'Authorization':'Bearer '+WC_API_KEY},
+      cache:'no-store'
+    });
     if(!res.ok) throw new Error('HTTP '+res.status);
     const matches = await res.json();
+    if(!Array.isArray(matches)) throw new Error('Respuesta inesperada de la API');
     const lookup = {};
     MA.forEach(m=>{
       const hApi=TEAM_MAP[m.h]||m.h, aApi=TEAM_MAP[m.a]||m.a;
@@ -1403,14 +1456,16 @@ async function fetchLiveResults(){
         newR[mid]={h:am.home_score,a:am.away_score};updated++;
       }
     });
+    dbg('API matches recibidos:', matches.length, '| actualizados:', updated);
     if(updated>0){
       const data=Object.entries(newR).filter(([,v])=>v.h!==''&&v.a!=='').map(([mid,v])=>({mid,h:v.h,a:v.a}));
-      try{await api('saveResults',{data});}catch(_){}
+      try{ await api('saveResults',{data}); }
+      catch(saveErr){ dbg('API saveResults FALLÓ:', saveErr.message); toast('⚠️ Resultados leídos pero no guardados: '+saveErr.message,'err'); }
       S.r=newR;renderAll();
       toast('⚽ '+updated+' resultado'+(updated>1?'s':'')+' actualizado'+(updated>1?'s':''),'ok');
     } else toast('Sin nuevos resultados','ok');
     return true;
-  }catch(e){toast('Error API: '+e.message,'err');return false;}
+  }catch(e){ dbg('API ERROR:', e.message); toast('Error API: '+e.message,'err'); return false; }
 }
 
 
@@ -1537,18 +1592,30 @@ function rMatch(){
   fc.querySelectorAll('button').forEach(b=>b.addEventListener('click',function(){cMD=parseInt(this.dataset.md);rMatch();}));
   const ms=cMD===0?MA:MA.filter(x=>x.m===cMD);
   const bd={};ms.forEach(x=>{if(!bd[x.d])bd[x.d]=[];bd[x.d].push(x);});
-  document.getElementById('mcc').innerHTML=Object.entries(bd).map(([d,xs])=>
+  const mcc=document.getElementById('mcc');
+  mcc.innerHTML=Object.entries(bd).map(([d,xs])=>
     '<div class="mdh">'+d+' 2026</div>'+xs.map(x=>{
       const r=S.r[x.i];const hr=r&&r.h!==''&&r.a!=='';
-      return '<div class="mc'+(hr?' re':'')+'">'+
+      return '<div class="mc'+(hr?' re':'')+'" data-mid="'+x.i+'">'+
         '<div class="mc-home">'+es(x.h)+' '+flag(x.h)+'</div>'+
         '<div class="mc-center"><div class="mc-meta">Grupo '+x.g+'</div>'+
         '<div class="mc-time">'+fmtTime(x)+'</div>'+
         (hr?'<div class="mc-result">'+r.h+' - '+r.a+'</div>':'<div style="font-size:.72rem;color:var(--text2)">vs</div>')+
         (x.v?'<div class="mc-venue">📍 '+x.v+'</div>':'')+
+        '<div class="mc-detail-hint">👥 ver predicciones de todos</div>'+
         '</div><div class="mc-away">'+flag(x.a)+' '+es(x.a)+'</div></div>';
     }).join('')).join('');
+
+  // Click en cualquier partido → detalle con las predicciones de todos
+  mcc.removeEventListener('click', _matchViewDetailHandler);
+  _matchViewDetailHandler = function(ev){
+    const card = ev.target.closest('.mc[data-mid]');
+    if(!card) return;
+    openMatchDetail(card.dataset.mid);
+  };
+  mcc.addEventListener('click', _matchViewDetailHandler);
 }
+let _matchViewDetailHandler=null;
 
 // ============================================================
 // MIS PREDICCIONES
@@ -1558,6 +1625,7 @@ let myPreds={};
 let myAwardPreds={};
 let _predSaveTimer=null;
 let _stepBtnHandler=null;
+let _matchDetailHandler=null;
 let predSubTab='partidos';
 
 function showPredSubTab(t){
@@ -1639,7 +1707,7 @@ function rPred(){
         if(hasPred && !isConfirmedByUser) statusBadge='<div class="mc-status pending">✏️ Sin confirmar</div>';
       }
 
-      return '<div class="'+cardClass+'">'+
+      return '<div class="'+cardClass+'" data-mid="'+x.i+'">'+
         (badge?'<div class="mc-pts">'+badge+'</div>':'')+
         '<div class="mc-home">'+es(x.h)+' '+flag(x.h)+'</div>'+
         '<div class="mc-center"><div class="mc-meta">Grupo '+x.g+'</div>'+
@@ -1659,15 +1727,11 @@ function rPred(){
                 (!editable?'':'<div class="mc-step-btns"><button class="mc-step-btn" data-i="'+x.i+'" data-s="a" data-dir="1">▲</button><button class="mc-step-btn" data-i="'+x.i+'" data-s="a" data-dir="-1">▼</button></div>')+
               '</div>'+
             '</div>')+
-        // Status row at bottom of mc-center
-        (windowOpen && hasPred && !isFullyConfirmed ?
-          '<div class="mc-actions">'+
-            '<button class="mc-btn-confirm" data-confirm="'+x.i+'">✅ Confirmar</button>'+
-            '<button class="mc-btn-del" data-del="'+x.i+'">🗑️</button>'+
-          '</div>' : '')+
-        (windowOpen && isConfirmedByUser && !isConfirmedByTime ?
-          '<div class="mc-actions"><span style="font-size:.65rem;color:var(--exact);font-weight:700">✓ Confirmado</span></div>' : '')+
+        // Status row at bottom of mc-center — contenedor estable para
+        // poder actualizarlo al instante al teclear sin re-renderizar inputs
+        '<div class="mc-action-slot" id="mcact-'+x.i+'">'+_matchActionsHTML(x)+'</div>'+
         (hasResult?'<div class="mc-real">Real: '+r.h+'-'+r.a+'</div>':'')+
+        '<div class="mc-detail-hint">👥 ver predicciones de todos</div>'+
         '</div><div class="mc-away">'+flag(x.a)+' '+es(x.a)+'</div></div>';
     }).join('')).join('');
 
@@ -1675,11 +1739,21 @@ function rPred(){
     el.addEventListener('change',function(){uP(this);});
     el.addEventListener('input',function(){uP(this);});
   });
+  // Click en cualquier parte de la card (menos inputs/flechas/botones) → detalle
+  cc.removeEventListener('click', _matchDetailHandler);
+  _matchDetailHandler = function(ev){
+    // Ignora elementos interactivos
+    if(ev.target.closest('input, .mc-step-btn, .mc-btn-confirm, .mc-btn-del')) return;
+    const card = ev.target.closest('.mc[data-mid]');
+    if(!card) return;
+    openMatchDetail(card.dataset.mid);
+  };
+  cc.addEventListener('click', _matchDetailHandler);
   // Confirm and delete buttons
   cc.querySelectorAll('.mc-btn-confirm').forEach(btn=>{
     btn.addEventListener('click',function(){
       const mid = this.dataset.confirm;
-      confirmPrediction(mid);
+      confirmMatch(mid);
     });
   });
   cc.querySelectorAll('.mc-btn-del').forEach(btn=>{
@@ -1704,17 +1778,71 @@ function rPred(){
     // Update just the input value in place — no full re-render
     const inp = cc.querySelector('input[data-i="'+i+'"][data-s="'+s+'"]');
     if(inp) inp.value = nv;
+    _refreshMatchActions(i);   // ← muestra "Confirmar" al instante
   };
   cc.addEventListener('click', _stepBtnHandler);
 
   if(predSubTab==='premios') rAwardsPred();
 }
 
+// Devuelve el HTML de las acciones (confirmar/borrar o "✓ confirmado") según
+// el estado ACTUAL de myPreds — se usa tanto en el render inicial como en la
+// actualización en vivo al teclear.
+function _matchActionsHTML(x){
+  const windowOpen = isPredictionOpen(x);
+  const locked = isLocked(x);
+  const isConfirmedByUser = !!(S.cf && S.cf[x.i]);
+  const isFullyConfirmed = isConfirmedByUser || locked;
+  const p = myPreds[x.i] || {h:'',a:''};
+  const hasPred = p.h!=='' && p.h!=null && p.a!=='' && p.a!=null;
+  if(windowOpen && hasPred && !isFullyConfirmed){
+    return '<div class="mc-actions">'+
+      '<button class="mc-btn-confirm" data-confirm="'+x.i+'">✅ Confirmar</button>'+
+      '<button class="mc-btn-del" data-del="'+x.i+'">🗑️</button>'+
+    '</div>';
+  }
+  if(windowOpen && isConfirmedByUser && !locked){
+    return '<div class="mc-actions"><span style="font-size:.65rem;color:var(--exact);font-weight:700">✓ Confirmado</span></div>';
+  }
+  return '';
+}
+
+// Re-engancha los listeners de confirmar/borrar de UNA card concreta.
+function _wireMatchCardActions(slot, mid){
+  const cBtn = slot.querySelector('.mc-btn-confirm');
+  if(cBtn) cBtn.addEventListener('click', function(){ confirmMatch(this.dataset.confirm); });
+  const dBtn = slot.querySelector('.mc-btn-del');
+  if(dBtn) dBtn.addEventListener('click', function(){
+    if(confirm('¿Eliminar tu predicción de este partido?')) deletePrediction(this.dataset.del);
+  });
+}
+
+// Actualiza al instante el slot de acciones de una card (aparece/desaparece
+// el botón Confirmar en cuanto los dos marcadores están puestos).
+function _refreshMatchActions(mid){
+  const slot = document.getElementById('mcact-'+mid);
+  if(!slot) return;
+  const x = MA.find(m=>String(m.i)===String(mid));
+  if(!x) return;
+  slot.innerHTML = _matchActionsHTML(x);
+  _wireMatchCardActions(slot, mid);
+}
+
 function uP(el){
   const id=el.dataset.i,s=el.dataset.s;
   if(!myPreds[id])myPreds[id]={h:'',a:''};
   myPreds[id][s]=el.value===''?'':parseInt(el.value);
+  _refreshMatchActions(id);   // ← muestra/oculta "Confirmar" inmediatamente
   scheduleAutoSave();
+}
+
+// Confirmar un partido: primero asegura que la predicción está guardada
+// (vacía el debounce del autosave) y luego confirma, para que no se pierda
+// ni haga falta recargar.
+async function confirmMatch(mid){
+  clearTimeout(_predSaveTimer);
+  await autoSavePreds();          // persiste myPreds en S.pr[ME] y en la BD
+  await confirmPrediction(mid);   // marca confirmado y re-renderiza
 }
 
 function scheduleAutoSave(){
@@ -2469,6 +2597,108 @@ async function saveAwardsAdmin(){
 // ============================================================
 // PUNTUACIÓN
 // ============================================================
+// ============================================================
+// DETALLE DE PARTIDO — predicciones de todos los participantes
+// ============================================================
+function closeMatchDetail(){
+  document.getElementById('md-modal').classList.remove('open');
+}
+
+function openMatchDetail(mid){
+  const x = MA.find(m=>String(m.i)===String(mid));
+  if(!x) return;
+  const modal = document.getElementById('md-modal');
+  const body = document.getElementById('md-body');
+  document.getElementById('md-title').innerHTML = es(x.h)+' vs '+es(x.a);
+
+  const r = S.r[x.i];
+  const hasResult = r && r.h!=='' && r.a!=='' && r.h!=null && r.a!=null;
+
+  // Reúne las predicciones de cada participante para este partido
+  const rows = [];
+  let cH=0, cD=0, cA=0, total=0;
+  S.p.forEach(nm=>{
+    const pr = S.pr[nm] || {};
+    const p = pr[x.i];
+    const has = p && p.h!=='' && p.a!=='' && p.h!=null && p.a!=null;
+    let outcome=null;
+    if(has){
+      const d = (+p.h) - (+p.a);
+      outcome = d>0?'h':(d<0?'a':'d');
+      if(outcome==='h') cH++; else if(outcome==='a') cA++; else cD++;
+      total++;
+    }
+    rows.push({nm, p, has, outcome});
+  });
+
+  // Ordena: primero los que han predicho, dentro por resultado (local, empate, visitante)
+  const ordWeight = {h:0, d:1, a:2};
+  rows.sort((A,B)=>{
+    if(A.has!==B.has) return A.has?-1:1;
+    if(A.has && B.has) return ordWeight[A.outcome]-ordWeight[B.outcome];
+    return 0;
+  });
+
+  const pct = n => total>0 ? Math.round(n*100/total) : 0;
+  const barH = n => (total>0 ? Math.max(6, n*100/total) : 0);
+
+  // Cabecera con resultado real
+  let html = '';
+  if(hasResult){
+    html += '<div class="md-real"><div class="md-real-lbl">Resultado real</div>'+
+      '<div class="md-real-score">'+es(x.h)+' '+r.h+' - '+r.a+' '+es(x.a)+'</div></div>';
+  } else {
+    html += '<div class="md-real"><div class="md-real-lbl">Grupo '+x.g+' · '+fmtTime(x)+'</div></div>';
+  }
+
+  // Barras de distribución de resultados
+  html += '<div class="md-bars">'+
+    '<div class="md-bar h"><div class="md-bar-fill" style="height:'+barH(cH)+'%"></div>'+
+      '<div class="md-bar-n">'+cH+'</div><div class="md-bar-lbl">Gana<br>'+es(x.h)+'</div><div class="md-bar-pct">'+pct(cH)+'%</div></div>'+
+    '<div class="md-bar d"><div class="md-bar-fill" style="height:'+barH(cD)+'%"></div>'+
+      '<div class="md-bar-n">'+cD+'</div><div class="md-bar-lbl">Empate</div><div class="md-bar-pct">'+pct(cD)+'%</div></div>'+
+    '<div class="md-bar a"><div class="md-bar-fill" style="height:'+barH(cA)+'%"></div>'+
+      '<div class="md-bar-n">'+cA+'</div><div class="md-bar-lbl">Gana<br>'+es(x.a)+'</div><div class="md-bar-pct">'+pct(cA)+'%</div></div>'+
+  '</div>';
+
+  // Lista de cada participante
+  html += '<div class="md-sec-title">Predicción de cada uno ('+total+'/'+S.p.length+')</div>';
+  html += '<div class="md-list">';
+  rows.forEach(row=>{
+    if(!row.has){
+      html += '<div class="md-row empty"><span class="md-name">'+esc(row.nm)+'</span>'+
+        '<span class="md-pred"><span class="md-score" style="color:var(--text2)">—</span></span></div>';
+      return;
+    }
+    const tag = row.outcome;
+    const tagLbl = tag==='h'?es(x.h):(tag==='a'?es(x.a):'Empate');
+    let ptsHtml = '';
+    if(hasResult){
+      const pt = cP(row.p, r);
+      if(pt===3) ptsHtml = '<span class="md-pts ex">+3</span>';
+      else if(pt===1) ptsHtml = '<span class="md-pts oc">+1</span>';
+      else if(pt===0) ptsHtml = '<span class="md-pts wr">0</span>';
+    }
+    html += '<div class="md-row">'+
+      '<span class="md-name">'+esc(row.nm)+'</span>'+
+      '<span class="md-pred">'+
+        '<span class="md-tag '+tag+'">'+esc(tagLbl)+'</span>'+
+        '<span class="md-score">'+row.p.h+'-'+row.p.a+'</span>'+
+        ptsHtml+
+      '</span>'+
+    '</div>';
+  });
+  html += '</div>';
+
+  body.innerHTML = html;
+  modal.classList.add('open');
+}
+
+// Escape básico para nombres de participantes
+function esc(s){
+  return String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
 function cP(p,r){
   if(p.h===''||p.a===''||r.h===''||r.a==='')return -1;
   const ph=+p.h,pa=+p.a,rh=+r.h,ra=+r.a;
@@ -3260,9 +3490,10 @@ function rCuadroGroups(){
   }
 
   const container = document.getElementById('cuadro-panel-groups');
+  const _locked = bracketLocked();
   const totalConfirmed = Object.keys(GR).filter(g=>confirmedGroups[g]).length;
   const totalThirds = Object.keys(GR).filter(g=>qualifiedThirdGroups[g]).length;
-  const progressHTML = `<div style="margin:8px 0 14px">
+  const progressHTML = (_locked ? '<div class="cuadro-pending" style="background:rgba(231,76,60,.12);border-color:rgba(231,76,60,.4);color:var(--wrong)">🔒 El cuadro está cerrado. Ya no se puede editar.</div>' : '') + `<div style="margin:8px 0 14px">
     <div class="ib" style="margin-bottom:8px">
       <strong>🖱️ Escritorio:</strong> arrastra los equipos para reordenar cada grupo.<br>
       <strong>📱 Móvil:</strong> usa los botones ▲▼ para mover los equipos.<br>
@@ -3279,11 +3510,13 @@ function rCuadroGroups(){
   const html = progressHTML + '<div class="cg-grid">' +
     Object.keys(GR).map(g => {
       const teams = bracketOrder[g];
-      const confirmed = !!confirmedGroups[g];
+      const confirmed = _locked ? true : !!confirmedGroups[g];
       const cardClass = confirmed ? 'cg-card confirmed' : 'cg-card unconfirmed';
-      const hint = confirmed
-        ? '🔒 confirmado'
-        : (isTouchDevice() ? 'usa ↑↓ y confirma' : 'arrastra y confirma');
+      const hint = _locked
+        ? '🔒 cerrado'
+        : (confirmed
+          ? '🔒 confirmado'
+          : (isTouchDevice() ? 'usa ↑↓ y confirma' : 'arrastra y confirma'));
       return `<div class="${cardClass}">
         <div class="cg-head">
           <span>GRUPO ${g}</span>
@@ -3295,7 +3528,7 @@ function rCuadroGroups(){
           const draggable = confirmed ? '' : 'draggable="true"';
           const isThird = idx === 2;
           const thirdQualified = isThird && confirmed && qualifiedThirdGroups[g];
-          const thirdSelectable = isThird && confirmed;
+          const thirdSelectable = isThird && confirmed && !_locked;
           const rowExtra = thirdQualified ? ' cg-third-qualified' : (thirdSelectable ? ' cg-third-selectable' : '');
           const thirdBadge = '';
           return `<div class="cg-row${rowExtra}" ${draggable} data-g="${g}" data-idx="${idx}" ${thirdSelectable?`data-third-toggle="${g}"`:''}>
@@ -3307,14 +3540,16 @@ function rCuadroGroups(){
             </div>
           </div>`;
         }).join('')}
-        <div class="cg-actions">
+        ${_locked ? '' : `<div class="cg-actions">
           ${confirmed
             ? `<button class="cg-btn-edit" data-edit-g="${g}">✏️ Editar</button>`
             : `<button class="cg-btn-confirm" data-confirm-g="${g}">✅ Confirmar</button>`}
-        </div>
+        </div>`}
       </div>`;
     }).join('') + '</div>';
   container.innerHTML = html;
+
+  if(_locked) return; // cuadro cerrado: no se enganchan handlers de edición
 
   if(isTouchDevice()) document.body.classList.add('is-touch');
 
@@ -3601,7 +3836,9 @@ function rCuadroBracket(){
   const totalThirds = Object.keys(GR).filter(g=>qualifiedThirdGroups[g]).length;
 
   let warningHTML = '';
-  if(totalConfirmed === 0){
+  if(bracketLocked()){
+    warningHTML = '<div class="cuadro-pending" style="background:rgba(231,76,60,.12);border-color:rgba(231,76,60,.4);color:var(--wrong)">🔒 El cuadro está cerrado. Ya no se puede editar.</div>';
+  } else if(totalConfirmed === 0){
     warningHTML = '<div class="cuadro-pending">⚠️ Confirma grupos en la pestaña anterior para empezar a rellenar el cuadro.</div>';
   } else if(totalConfirmed < 12){
     warningHTML = `<div class="cuadro-pending">⚠️ Has confirmado <strong>${totalConfirmed}/12</strong> grupos. Los partidos con grupos no confirmados aparecen vacíos.</div>`;
@@ -3756,6 +3993,7 @@ function _setupBracketDelegation(container){
   }, {passive:true});
 
   container.addEventListener('pointerup', function(e){
+    if(bracketLocked()) { _bracketPtDown = null; return; }
     if(!_bracketPtDown) return;
     const pd = _bracketPtDown;
     _bracketPtDown = null;
@@ -3930,6 +4168,13 @@ function updateBracketConfirmStatus(){
                     document.getElementById('cuadro-panel-bracket').style.display !== 'none';
   const savBtn = document.getElementById('save-bracket-btn');
   const delBtn = document.getElementById('delete-bracket-btn');
+
+  if(bracketLocked()){
+    el.innerHTML = '<span style="font-size:.85rem;color:var(--wrong);font-weight:700">\ud83d\udd12 El cuadro est\u00e1 cerrado \u2014 ya no se puede editar</span>';
+    if(savBtn) savBtn.style.display = 'none';
+    if(delBtn) delBtn.style.display = 'none';
+    return;
+  }
 
   if(isConfirmed('br')){
     el.innerHTML = '<span style="font-size:.85rem;color:var(--exact);font-weight:700">🔒 Cuadro confirmado definitivamente — no se puede modificar</span>';
@@ -4134,6 +4379,13 @@ function updateBracketConfirmStatus(){
                     document.getElementById('cuadro-panel-bracket').style.display !== 'none';
   const savBtn = document.getElementById('save-bracket-btn');
   const delBtn = document.getElementById('delete-bracket-btn');
+
+  if(bracketLocked()){
+    el.innerHTML = '<span style="font-size:.85rem;color:var(--wrong);font-weight:700">\ud83d\udd12 El cuadro est\u00e1 cerrado \u2014 ya no se puede editar</span>';
+    if(savBtn) savBtn.style.display = 'none';
+    if(delBtn) delBtn.style.display = 'none';
+    return;
+  }
 
   if(isConfirmed('br')){
     el.innerHTML = '<span style="font-size:.85rem;color:var(--exact);font-weight:700">🔒 Cuadro confirmado definitivamente — no se puede modificar</span>';
@@ -4493,6 +4745,8 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('pred-tab-cuadro').addEventListener('click',function(){showPredSubTab('cuadro');});
   document.getElementById('aw-close-btn').addEventListener('click', closeAwardModal);
   document.getElementById('aw-modal').addEventListener('click', function(e){ if(e.target===this) closeAwardModal(); });
+  document.getElementById('md-close-btn').addEventListener('click', closeMatchDetail);
+  document.getElementById('md-modal').addEventListener('click', function(e){ if(e.target===this) closeMatchDetail(); });
   document.getElementById('cuadro-step-groups').addEventListener('click',function(){showCuadroStep('groups');});
   document.getElementById('cuadro-step-bracket').addEventListener('click',function(){showCuadroStep('bracket');});
   document.getElementById('save-bracket-btn').addEventListener('click',saveBracket);

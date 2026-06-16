@@ -1841,8 +1841,28 @@ function uP(el){
 // ni haga falta recargar.
 async function confirmMatch(mid){
   clearTimeout(_predSaveTimer);
-  await autoSavePreds();          // persiste myPreds en S.pr[ME] y en la BD
-  await confirmPrediction(mid);   // marca confirmado y re-renderiza
+  if(!S.cf) S.cf={};
+  // 1) Optimista: marca confirmado en local y refleja la UI AL INSTANTE
+  S.cf[mid] = true;
+  S.pr[ME] = JSON.parse(JSON.stringify(myPreds)); // fija la predicción en local
+  toast('✅ Confirmado','ok');
+  renderAll();                                     // re-render local, sin esperar red
+
+  // 2) En segundo plano: guarda predicción + confirmación. Si falla, revierte.
+  const preds=[];
+  for(const [k,v] of Object.entries(myPreds)){
+    const match=MA.find(x=>String(x.i)===String(k));
+    if(match&&isLocked(match)) continue;
+    if(v.h!==''&&v.a!=='') preds.push({mid:k,h:v.h,a:v.a});
+  }
+  try{
+    if(preds.length) await api('savePredictions',{name:ME,data:preds});
+    await api('saveConfirmations',{name:ME,data:S.cf});
+  }catch(e){
+    delete S.cf[mid];                              // rollback
+    toast('❌ No se pudo confirmar: '+e.message,'err');
+    renderAll();
+  }
 }
 
 function scheduleAutoSave(){

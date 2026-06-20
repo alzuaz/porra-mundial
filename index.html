@@ -216,7 +216,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .br-match{position:relative}
 
 /* BRACKET — pyramid shape, two halves converging to center */
-.br-rounds{overflow-x:auto;overflow-y:hidden;padding-bottom:10px;-webkit-overflow-scrolling:touch;touch-action:pan-x}
+.br-rounds{overflow-x:auto;overflow-y:auto;padding-bottom:10px;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}
 .br-tree{
   display:grid;
   /* 9 columns: R32L R16L QFL SFL CENTER SFR QFR R16R R32R */
@@ -239,7 +239,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 }
 .br-meta{background:var(--secondary);padding:2px 7px;font-size:.55rem;color:var(--text2);display:flex;justify-content:space-between;line-height:1.2}
 .br-meta .br-mid{color:var(--gold);font-weight:700}
-.br-team{display:flex;align-items:center;gap:4px;padding:6px 7px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;min-height:44px;font-size:.7rem;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.br-team{display:flex;align-items:center;gap:4px;padding:6px 7px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;min-height:44px;font-size:.7rem;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 .br-team:last-child{border-bottom:none}
 .br-team:hover:not(.br-tbd):not(.br-eliminated){background:rgba(245,197,24,.08)}
 .br-team.br-winner{background:rgba(39,174,96,.18);font-weight:700}
@@ -549,6 +549,13 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
       <div id="real-bracket-groups-panel"></div>
       <div id="real-bracket-bracket-panel" style="display:none"></div>
       <div class="ios" style="margin-top:10px"><button class="btn btn-g btn-sm" id="save-real-bracket-btn">💾 Guardar cuadro real</button></div>
+      <div style="font-size:.95rem;font-weight:700;margin:20px 0 8px">🏟️ Asignar equipos a eliminatorias</div>
+      <div class="ib" style="font-size:.78rem">
+        Asigna los equipos local y visitante de cada partido de eliminatoria. Una vez asignados los dos equipos, el partido aparecerá automáticamente en las pestañas <strong>Predicciones</strong> y <strong>Partidos</strong> para que todos los jugadores puedan apostar.
+      </div>
+      <div class="mdt" id="kof"></div>
+      <div id="ko-admin-container"></div>
+      <div class="ios" style="margin-top:10px"><button class="btn btn-g btn-sm" id="save-ko-btn">💾 Guardar eliminatorias</button></div>
     </div>
 
     <!-- ADMIN CONFIG -->
@@ -583,6 +590,16 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 </div>
 
 <div id="toast" class="toast"></div>
+<!-- BOTÓN FLOTANTE: salto al partido de hoy -->
+<button id="jump-today-btn"
+  style="display:none;position:fixed;right:14px;bottom:70px;z-index:200;
+         width:54px;height:54px;border-radius:50%;background:var(--gold);
+         color:var(--primary);border:none;font-size:1.4rem;font-weight:800;
+         box-shadow:0 4px 16px rgba(245,197,24,.4);cursor:pointer;
+         -webkit-tap-highlight-color:transparent;transition:transform .15s"
+  title="Ir al partido de hoy">
+  📅
+</button>
 
 <!-- DEBUG LOG PANEL (visible en iOS donde no hay consola) -->
 <div id="dbg-panel" style="display:none;position:fixed;left:0;right:0;bottom:0;max-height:45vh;background:#0a0a14;border-top:2px solid var(--gold);z-index:9999;font-family:monospace;font-size:11px;color:#0f0">
@@ -1097,11 +1114,110 @@ const MA=[
   {i:71,m:3,d:'28 Jun',h:'Jordan',          a:'Argentina',           g:'J',v:'Dallas',ko:[2026,6,28,4,0]},
   {i:72,m:3,d:'28 Jun',h:'Algeria',         a:'Austria',             g:'J',v:'Kansas City',ko:[2026,6,28,4,0]},
 ];
+// ============================================================
+// PARTIDOS DE ELIMINATORIAS (KO) — plantillas sin equipos
+// El admin asigna equipos manualmente desde el panel de admin.
+// Una vez asignados, se comportan igual que los de grupos.
+// m: 4=R32, 5=8vos, 6=4tos, 7=Semis, 8=Final/3o
+// ============================================================
+const KO_MATCHES_TEMPLATE = [
+  // R32 (m:4)
+  {i:73, m:4, d:'28 Jun', g:'R32', v:'Los Ángeles',      ko:[2026,6,28,21,0]},
+  {i:74, m:4, d:'29 Jun', g:'R32', v:'Boston',           ko:[2026,6,29,21,0]},
+  {i:75, m:4, d:'29 Jun', g:'R32', v:'Monterrey',        ko:[2026,6,29,4,0]},
+  {i:76, m:4, d:'29 Jun', g:'R32', v:'Houston',          ko:[2026,6,29,19,0]},
+  {i:77, m:4, d:'30 Jun', g:'R32', v:'Nueva York/NJ',    ko:[2026,6,30,21,0]},
+  {i:78, m:4, d:'30 Jun', g:'R32', v:'Dallas',           ko:[2026,6,30,22,0]},
+  {i:79, m:4, d:'30 Jun', g:'R32', v:'Ciudad de México', ko:[2026,6,30,3,0]},
+  {i:80, m:4, d:'1 Jul',  g:'R32', v:'Atlanta',          ko:[2026,7,1,18,0]},
+  {i:81, m:4, d:'1 Jul',  g:'R32', v:'San Francisco',    ko:[2026,7,1,21,0]},
+  {i:82, m:4, d:'1 Jul',  g:'R32', v:'Seattle',          ko:[2026,7,1,4,0]},
+  {i:83, m:4, d:'2 Jul',  g:'R32', v:'Toronto',          ko:[2026,7,2,21,0]},
+  {i:84, m:4, d:'2 Jul',  g:'R32', v:'Los Ángeles',      ko:[2026,7,2,3,0]},
+  {i:85, m:4, d:'2 Jul',  g:'R32', v:'Vancouver',        ko:[2026,7,2,22,0]},
+  {i:86, m:4, d:'3 Jul',  g:'R32', v:'Miami',            ko:[2026,7,3,18,0]},
+  {i:87, m:4, d:'3 Jul',  g:'R32', v:'Kansas City',      ko:[2026,7,3,21,0]},
+  {i:88, m:4, d:'3 Jul',  g:'R32', v:'Dallas',           ko:[2026,7,3,4,0]},
+  // R16 (m:5)
+  {i:89, m:5, d:'4 Jul',  g:'8vos', v:'Filadelfia',      ko:[2026,7,4,21,0]},
+  {i:90, m:5, d:'4 Jul',  g:'8vos', v:'Houston',         ko:[2026,7,4,3,0]},
+  {i:91, m:5, d:'5 Jul',  g:'8vos', v:'Nueva York/NJ',   ko:[2026,7,5,21,0]},
+  {i:92, m:5, d:'5 Jul',  g:'8vos', v:'Ciudad de México',ko:[2026,7,5,3,0]},
+  {i:93, m:5, d:'6 Jul',  g:'8vos', v:'Dallas',          ko:[2026,7,6,21,0]},
+  {i:94, m:5, d:'6 Jul',  g:'8vos', v:'Seattle',         ko:[2026,7,6,3,0]},
+  {i:95, m:5, d:'7 Jul',  g:'8vos', v:'Atlanta',         ko:[2026,7,7,21,0]},
+  {i:96, m:5, d:'7 Jul',  g:'8vos', v:'Vancouver',       ko:[2026,7,7,3,0]},
+  // QF (m:6)
+  {i:97, m:6, d:'9 Jul',  g:'4tos', v:'Boston',          ko:[2026,7,9,21,0]},
+  {i:98, m:6, d:'10 Jul', g:'4tos', v:'Los Ángeles',     ko:[2026,7,10,3,0]},
+  {i:99, m:6, d:'11 Jul', g:'4tos', v:'Miami',           ko:[2026,7,11,21,0]},
+  {i:100,m:6, d:'11 Jul', g:'4tos', v:'Kansas City',     ko:[2026,7,11,3,0]},
+  // SF (m:7)
+  {i:101,m:7, d:'14 Jul', g:'Semis',v:'Dallas',          ko:[2026,7,14,21,0]},
+  {i:102,m:7, d:'15 Jul', g:'Semis',v:'Atlanta',         ko:[2026,7,15,21,0]},
+  // 3er puesto y Final (m:8)
+  {i:103,m:8, d:'18 Jul', g:'3er',  v:'Miami',           ko:[2026,7,18,21,0]},
+  {i:104,m:8, d:'19 Jul', g:'Final',v:'Nueva York/NJ',   ko:[2026,7,19,21,0]},
+];
+// Estado: S.ko = {73: {h:'Mexico', a:'Switzerland'}, ...}
+// Persistido junto a awards (clave reservada '__koMatches__').
+function applyKOAssignments(){
+  // Sincroniza el array MA con las asignaciones actuales de KO.
+  for(const tmpl of KO_MATCHES_TEMPLATE){
+    const assignment = (S.ko && S.ko[tmpl.i]) ? S.ko[tmpl.i] : null;
+    const existingIdx = MA.findIndex(m => m.i === tmpl.i);
+    if(assignment && assignment.h && assignment.a){
+      const merged = Object.assign({}, tmpl, {h: assignment.h, a: assignment.a});
+      if(existingIdx >= 0) MA[existingIdx] = merged;
+      else MA.push(merged);
+    } else if(existingIdx >= 0){
+      MA.splice(existingIdx, 1);
+    }
+  }
+  // Reordena MA por kickoff para que el orden temporal sea correcto
+  MA.sort((a,b)=> koDate(a).getTime() - koDate(b).getTime());
+}
+// Equipos disponibles para asignar a una eliminatoria.
+// En R32 = los 32 mejores de fase de grupos (cualquier equipo).
+// En rondas posteriores = ganadores de la ronda anterior, si ya están asignados.
+function availableTeamsForKO(matchId){
+  // Para simplicidad de la Opción B, devolvemos TODOS los equipos
+  // y el admin elige libremente. Validar manualmente es responsabilidad
+  // del admin.
+  const all = [];
+  for(const g of Object.keys(GR)) all.push(...GR[g]);
+  return all.sort((a,b)=> es(a).localeCompare(es(b)));
+}
+async function saveKOAssignments(){
+  if(!S.ko) S.ko = {};
+  const payload = {'__koMatches__': JSON.stringify(S.ko)};
+  try{
+    toast('Guardando eliminatorias...','ok');
+    await api('saveAwards', {data: payload});
+    S.aw['__koMatches__'] = JSON.stringify(S.ko);
+    applyKOAssignments();
+    toast('✅ Eliminatorias guardadas','ok');
+    renderAll();
+  }catch(e){
+    toast('Error: '+e.message,'err');
+  }
+}
+function loadKOAssignments(){
+  // Carga las asignaciones desde S.aw['__koMatches__']
+  if(!S.aw) return;
+  const raw = S.aw['__koMatches__'];
+  if(!raw){ S.ko = {}; return; }
+  try{
+    S.ko = typeof raw === 'string' ? JSON.parse(raw) : raw;
+  }catch(_){ S.ko = {}; }
+  applyKOAssignments();
+}
+
 
 // ============================================================
 // ESTADO
 // ============================================================
-let S={cf:{},p:[],pr:{},r:{},aw:{},awPred:{}};
+let S={cf:{},p:[],pr:{},r:{},aw:{},awPred:{},ko:{}};
 let ME='';
 let IS_ADMIN=false;
 
@@ -1516,6 +1632,8 @@ async function syncAll(){
     const allCf = r.cf || {};
     S.cfAll = allCf;
     S.cf = allCf[ME] || {};
+    // Cargar asignaciones de eliminatorias (KO matches)
+    loadKOAssignments();
     if(!S.p.includes(ME)){
       // Retry up to 3 times — mobile connections can be slow/flaky
       let added = false;
@@ -1539,6 +1657,13 @@ async function syncAll(){
       myAwardPreds = JSON.parse(JSON.stringify(S.awPred[ME] || {}));
     renderAll();
     toast('✅ Sincronizado','ok');
+    // Auto-scroll al partido relevante (solo la primera sincronización)
+    if(!window._jumpedOnLoad){
+      window._jumpedOnLoad = true;
+      setTimeout(()=>jumpToRelevantMatch(true), 400);
+    }
+    // Actualizar visibilidad del botón flotante
+    if(typeof updateJumpTodayBtn === 'function') updateJumpTodayBtn();
   }catch(e){
     console.error('syncAll error:', e);
     toast('Error: ' + e.message,'err');
@@ -1587,7 +1712,7 @@ function rGrp(){
 let cMD=0;
 function rMatch(){
   const fc=document.getElementById('mf');
-  fc.innerHTML=[['Todos',0],['Jornada 1',1],['Jornada 2',2],['Jornada 3',3]].map(([l,v])=>
+  fc.innerHTML=[['Todos',0],['J1',1],['J2',2],['J3',3],['R32',4],['8vos',5],['4tos',6],['Semis',7],['Final',8]].map(([l,v])=>
     '<button class="'+(cMD===v?'active':'')+'" data-md="'+v+'">'+l+'</button>').join('');
   fc.querySelectorAll('button').forEach(b=>b.addEventListener('click',function(){cMD=parseInt(this.dataset.md);rMatch();}));
   const ms=cMD===0?MA:MA.filter(x=>x.m===cMD);
@@ -1671,7 +1796,7 @@ function rPred(){
 
   // Partidos
   const fc=document.getElementById('pmf');
-  fc.innerHTML=[['Todos',0],['J1',1],['J2',2],['J3',3]].map(([l,v])=>
+  fc.innerHTML=[['Todos',0],['J1',1],['J2',2],['J3',3],['R32',4],['8vos',5],['4tos',6],['Semis',7],['Final',8]].map(([l,v])=>
     '<button class="'+(pMD===v?'active':'')+'" data-pmd="'+v+'">'+l+'</button>').join('');
   fc.querySelectorAll('button').forEach(b=>b.addEventListener('click',function(){pMD=parseInt(this.dataset.pmd);rPred();}));
 
@@ -1731,7 +1856,9 @@ function rPred(){
         // poder actualizarlo al instante al teclear sin re-renderizar inputs
         '<div class="mc-action-slot" id="mcact-'+x.i+'">'+_matchActionsHTML(x)+'</div>'+
         (hasResult?'<div class="mc-real">Real: '+r.h+'-'+r.a+'</div>':'')+
-        '<div class="mc-detail-hint">👥 ver predicciones de todos</div>'+
+        ((isConfirmedByUser||locked)
+          ? '<div class="mc-detail-hint">👥 ver predicciones de todos</div>'
+          : '<div class="mc-detail-hint" style="color:var(--text2);opacity:.65">🔒 confirma para ver al resto</div>')+
         '</div><div class="mc-away">'+flag(x.a)+' '+es(x.a)+'</div></div>';
     }).join('')).join('');
 
@@ -2514,7 +2641,7 @@ function rRes(){
   pendR=JSON.parse(JSON.stringify(S.r));
   pendAw=JSON.parse(JSON.stringify(S.aw));
   const fc=document.getElementById('rmf');
-  fc.innerHTML=[['Todos',0],['J1',1],['J2',2],['J3',3]].map(([l,v])=>
+  fc.innerHTML=[['Todos',0],['J1',1],['J2',2],['J3',3],['R32',4],['8vos',5],['4tos',6],['Semis',7],['Final',8]].map(([l,v])=>
     '<button class="'+(rMD===v?'active':'')+'" data-rmd="'+v+'">'+l+'</button>').join('');
   fc.querySelectorAll('button').forEach(b=>b.addEventListener('click',function(){rMD=parseInt(this.dataset.rmd);rRes();}));
 
@@ -2553,6 +2680,9 @@ function rRes(){
   if(liveBtn) liveBtn.addEventListener('click', fetchLiveResults);
   loadRealBracket();
   rRealBracketAdmin();
+  rKOAdmin();
+  const saveKOBtn = document.getElementById('save-ko-btn');
+  if(saveKOBtn) saveKOBtn.addEventListener('click', saveKOAssignments);
 
   // Premios admin
   const ac=document.getElementById('awards-admin-container');
@@ -2613,6 +2743,65 @@ async function saveAwardsAdmin(){
     toast('✅ Premios reales guardados','ok');
   }catch(e){toast('Error: '+e.message,'err');}
 }
+// ── ADMIN: Asignar equipos a eliminatorias ────────────────────
+let koFilter = 4; // por defecto R32
+function rKOAdmin(){
+  const fc = document.getElementById('kof');
+  if(!fc) return;
+  // Filtro de ronda
+  fc.innerHTML = [['R32',4],['8vos',5],['4tos',6],['Semis',7],['Final',8]].map(([l,v])=>
+    '<button class="'+(koFilter===v?'active':'')+'" data-kof="'+v+'">'+l+'</button>').join('');
+  fc.querySelectorAll('button').forEach(b=>b.addEventListener('click',function(){
+    koFilter = parseInt(this.dataset.kof);
+    rKOAdmin();
+  }));
+  // Lista de partidos de la ronda seleccionada
+  const matches = KO_MATCHES_TEMPLATE.filter(m => m.m === koFilter);
+  const teams = availableTeamsForKO();
+  const container = document.getElementById('ko-admin-container');
+  if(!container) return;
+  const cur = S.ko || {};
+  container.innerHTML = matches.map(m => {
+    const a = cur[m.i] || {};
+    const optsH = '<option value="">— elegir local —</option>' +
+      teams.map(t => '<option value="'+t+'"'+(a.h===t?' selected':'')+'>'+es(t)+'</option>').join('');
+    const optsA = '<option value="">— elegir visitante —</option>' +
+      teams.map(t => '<option value="'+t+'"'+(a.a===t?' selected':'')+'>'+es(t)+'</option>').join('');
+    const assigned = a.h && a.a;
+    const borderColor = assigned ? 'var(--exact)' : 'var(--border)';
+    return '<div style="background:var(--card);border:1px solid '+borderColor+';border-radius:10px;padding:12px;margin-bottom:8px">'+
+      '<div style="font-size:.72rem;color:var(--text2);margin-bottom:8px;display:flex;justify-content:space-between">'+
+        '<span><strong style="color:var(--gold)">M'+m.i+'</strong> · '+m.g+' · '+m.d+' · '+fmtTime(m)+'</span>'+
+        '<span>📍 '+m.v+'</span>'+
+      '</div>'+
+      '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+
+        '<select data-koi="'+m.i+'" data-kos="h" style="flex:1;min-width:140px;padding:8px;background:var(--bg);border:1px solid var(--gold);border-radius:6px;color:var(--text);font-size:.85rem">'+optsH+'</select>'+
+        '<span style="font-weight:700;color:var(--gold)">vs</span>'+
+        '<select data-koi="'+m.i+'" data-kos="a" style="flex:1;min-width:140px;padding:8px;background:var(--bg);border:1px solid var(--gold);border-radius:6px;color:var(--text);font-size:.85rem">'+optsA+'</select>'+
+        (assigned ? '<button class="btn btn-sm btn-d" data-koclear="'+m.i+'">🗑️</button>' : '')+
+      '</div>'+
+      (assigned ? '<div style="margin-top:6px;font-size:.7rem;color:var(--exact)">✅ '+es(a.h)+' vs '+es(a.a)+' — visible para jugadores</div>' : '')+
+    '</div>';
+  }).join('');
+  container.querySelectorAll('select[data-koi]').forEach(sel => {
+    sel.addEventListener('change', function(){
+      const mid = this.dataset.koi;
+      const slot = this.dataset.kos;
+      if(!S.ko) S.ko = {};
+      if(!S.ko[mid]) S.ko[mid] = {};
+      S.ko[mid][slot] = this.value;
+      if(!S.ko[mid].h && !S.ko[mid].a) delete S.ko[mid];
+    });
+  });
+  container.querySelectorAll('[data-koclear]').forEach(btn => {
+    btn.addEventListener('click', function(){
+      const mid = this.dataset.koclear;
+      if(S.ko && S.ko[mid]) delete S.ko[mid];
+      rKOAdmin();
+    });
+  });
+}
+
 
 // ============================================================
 // PUNTUACIÓN
@@ -2627,6 +2816,22 @@ function closeMatchDetail(){
 function openMatchDetail(mid){
   const x = MA.find(m=>String(m.i)===String(mid));
   if(!x) return;
+  // 🔒 Gate: solo puedes ver predicciones de otros si:
+  //   a) tú has confirmado la tuya para este partido, o
+  //   b) el partido ya está bloqueado por tiempo (15 min antes del kickoff)
+  const viewerCf = S.cf || {};
+  const myPred = (S.pr[ME] || {})[x.i];
+  const hasMyPred = myPred && myPred.h!=='' && myPred.a!=='' && myPred.h!=null && myPred.a!=null;
+  const iConfirmed = !!viewerCf[x.i];
+  const timeLocked = isLocked(x);
+  if(!iConfirmed && !timeLocked){
+    if(!hasMyPred){
+      toast('🔒 Primero haz tu predicción para ver las del resto','err');
+    } else {
+      toast('🔒 Confirma tu predicción para ver las del resto','err');
+    }
+    return;
+  }
   const modal = document.getElementById('md-modal');
   const body = document.getElementById('md-body');
   document.getElementById('md-title').innerHTML = es(x.h)+' vs '+es(x.a);
@@ -3979,7 +4184,15 @@ function rCuadroBracket(){
     <div class="br-title" style="grid-column:9;grid-row:1">Dieciseisavos</div>
   `;
 
-  container.innerHTML = warningHTML + `
+  const navHTML = `
+    <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;justify-content:center">
+      <button class="btn btn-sm btn-s" data-bjump="1">⏮️ R32 izq</button>
+      <button class="btn btn-sm btn-s" data-bjump="3">QF izq</button>
+      <button class="btn btn-sm btn-g" data-bjump="5">🏆 Final</button>
+      <button class="btn btn-sm btn-s" data-bjump="7">QF der</button>
+      <button class="btn btn-sm btn-s" data-bjump="9">R32 der ⏭️</button>
+    </div>`;
+  container.innerHTML = warningHTML + navHTML + `
     <div class="br-rounds">
       <div class="br-tree">
         ${titlesHTML}
@@ -3989,7 +4202,16 @@ function rCuadroBracket(){
         ${thirdCardHTML}
       </div>
     </div>`;
-
+  // Botones de salto rápido entre columnas del bracket
+  container.querySelectorAll('[data-bjump]').forEach(btn=>{
+    btn.addEventListener('click', function(){
+      const col = parseInt(this.dataset.bjump);
+      const scroller = container.querySelector('.br-rounds');
+      if(!scroller) return;
+      const colWidth = window.innerWidth < 600 ? 158 : 175;
+      scroller.scrollTo({left:(col-1)*colWidth, behavior:'smooth'});
+    });
+  });
   // Wire winner selection — partial updates
   wireBracketTeamClicks(container);
 }
@@ -4009,7 +4231,7 @@ function _setupBracketDelegation(container){
   container.addEventListener('pointerdown', function(e){
     const el = e.target.closest('.br-team[data-mid]');
     if(!el) return;
-    _bracketPtDown = {x: e.clientX, y: e.clientY, el};
+    _bracketPtDown = {x: e.clientX, y: e.clientY, el, t: Date.now()};
   }, {passive:true});
 
   container.addEventListener('pointerup', function(e){
@@ -4019,8 +4241,11 @@ function _setupBracketDelegation(container){
     _bracketPtDown = null;
     const dx = Math.abs(e.clientX - pd.x);
     const dy = Math.abs(e.clientY - pd.y);
-    // More than 10px movement = scroll gesture, ignore
-    if(dx > 10 || dy > 10) return;
+    // 📱 Tap real: poco movimiento Y poca duración
+    // (>18px = scroll, >500ms sin moverse = hold accidental)
+    const dt = Date.now() - (pd.t||0);
+    if(dx > 18 || dy > 18) return;
+    if(dt > 500) return;
     const el = pd.el;
     if(!el || !el.isConnected) return;
     const mid = parseInt(el.dataset.mid);
@@ -4726,6 +4951,74 @@ function renderAll(){
 }
 
 // ============================================================
+// SALTO RÁPIDO AL PARTIDO RELEVANTE DE HOY
+// ============================================================
+function findRelevantMatch(){
+  const now = Date.now();
+  // Prioridad 1: partidos en ventana abierta que NO has confirmado todavía
+  for(const m of MA){
+    if(!isPredictionOpen(m)) continue;
+    if(isLocked(m)) continue;
+    const confirmed = !!(S.cf && S.cf[m.i]);
+    if(!confirmed) return m;
+  }
+  // Prioridad 2: próximo partido futuro
+  for(const m of MA){
+    const ko = koDate(m).getTime();
+    if(ko > now) return m;
+  }
+  // Prioridad 3: el último jugado
+  for(let i=MA.length-1; i>=0; i--){
+    const ko = koDate(MA[i]).getTime();
+    if(ko <= now) return MA[i];
+  }
+  return null;
+}
+function jumpToRelevantMatch(silent){
+  const target = findRelevantMatch();
+  if(!target){
+    if(!silent) toast('No hay partidos relevantes','err');
+    return;
+  }
+  // Asegurar que estamos en una pestaña con cards de partidos
+  const inPred = document.getElementById('tab-predicciones').classList.contains('active');
+  const inPartidos = document.getElementById('tab-partidos').classList.contains('active');
+  if(!inPred && !inPartidos){
+    showTab('predicciones');
+  }
+  // Si el filtro está limitando a otra jornada, ponerlo en "Todos"
+  if(pMD !== 0 && pMD !== target.m){
+    pMD = 0;
+    rPred();
+  }
+  if(cMD !== 0 && cMD !== target.m && inPartidos){
+    cMD = 0;
+    rMatch();
+  }
+  // Scroll al partido tras el render
+  requestAnimationFrame(()=>{
+    const containerId = inPartidos ? 'mcc' : 'pcc';
+    const el = document.querySelector('#'+containerId+' .mc[data-mid="'+target.i+'"]');
+    if(el){
+      el.scrollIntoView({behavior:'smooth', block:'center'});
+      // Pulso visual dorado
+      el.style.transition = 'box-shadow .4s';
+      el.style.boxShadow = '0 0 0 3px var(--gold)';
+      setTimeout(()=>{ el.style.boxShadow = ''; }, 1800);
+    } else if(!silent){
+      toast('Partido no visible en el filtro actual','err');
+    }
+  });
+}
+// Mostrar/ocultar el botón flotante según la pestaña activa
+function updateJumpTodayBtn(){
+  const btn = document.getElementById('jump-today-btn');
+  if(!btn) return;
+  const inPred = document.getElementById('tab-predicciones').classList.contains('active');
+  const inPartidos = document.getElementById('tab-partidos').classList.contains('active');
+  btn.style.display = (inPred || inPartidos) ? '' : 'none';
+}
+// ============================================================
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded',function(){
@@ -4789,6 +5082,17 @@ document.addEventListener('DOMContentLoaded',function(){
   // Auto-login: nombre guardado en localStorage
   const saved=localStorage.getItem('porra_me');
   if(saved){ME=saved;startApp();}
+  // Botón flotante de salto al partido de hoy
+  const jb = document.getElementById('jump-today-btn');
+  if(jb){
+    jb.addEventListener('click', function(){ jumpToRelevantMatch(false); });
+  }
+  // Detectar cambios de pestaña para mostrar/ocultar el botón
+  const tabPanels = document.querySelectorAll('.tab-panel');
+  tabPanels.forEach(panel => {
+    const obs = new MutationObserver(updateJumpTodayBtn);
+    obs.observe(panel, {attributes:true, attributeFilter:['class']});
+  });
 });
 
 async function checkAdminPwd(){

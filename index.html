@@ -475,9 +475,11 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
         <div class="subtabs" style="margin-bottom:14px">
           <button class="active" id="cuadro-step-groups">📋 Grupos</button>
           <button id="cuadro-step-bracket">🔗 Bracket</button>
+          <button id="cuadro-step-real">🏁 Clasificación Real</button>
         </div>
         <div id="cuadro-panel-groups"></div>
         <div id="cuadro-panel-bracket" style="display:none"></div>
+        <div id="cuadro-panel-real" style="display:none"></div>
         <div style="margin-top:16px;text-align:center">
           <button class="btn btn-g" id="save-bracket-btn" style="padding:12px 28px;font-size:.95rem">💾 Guardar</button>
           <button class="btn btn-d" id="delete-bracket-btn" style="padding:12px 28px;font-size:.95rem;background:rgba(231,76,60,.18);color:var(--wrong);border:1px solid var(--wrong)">🗑️ Eliminar predicción</button>
@@ -1122,22 +1124,22 @@ const MA=[
 // ============================================================
 const KO_MATCHES_TEMPLATE = [
   // R32 (m:4)
-  {i:73, m:4, d:'28 Jun', g:'R32', v:'Los Ángeles',      ko:[2026,6,28,21,0]},
-  {i:74, m:4, d:'29 Jun', g:'R32', v:'Boston',           ko:[2026,6,29,21,0]},
-  {i:75, m:4, d:'29 Jun', g:'R32', v:'Monterrey',        ko:[2026,6,29,4,0]},
-  {i:76, m:4, d:'29 Jun', g:'R32', v:'Houston',          ko:[2026,6,29,19,0]},
-  {i:77, m:4, d:'30 Jun', g:'R32', v:'Nueva York/NJ',    ko:[2026,6,30,21,0]},
-  {i:78, m:4, d:'30 Jun', g:'R32', v:'Dallas',           ko:[2026,6,30,22,0]},
-  {i:79, m:4, d:'30 Jun', g:'R32', v:'Ciudad de México', ko:[2026,6,30,3,0]},
-  {i:80, m:4, d:'1 Jul',  g:'R32', v:'Atlanta',          ko:[2026,7,1,18,0]},
-  {i:81, m:4, d:'1 Jul',  g:'R32', v:'San Francisco',    ko:[2026,7,1,21,0]},
-  {i:82, m:4, d:'1 Jul',  g:'R32', v:'Seattle',          ko:[2026,7,1,4,0]},
-  {i:83, m:4, d:'2 Jul',  g:'R32', v:'Toronto',          ko:[2026,7,2,21,0]},
-  {i:84, m:4, d:'2 Jul',  g:'R32', v:'Los Ángeles',      ko:[2026,7,2,3,0]},
-  {i:85, m:4, d:'2 Jul',  g:'R32', v:'Vancouver',        ko:[2026,7,2,22,0]},
-  {i:86, m:4, d:'3 Jul',  g:'R32', v:'Miami',            ko:[2026,7,3,18,0]},
-  {i:87, m:4, d:'3 Jul',  g:'R32', v:'Kansas City',      ko:[2026,7,3,21,0]},
-  {i:88, m:4, d:'3 Jul',  g:'R32', v:'Dallas',           ko:[2026,7,3,4,0]},
+  {i:73, m:4, d:'28 Jun', g:'R32', h:'South Africa', a:'Canada', v:'Los Ángeles', ko:[2026,6,28,21,0]},
+  {i:74, m:4, d:'29 Jun', g:'R32', h:'Germany', a:'Paraguay', v:'Boston', ko:[2026,6,29,22,30]},
+  {i:75, m:4, d:'30 Jun', g:'R32', h:'Netherlands', a:'Morocco', v:'Monterrey', ko:[2026,6,30,3,0]},
+  {i:76, m:4, d:'29 Jun', g:'R32', h:'Brazil', a:'Japan', v:'Houston', ko:[2026,6,29,19,0]},
+  {i:77, m:4, d:'30 Jun', g:'R32', h:'France', a:'Sweden', v:'Nueva York/NJ', ko:[2026,6,30,23,0]},
+  {i:78, m:4, d:'30 Jun', g:'R32', h:'Ivory Coast', a:'Norway', v:'Dallas', ko:[2026,6,30,19,0]},
+  {i:79, m:4, d:'1 Jul', g:'R32', h:'Mexico', a:'Ecuador', v:'Ciudad de México', ko:[2026,7,1,3,0]},
+  {i:80, m:4, d:'1 Jul', g:'R32', h:'England', a:'DR Congo', v:'Atlanta', ko:[2026,7,1,18,0]},
+  {i:81, m:4, d:'2 Jul', g:'R32', h:'USA', a:'Bosnia & Herzegovina', v:'San Francisco', ko:[2026,7,2,2,0]},
+  {i:82, m:4, d:'1 Jul', g:'R32', h:'Belgium', a:'Senegal', v:'Seattle', ko:[2026,7,1,22,0]},
+  {i:83, m:4, d:'3 Jul', g:'R32', h:'Portugal', a:'Croatia', v:'Toronto', ko:[2026,7,3,1,0]},
+  {i:84, m:4, d:'2 Jul', g:'R32', h:'Spain', a:'Austria', v:'Los Ángeles', ko:[2026,7,2,21,0]},
+  {i:85, m:4, d:'3 Jul', g:'R32', h:'Switzerland', a:'Algeria', v:'Vancouver', ko:[2026,7,3,5,0]},
+  {i:86, m:4, d:'4 Jul', g:'R32', h:'Argentina', a:'Cape Verde', v:'Miami', ko:[2026,7,4,0,0]},
+  {i:87, m:4, d:'4 Jul', g:'R32', h:'Colombia', a:'Ghana', v:'Kansas City', ko:[2026,7,4,3,30]},
+  {i:88, m:4, d:'3 Jul', g:'R32', h:'Australia', a:'Egypt', v:'Dallas', ko:[2026,7,3,20,0]},
   // R16 (m:5)
   {i:89, m:5, d:'4 Jul',  g:'8vos', v:'Filadelfia',      ko:[2026,7,4,21,0]},
   {i:90, m:5, d:'4 Jul',  g:'8vos', v:'Houston',         ko:[2026,7,4,3,0]},
@@ -1163,18 +1165,20 @@ const KO_MATCHES_TEMPLATE = [
 // Persistido junto a awards (clave reservada '__koMatches__').
 function applyKOAssignments(){
   // Sincroniza el array MA con las asignaciones actuales de KO.
+  // Usa override del admin (S.ko) si existe, si no usa h/a del template.
   for(const tmpl of KO_MATCHES_TEMPLATE){
     const assignment = (S.ko && S.ko[tmpl.i]) ? S.ko[tmpl.i] : null;
+    const h = (assignment && assignment.h) ? assignment.h : tmpl.h;
+    const a = (assignment && assignment.a) ? assignment.a : tmpl.a;
     const existingIdx = MA.findIndex(m => m.i === tmpl.i);
-    if(assignment && assignment.h && assignment.a){
-      const merged = Object.assign({}, tmpl, {h: assignment.h, a: assignment.a});
+    if(h && a){
+      const merged = Object.assign({}, tmpl, {h, a});
       if(existingIdx >= 0) MA[existingIdx] = merged;
       else MA.push(merged);
     } else if(existingIdx >= 0){
       MA.splice(existingIdx, 1);
     }
   }
-  // Reordena MA por kickoff para que el orden temporal sea correcto
   MA.sort((a,b)=> koDate(a).getTime() - koDate(b).getTime());
 }
 // Equipos disponibles para asignar a una eliminatoria.
@@ -1316,15 +1320,14 @@ function logout(){
   location.reload();
 }
 function startApp(){
-  // Transición inmediata — no esperar a la API
   document.getElementById('welcome').style.display='none';
   document.getElementById('app').classList.add('visible');
   document.getElementById('hdr-name').textContent=ME;
   if(localStorage.getItem('porra_admin_ok')==='1') activateAdmin();
-  // Renderizar local primero para que la app sea usable al instante
+  // Aplicar partidos de eliminatorias predefinidos en el template (R32 con equipos reales)
+  applyKOAssignments();
   if(!S.p.includes(ME)) S.p.push(ME);
   renderAll();
-  // Sincronizar con la BBDD en segundo plano
   syncAll();
 }
 
@@ -1634,6 +1637,8 @@ async function syncAll(){
     S.cf = allCf[ME] || {};
     // Cargar asignaciones de eliminatorias (KO matches)
     loadKOAssignments();
+    // Cargar el cuadro REAL del admin (necesario para calcular puntos de bracket)
+    loadRealBracket();
     if(!S.p.includes(ME)){
       // Retry up to 3 times — mobile connections can be slow/flaky
       let added = false;
@@ -4447,11 +4452,14 @@ function updateBracketConfirmStatus(){
 function showCuadroStep(step){
   document.getElementById('cuadro-panel-groups').style.display = step==='groups'?'':'none';
   document.getElementById('cuadro-panel-bracket').style.display = step==='bracket'?'':'none';
+  document.getElementById('cuadro-panel-real').style.display = step==='real'?'':'none';
   updateBracketConfirmStatus();
   document.getElementById('cuadro-step-groups').classList.toggle('active', step==='groups');
   document.getElementById('cuadro-step-bracket').classList.toggle('active', step==='bracket');
+  document.getElementById('cuadro-step-real').classList.toggle('active', step==='real');
   if(step==='groups') rCuadroGroups();
   if(step==='bracket') rCuadroBracket();
+  if(step==='real') rCuadroReal();
 }
 
 // ── SAVE / LOAD BRACKET PREDICTION ────────────────────────────
@@ -4469,6 +4477,112 @@ async function saveBracket(){
   }catch(e){
     toast('Error: '+e.message,'err');
   }
+}
+
+
+// ── CLASIFICACIÓN REAL — calcula el orden de los grupos a partir
+//    de los resultados ya guardados en S.r y muestra los grupos
+//    con su orden FINAL real, además de los 8 mejores terceros y
+//    los cruces de eliminatorias que ya se han definido. ──
+function _computeRealStandings(){
+  // Devuelve {groups:{A:[teams ordered], ...}, thirds:{A:bool,...}}
+  // basado en los resultados reales de fase de grupos (m===1,2,3)
+  const groupRows = {};
+  for(const g of Object.keys(GR)){
+    groupRows[g] = GR[g].map(t => ({team:t, pts:0, gf:0, ga:0, gd:0, w:0, d:0, l:0}));
+  }
+  // Agregar puntos partido a partido
+  MA.filter(m => m.m===1 || m.m===2 || m.m===3).forEach(m => {
+    const r = S.r[m.i];
+    if(!r || r.h==='' || r.a==='' || r.h==null || r.a==null) return;
+    const rowH = groupRows[m.g].find(x => x.team===m.h);
+    const rowA = groupRows[m.g].find(x => x.team===m.a);
+    if(!rowH || !rowA) return;
+    rowH.gf += +r.h; rowH.ga += +r.a;
+    rowA.gf += +r.a; rowA.ga += +r.h;
+    if(+r.h > +r.a){ rowH.w++; rowA.l++; rowH.pts+=3; }
+    else if(+r.h < +r.a){ rowA.w++; rowH.l++; rowA.pts+=3; }
+    else { rowH.d++; rowA.d++; rowH.pts++; rowA.pts++; }
+  });
+  for(const g of Object.keys(groupRows)){
+    groupRows[g].forEach(r => r.gd = r.gf - r.ga);
+    // Orden: pts desc, gd desc, gf desc, nombre asc
+    groupRows[g].sort((a,b) => 
+      b.pts-a.pts || b.gd-a.gd || b.gf-a.gf || a.team.localeCompare(b.team)
+    );
+  }
+  return groupRows;
+}
+
+function rCuadroReal(){
+  const container = document.getElementById('cuadro-panel-real');
+  if(!container) return;
+  // Calcular standings desde los resultados reales
+  const standings = _computeRealStandings();
+  // Determinar grupos completos (todos sus partidos jugados)
+  const completedGroups = Object.keys(GR).filter(g => {
+    const groupMatches = MA.filter(m => m.g===g && (m.m===1||m.m===2||m.m===3));
+    return groupMatches.every(m => {
+      const r = S.r[m.i];
+      return r && r.h!=='' && r.a!=='' && r.h!=null && r.a!=null;
+    });
+  });
+  // Si no hay ningún grupo completo, mostrar info
+  if(completedGroups.length === 0){
+    container.innerHTML = '<div class="cuadro-pending">⚠️ Aún no se han completado los grupos. La clasificación real aparecerá cuando estén los resultados.</div>';
+    return;
+  }
+  // Cargar admin real bracket para los terceros
+  loadRealBracket();
+  const realThirds = realBracketThirds || {};
+  // Renderizar grupos con su orden real
+  let html = '<div class="ib">Esta es la clasificación REAL de los grupos según los resultados oficiales. Los partidos de eliminatoria asignados también se reflejan aquí.</div>';
+  html += '<div style="font-size:.85rem;font-weight:700;color:var(--gold);margin:10px 0 8px">📋 Grupos (orden real)</div>';
+  html += '<div class="cg-grid">';
+  for(const g of Object.keys(GR)){
+    const rows = standings[g];
+    const isComplete = completedGroups.includes(g);
+    html += '<div class="cg-card ' + (isComplete ? 'confirmed' : 'unconfirmed') + '">'
+      + '<div class="cg-head"><span>GRUPO ' + g + '</span>'
+      + '<span class="cg-hint">' + (isComplete ? '✅ final' : '⏳ en curso') + '</span></div>';
+    rows.forEach((r, idx) => {
+      const lbl = idx===3 ? '4º' : (idx+1)+'º';
+      const posClass = 'cg-pos-' + (idx+1);
+      const isQThird = idx===2 && realThirds[g];
+      const rowExtra = isQThird ? ' cg-third-qualified' : '';
+      html += '<div class="cg-row' + rowExtra + '">'
+        + '<div class="cg-pos ' + posClass + '">' + lbl + '</div>'
+        + '<div class="cg-team">' + flag(r.team) + ' <span>' + es(r.team) + '</span>'
+        + '<span style="font-size:.66rem;color:var(--text2);margin-left:auto">' + r.pts + 'p (' + r.gf + ':' + r.ga + ')</span>'
+        + (isQThird ? '<span class="cg-third-badge">3º+</span>' : '')
+        + '</div></div>';
+    });
+    html += '</div>';
+  }
+  html += '</div>';
+  // Cruces de eliminatorias ya definidos
+  const assignedKO = MA.filter(m => m.m===4).filter(m => m.h && m.a);
+  if(assignedKO.length > 0){
+    html += '<div style="font-size:.85rem;font-weight:700;color:var(--gold);margin:18px 0 8px">🔗 Dieciseisavos (cruces reales)</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:6px">';
+    assignedKO.forEach(m => {
+      const r = S.r[m.i];
+      const hasResult = r && r.h!=='' && r.a!=='' && r.h!=null && r.a!=null;
+      const winner = hasResult ? (+r.h > +r.a ? m.h : (+r.h < +r.a ? m.a : null)) : null;
+      html += '<div class="mc" style="font-size:.82rem">'
+        + '<div class="mc-home"' + (winner===m.h ? ' style="color:var(--exact);font-weight:800"' : '') + '>' 
+        + es(m.h) + ' ' + flag(m.h) + '</div>'
+        + '<div class="mc-center">'
+        + '<div class="mc-meta">' + m.d + '</div>'
+        + (hasResult ? '<div class="mc-result">' + r.h + ' - ' + r.a + '</div>' : '<div style="font-size:.7rem;color:var(--text2)">vs</div>')
+        + '</div>'
+        + '<div class="mc-away"' + (winner===m.a ? ' style="color:var(--exact);font-weight:800"' : '') + '>'
+        + flag(m.a) + ' ' + es(m.a) + '</div>'
+        + '</div>';
+    });
+    html += '</div>';
+  }
+  container.innerHTML = html;
 }
 
 function loadBracket(){
@@ -4658,11 +4772,14 @@ function updateBracketConfirmStatus(){
 function showCuadroStep(step){
   document.getElementById('cuadro-panel-groups').style.display = step==='groups'?'':'none';
   document.getElementById('cuadro-panel-bracket').style.display = step==='bracket'?'':'none';
+  document.getElementById('cuadro-panel-real').style.display = step==='real'?'':'none';
   updateBracketConfirmStatus();
   document.getElementById('cuadro-step-groups').classList.toggle('active', step==='groups');
   document.getElementById('cuadro-step-bracket').classList.toggle('active', step==='bracket');
+  document.getElementById('cuadro-step-real').classList.toggle('active', step==='real');
   if(step==='groups') rCuadroGroups();
   if(step==='bracket') rCuadroBracket();
+  if(step==='real') rCuadroReal();
 }
 
 // ── SAVE / LOAD BRACKET PREDICTION ────────────────────────────
@@ -4776,32 +4893,59 @@ function getTeamsFromBracket(bW, bO, bC, bT){
   return result;
 }
 
+function _r32TeamMatchMap(bW, bO, bC, bT){
+  // Devuelve un Map: nombre_equipo -> matchId de R32 al que pertenece
+  // según el estado del bracket pasado (W, R o T3).
+  const map = {};
+  R32.forEach(m => {
+    const getT = (slot) => {
+      if(!bC[slot.g]) return null;
+      if(slot.type==='W') return (bO[slot.g]||[])[0]||null;
+      if(slot.type==='R') return (bO[slot.g]||[])[1]||null;
+      if(slot.type==='T3'){
+        const q=Object.keys(GR).filter(g=>bT[g]&&bC[g]).sort();
+        if(q.length!==8) return null;
+        const row=ANNEX_C[q.join('')];
+        if(!row) return null;
+        const idx=T3_SLOT_INDEX[m.id];
+        if(idx===undefined) return null;
+        return (bO[row[idx]]||[])[2]||null;
+      }
+      return null;
+    };
+    const h = getT(m.home), a = getT(m.away);
+    if(h) map[h] = m.id;
+    if(a) map[a] = m.id;
+  });
+  return map;
+}
+
 function calcBracketPoints(userW, userO, userC, userT, realW, realO, realC, realT){
   const userTeams = getTeamsFromBracket(userW, userO, userC, userT);
   const realTeams = getTeamsFromBracket(realW, realO, realC, realT);
   let pts = 0;
-  ['r32','r16','qf','sf','final','champion'].forEach(round=>{
-    const ppTeam = BRACKET_PTS[round];
-    userTeams[round].forEach(team=>{
-      if(!realTeams[round].has(team)) return;
-      pts += ppTeam;
-      // R32 bonus: exact same match
-      if(round==='r32'){
-        const userMid = R32.find(m=>{
-          if(!userC[m.home.g]) return false;
-          const h=(userO[m.home.g]||[])[m.home.type==='W'?0:1];
-          const a=m.away.type!=='T3'?(userO[m.away.g]||[])[m.away.type==='W'?0:1]:null;
-          return h===team||a===team;
-        });
-        const realMid = R32.find(m=>{
-          if(!realC[m.home.g]) return false;
-          const h=(realO[m.home.g]||[])[m.home.type==='W'?0:1];
-          const a=m.away.type!=='T3'?(realO[m.away.g]||[])[m.away.type==='W'?0:1]:null;
-          return h===team||a===team;
-        });
-        if(userMid&&realMid&&userMid.id===realMid.id) pts+=1;
-      }
+  // R32: 1 pt por equipo presente en la ronda + 1 pt extra si está en el
+  //      MISMO partido (mismo matchId) que predijo el usuario.
+  //      Funciona para W, R y T3.
+  const userR32Map = _r32TeamMatchMap(userW, userO, userC, userT);
+  const realR32Map = _r32TeamMatchMap(realW, realO, realC, realT);
+  userTeams.r32.forEach(team => {
+    if(!realTeams.r32.has(team)) return;
+    pts += 1; // base: 1 pt por estar en la ronda
+    if(userR32Map[team] && realR32Map[team] && userR32Map[team] === realR32Map[team]){
+      pts += 1; // bonus: posición exacta del grupo
+    }
+  });
+  // Rondas siguientes: solo pt fijo por equipo presente
+  ['r16','qf','sf','final'].forEach(round => {
+    const pp = BRACKET_PTS[round];
+    userTeams[round].forEach(team => {
+      if(realTeams[round].has(team)) pts += pp;
     });
+  });
+  // Champion extra (5 pts adicionales)
+  userTeams.champion.forEach(team => {
+    if(realTeams.champion.has(team)) pts += 5;
   });
   return pts;
 }
@@ -5062,6 +5206,7 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('md-modal').addEventListener('click', function(e){ if(e.target===this) closeMatchDetail(); });
   document.getElementById('cuadro-step-groups').addEventListener('click',function(){showCuadroStep('groups');});
   document.getElementById('cuadro-step-bracket').addEventListener('click',function(){showCuadroStep('bracket');});
+  document.getElementById('cuadro-step-real').addEventListener('click',function(){showCuadroStep('real');});
   document.getElementById('save-bracket-btn').addEventListener('click',saveBracket);
   // confirm-bracket-btn wired dynamically in updateBracketConfirmStatus
   document.getElementById('delete-bracket-btn').addEventListener('click', function(){

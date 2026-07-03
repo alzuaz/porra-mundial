@@ -1324,10 +1324,41 @@ function startApp(){
   document.getElementById('app').classList.add('visible');
   document.getElementById('hdr-name').textContent=ME;
   if(localStorage.getItem('porra_admin_ok')==='1') activateAdmin();
-  // Aplicar partidos de eliminatorias predefinidos en el template (R32 con equipos reales)
+  
+  // --- NUEVO: CARGA INSTANTÁNEA DESDE CACHÉ ---
+  const cachedData = localStorage.getItem('porra_cache_data');
+  if (cachedData) {
+    try {
+      const r = JSON.parse(cachedData);
+      S.p = r.participants || [];
+      S.pr = r.predictions || {};
+      S.r = r.results || {};
+      S.aw = r.awards || {};
+      S.awPred = _processServerAwardPredictions(r.awardPredictions || {});
+      const allCf = r.cf || {};
+      S.cfAll = allCf;
+      S.cf = allCf[ME] || {};
+      
+      const serverPr = S.pr[ME] || {};
+      if(!myPreds || Object.keys(myPreds).length === 0) myPreds = JSON.parse(JSON.stringify(serverPr));
+      if(!myAwardPreds || Object.keys(myAwardPreds).length === 0) myAwardPreds = JSON.parse(JSON.stringify(S.awPred[ME] || {}));
+      
+      loadKOAssignments();
+      loadRealBracket();
+      
+      // Dibuja la pantalla al instante con los datos viejos
+      window._firstLoadDone = true; 
+      renderAll();
+    } catch(e) {
+      console.warn("Caché corrupto, ignorando...");
+    }
+  }
+  // --------------------------------------------
+
   applyKOAssignments();
   if(!S.p.includes(ME)) S.p.push(ME);
-  renderAll();
+  
+  // Ahora pide los datos a Google en segundo plano
   syncAll();
 }
 
@@ -1620,27 +1651,38 @@ async function _autoSaveBracket(){
 
 async function syncAll(){
   try{
-    toast('Sincronizando...','ok');
+    // Solo mostramos el cartel de cargando si es la primera vez que entran
+    if (!window._firstLoadDone) toast('Sincronizando...','ok');
+    
     const r = await api('getAll');
     if(!r || r.error) throw new Error(r ? r.error : 'Respuesta vacía del servidor');
+
+    localStorage.setItem('porra_cache_data', JSON.stringify(r));
+
+    // 1. FOTOGRAFÍA DE LOS DATOS ANTES DE ACTUALIZAR
+    const oldPrString = JSON.stringify(S.pr || {});
+    const oldResString = JSON.stringify(S.r || {});
+    const oldAwString = JSON.stringify(S.aw || {});
+    const oldCfString = JSON.stringify(S.cfAll || {});
+
+    // --- TU LÓGICA ORIGINAL INTACTA ---
     S.p  = r.participants    || [];
     S.pr = r.predictions     || {};
     S.r  = r.results         || {};
     S.aw = r.awards          || {};
     S.awPred = _processServerAwardPredictions(r.awardPredictions || {});
     dbg('SYNC awPred[ME]:', JSON.stringify(S.awPred[ME] || {}).slice(0,200));
-    // Always sync myAwardPreds from server data after load
+    
     _syncMyAwardPredsFromServer();
-    // Confirmations: {userName: {matchId: true, 'aw_mvp': true, ...}}
+    
     const allCf = r.cf || {};
     S.cfAll = allCf;
     S.cf = allCf[ME] || {};
-    // Cargar asignaciones de eliminatorias (KO matches)
+    
     loadKOAssignments();
-    // Cargar el cuadro REAL del admin (necesario para calcular puntos de bracket)
     loadRealBracket();
+    
     if(!S.p.includes(ME)){
-      // Retry up to 3 times — mobile connections can be slow/flaky
       let added = false;
       for(let _try=0; _try<3 && !added; _try++){
         try{
@@ -1654,26 +1696,43 @@ async function syncAll(){
       }
       if(!S.p.includes(ME)) S.p.push(ME);
     }
-    // Init local preds from server (only if empty)
+    
     const serverPr = S.pr[ME] || {};
     if(!myPreds || Object.keys(myPreds).length === 0)
       myPreds = JSON.parse(JSON.stringify(serverPr));
     if(!myAwardPreds || Object.keys(myAwardPreds).length === 0)
       myAwardPreds = JSON.parse(JSON.stringify(S.awPred[ME] || {}));
-    renderAll();
-    toast('✅ Sincronizado','ok');
-    // Auto-scroll al partido relevante (solo la primera sincronización)
+    // ----------------------------------
+
+    // 2. COMPROBAMOS SI HAY CAMBIOS REALES EN LA BD
+    const newPrString = JSON.stringify(S.pr);
+    const newResString = JSON.stringify(S.r);
+    const newAwString = JSON.stringify(S.aw);
+    const newCfString = JSON.stringify(S.cfAll);
+
+    const hasChanges = (newPrString !== oldPrString) || 
+                       (newResString !== oldResString) || 
+                       (newAwString !== oldAwString) ||
+                       (newCfString !== oldCfString);
+
+    // 3. SOLO DESTRUIMOS Y REDIBUJAMOS SI HAY ALGO NUEVO
+    if (hasChanges || !window._firstLoadDone) {
+      window._firstLoadDone = true;
+      renderAll();
+      // Mostramos toast verde si han llegado cosas de otros
+      if (hasChanges) toast('✅ Datos actualizados','ok'); 
+    }
+    
     if(!window._jumpedOnLoad){
       window._jumpedOnLoad = true;
       setTimeout(()=>jumpToRelevantMatch(true), 400);
     }
-    // Actualizar visibilidad del botón flotante
     if(typeof updateJumpTodayBtn === 'function') updateJumpTodayBtn();
   }catch(e){
     console.error('syncAll error:', e);
     toast('Error: ' + e.message,'err');
     if(!S.p.includes(ME)) S.p.push(ME);
-    renderAll();
+    if (!window._firstLoadDone) renderAll(); // Render de rescate si falla el inicio
   }
 }
 
@@ -5258,7 +5317,7 @@ async function checkAdminPwd(){
 }
 
 // Auto-sync cada 60s
-setInterval(function(){if(ME)syncAll();},60000);
+setInterval(function(){if(ME && document.visibilityState === 'visible') syncAll();}, 300000);
 </script>
 </body>
 </html>

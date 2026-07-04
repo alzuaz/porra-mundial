@@ -1116,106 +1116,29 @@ const MA=[
   {i:71,m:3,d:'28 Jun',h:'Jordan',          a:'Argentina',           g:'J',v:'Dallas',ko:[2026,6,28,4,0]},
   {i:72,m:3,d:'28 Jun',h:'Algeria',         a:'Austria',             g:'J',v:'Kansas City',ko:[2026,6,28,4,0]},
 ];
-// ============================================================
-// PARTIDOS DE ELIMINATORIAS (KO) — plantillas sin equipos
-// El admin asigna equipos manualmente desde el panel de admin.
-// Una vez asignados, se comportan igual que los de grupos.
-// m: 4=R32, 5=8vos, 6=4tos, 7=Semis, 8=Final/3o
-// ============================================================
+
 const KO_MATCHES_TEMPLATE = [
-  // R32 (m:4)
-  {i:73, m:4, d:'28 Jun', g:'R32', h:'South Africa', a:'Canada', v:'Los Ángeles', ko:[2026,6,28,21,0]},
-  {i:74, m:4, d:'29 Jun', g:'R32', h:'Germany', a:'Paraguay', v:'Boston', ko:[2026,6,29,22,30]},
-  {i:75, m:4, d:'30 Jun', g:'R32', h:'Netherlands', a:'Morocco', v:'Monterrey', ko:[2026,6,30,3,0]},
-  {i:76, m:4, d:'29 Jun', g:'R32', h:'Brazil', a:'Japan', v:'Houston', ko:[2026,6,29,19,0]},
-  {i:77, m:4, d:'30 Jun', g:'R32', h:'France', a:'Sweden', v:'Nueva York/NJ', ko:[2026,6,30,23,0]},
-  {i:78, m:4, d:'30 Jun', g:'R32', h:'Ivory Coast', a:'Norway', v:'Dallas', ko:[2026,6,30,19,0]},
-  {i:79, m:4, d:'1 Jul', g:'R32', h:'Mexico', a:'Ecuador', v:'Ciudad de México', ko:[2026,7,1,3,0]},
-  {i:80, m:4, d:'1 Jul', g:'R32', h:'England', a:'DR Congo', v:'Atlanta', ko:[2026,7,1,18,0]},
-  {i:81, m:4, d:'2 Jul', g:'R32', h:'USA', a:'Bosnia & Herzegovina', v:'San Francisco', ko:[2026,7,2,2,0]},
-  {i:82, m:4, d:'1 Jul', g:'R32', h:'Belgium', a:'Senegal', v:'Seattle', ko:[2026,7,1,22,0]},
-  {i:83, m:4, d:'3 Jul', g:'R32', h:'Portugal', a:'Croatia', v:'Toronto', ko:[2026,7,3,1,0]},
-  {i:84, m:4, d:'2 Jul', g:'R32', h:'Spain', a:'Austria', v:'Los Ángeles', ko:[2026,7,2,21,0]},
-  {i:85, m:4, d:'3 Jul', g:'R32', h:'Switzerland', a:'Algeria', v:'Vancouver', ko:[2026,7,3,5,0]},
-  {i:86, m:4, d:'4 Jul', g:'R32', h:'Argentina', a:'Cape Verde', v:'Miami', ko:[2026,7,4,0,0]},
-  {i:87, m:4, d:'4 Jul', g:'R32', h:'Colombia', a:'Ghana', v:'Kansas City', ko:[2026,7,4,3,30]},
-  {i:88, m:4, d:'3 Jul', g:'R32', h:'Australia', a:'Egypt', v:'Dallas', ko:[2026,7,3,20,0]},
-  // R16 (m:5)
-  {i:89, m:5, d:'4 Jul',  g:'8vos', v:'Filadelfia',      ko:[2026,7,4,21,0]},
-  {i:90, m:5, d:'4 Jul',  g:'8vos', v:'Houston',         ko:[2026,7,4,3,0]},
-  {i:91, m:5, d:'5 Jul',  g:'8vos', v:'Nueva York/NJ',   ko:[2026,7,5,21,0]},
-  {i:92, m:5, d:'5 Jul',  g:'8vos', v:'Ciudad de México',ko:[2026,7,5,3,0]},
-  {i:93, m:5, d:'6 Jul',  g:'8vos', v:'Dallas',          ko:[2026,7,6,21,0]},
-  {i:94, m:5, d:'6 Jul',  g:'8vos', v:'Seattle',         ko:[2026,7,6,3,0]},
-  {i:95, m:5, d:'7 Jul',  g:'8vos', v:'Atlanta',         ko:[2026,7,7,21,0]},
-  {i:96, m:5, d:'7 Jul',  g:'8vos', v:'Vancouver',       ko:[2026,7,7,3,0]},
-  // QF (m:6)
-  {i:97, m:6, d:'9 Jul',  g:'4tos', v:'Boston',          ko:[2026,7,9,21,0]},
-  {i:98, m:6, d:'10 Jul', g:'4tos', v:'Los Ángeles',     ko:[2026,7,10,3,0]},
-  {i:99, m:6, d:'11 Jul', g:'4tos', v:'Miami',           ko:[2026,7,11,21,0]},
-  {i:100,m:6, d:'11 Jul', g:'4tos', v:'Kansas City',     ko:[2026,7,11,3,0]},
-  // SF (m:7)
-  {i:101,m:7, d:'14 Jul', g:'Semis',v:'Dallas',          ko:[2026,7,14,21,0]},
-  {i:102,m:7, d:'15 Jul', g:'Semis',v:'Atlanta',         ko:[2026,7,15,21,0]},
-  // 3er puesto y Final (m:8)
-  {i:103,m:8, d:'18 Jul', g:'3er',  v:'Miami',           ko:[2026,7,18,21,0]},
-  {i:104,m:8, d:'19 Jul', g:'Final',v:'Nueva York/NJ',   ko:[2026,7,19,21,0]},
+  // Dieciseisavos (Ya jugados)
+  {id:73, m:4, d:'29 Jun', venue:'Los Ángeles', ko:[2026,6,29,3,0]}, {id:74, m:4, d:'29 Jun', venue:'Boston', ko:[2026,6,29,21,0]},
+  {id:75, m:4, d:'30 Jun', venue:'Monterrey', ko:[2026,6,30,2,0]}, {id:76, m:4, d:'30 Jun', venue:'Houston', ko:[2026,6,30,3,0]},
+  {id:77, m:4, d:'30 Jun', venue:'Nueva York/NJ', ko:[2026,6,30,21,0]}, {id:78, m:4, d:'1 Jul', venue:'Dallas', ko:[2026,7,1,1,0]},
+  {id:79, m:4, d:'1 Jul', venue:'Ciudad de México', ko:[2026,7,1,4,30]}, {id:80, m:4, d:'1 Jul', venue:'Atlanta', ko:[2026,7,1,22,0]},
+  {id:81, m:4, d:'2 Jul', venue:'San Francisco', ko:[2026,7,2,3,0]}, {id:82, m:4, d:'2 Jul', venue:'Seattle', ko:[2026,7,2,5,30]},
+  {id:83, m:4, d:'2 Jul', venue:'Toronto', ko:[2026,7,2,21,0]}, {id:84, m:4, d:'3 Jul', venue:'Los Ángeles', ko:[2026,7,3,2,30]},
+  {id:85, m:4, d:'3 Jul', venue:'Vancouver', ko:[2026,7,3,5,30]}, {id:86, m:4, d:'3 Jul', venue:'Miami', ko:[2026,7,3,21,0]},
+  {id:87, m:4, d:'4 Jul', venue:'Kansas City', ko:[2026,7,4,1,0]}, {id:88, m:4, d:'4 Jul', venue:'Dallas', ko:[2026,7,4,3,30]},
+  // Octavos (Lo que empieza hoy)
+  {id:90, m:5, d:'4 Jul', venue:'Filadelfia', ko:[2026,7,4,19,0]}, {id:89, m:5, d:'4 Jul', venue:'Houston', ko:[2026,7,4,23,0]},
+  {id:91, m:5, d:'5 Jul', venue:'Nueva York/NJ', ko:[2026,7,5,22,0]}, {id:92, m:5, d:'6 Jul', venue:'Ciudad de México', ko:[2026,7,6,2,0]},
+  {id:93, m:5, d:'6 Jul', venue:'Dallas', ko:[2026,7,6,21,0]}, {id:94, m:5, d:'7 Jul', venue:'Seattle', ko:[2026,7,7,2,0]},
+  {id:95, m:5, d:'7 Jul', venue:'Atlanta', ko:[2026,7,7,18,0]}, {id:96, m:5, d:'7 Jul', venue:'Vancouver', ko:[2026,7,8,22,0]},
+  // Cuartos
+  {id:97, m:6, d:'11 Jul', venue:'Boston', ko:[2026,7,11,0,0]}, {id:98, m:6, d:'11 Jul', venue:'Los Ángeles', ko:[2026,7,11,5,30]},
+  {id:99, m:6, d:'11 Jul', venue:'Miami', ko:[2026,7,11,21,30]}, {id:100, m:6, d:'12 Jul', venue:'Kansas City', ko:[2026,7,12,3,30]},
+  // Semis y Final
+  {id:101, m:7, d:'15 Jul', venue:'Dallas', ko:[2026,7,15,3,30]}, {id:102, m:7, d:'16 Jul', venue:'Atlanta', ko:[2026,7,16,2,30]},
+  {id:103, m:8, d:'18 Jul', venue:'Miami', ko:[2026,7,18,22,0]}, {id:104, m:8, d:'19 Jul', venue:'Nueva York/NJ', ko:[2026,7,19,21,0]}
 ];
-// Estado: S.ko = {73: {h:'Mexico', a:'Switzerland'}, ...}
-// Persistido junto a awards (clave reservada '__koMatches__').
-function applyKOAssignments(){
-  // Sincroniza el array MA con las asignaciones actuales de KO.
-  // Usa override del admin (S.ko) si existe, si no usa h/a del template.
-  for(const tmpl of KO_MATCHES_TEMPLATE){
-    const assignment = (S.ko && S.ko[tmpl.i]) ? S.ko[tmpl.i] : null;
-    const h = (assignment && assignment.h) ? assignment.h : tmpl.h;
-    const a = (assignment && assignment.a) ? assignment.a : tmpl.a;
-    const existingIdx = MA.findIndex(m => m.i === tmpl.i);
-    if(h && a){
-      const merged = Object.assign({}, tmpl, {h, a});
-      if(existingIdx >= 0) MA[existingIdx] = merged;
-      else MA.push(merged);
-    } else if(existingIdx >= 0){
-      MA.splice(existingIdx, 1);
-    }
-  }
-  MA.sort((a,b)=> koDate(a).getTime() - koDate(b).getTime());
-}
-// Equipos disponibles para asignar a una eliminatoria.
-// En R32 = los 32 mejores de fase de grupos (cualquier equipo).
-// En rondas posteriores = ganadores de la ronda anterior, si ya están asignados.
-function availableTeamsForKO(matchId){
-  // Para simplicidad de la Opción B, devolvemos TODOS los equipos
-  // y el admin elige libremente. Validar manualmente es responsabilidad
-  // del admin.
-  const all = [];
-  for(const g of Object.keys(GR)) all.push(...GR[g]);
-  return all.sort((a,b)=> es(a).localeCompare(es(b)));
-}
-async function saveKOAssignments(){
-  if(!S.ko) S.ko = {};
-  const payload = {'__koMatches__': JSON.stringify(S.ko)};
-  try{
-    toast('Guardando eliminatorias...','ok');
-    await api('saveAwards', {data: payload});
-    S.aw['__koMatches__'] = JSON.stringify(S.ko);
-    applyKOAssignments();
-    toast('✅ Eliminatorias guardadas','ok');
-    renderAll();
-  }catch(e){
-    toast('Error: '+e.message,'err');
-  }
-}
-function loadKOAssignments(){
-  // Carga las asignaciones desde S.aw['__koMatches__']
-  if(!S.aw) return;
-  const raw = S.aw['__koMatches__'];
-  if(!raw){ S.ko = {}; return; }
-  try{
-    S.ko = typeof raw === 'string' ? JSON.parse(raw) : raw;
-  }catch(_){ S.ko = {}; }
-  applyKOAssignments();
-}
 
 
 // ============================================================
@@ -1343,8 +1266,10 @@ function startApp(){
       if(!myPreds || Object.keys(myPreds).length === 0) myPreds = JSON.parse(JSON.stringify(serverPr));
       if(!myAwardPreds || Object.keys(myAwardPreds).length === 0) myAwardPreds = JSON.parse(JSON.stringify(S.awPred[ME] || {}));
       
-      loadKOAssignments();
       loadRealBracket();
+      for(const g of Object.keys(GR)){
+        if(!realBracketOrder[g]) realBracketOrder[g] = [...GR[g]];
+      }   
       
       // Dibuja la pantalla al instante con los datos viejos
       window._firstLoadDone = true; 
@@ -1354,8 +1279,6 @@ function startApp(){
     }
   }
   // --------------------------------------------
-
-  applyKOAssignments();
   if(!S.p.includes(ME)) S.p.push(ME);
   
   // Ahora pide los datos a Google en segundo plano
@@ -1505,7 +1428,7 @@ async function unconfirmPrediction(key){
 
 async function deletePrediction(matchId){
   // Don't allow if confirmed (by user or by time)
-  const m = MA.find(x=>String(x.i)===String(matchId));
+  const m = getDynamicMatches().find(x=>String(x.i)===String(matchId));
   if(!m) return;
   if(isMatchConfirmed(m)){
     toast('No puedes borrar una predicción confirmada','err');
@@ -1679,8 +1602,11 @@ async function syncAll(){
     S.cfAll = allCf;
     S.cf = allCf[ME] || {};
     
-    loadKOAssignments();
     loadRealBracket();
+
+    for(const g of Object.keys(GR)){
+      if(!realBracketOrder[g]) realBracketOrder[g] = [...GR[g]];
+    }
     
     if(!S.p.includes(ME)){
       let added = false;
@@ -1779,7 +1705,9 @@ function rMatch(){
   fc.innerHTML=[['Todos',0],['J1',1],['J2',2],['J3',3],['R32',4],['8vos',5],['4tos',6],['Semis',7],['Final',8]].map(([l,v])=>
     '<button class="'+(cMD===v?'active':'')+'" data-md="'+v+'">'+l+'</button>').join('');
   fc.querySelectorAll('button').forEach(b=>b.addEventListener('click',function(){cMD=parseInt(this.dataset.md);rMatch();}));
-  const ms=cMD===0?MA:MA.filter(x=>x.m===cMD);
+
+  const ms = cMD === 0 ? getDynamicMatches() : getDynamicMatches().filter(x => x.m === cMD);
+  
   const bd={};ms.forEach(x=>{if(!bd[x.d])bd[x.d]=[];bd[x.d].push(x);});
   const mcc=document.getElementById('mcc');
   mcc.innerHTML=Object.entries(bd).map(([d,xs])=>
@@ -1787,7 +1715,7 @@ function rMatch(){
       const r=S.r[x.i];const hr=r&&r.h!==''&&r.a!=='';
       return '<div class="mc'+(hr?' re':'')+'" data-mid="'+x.i+'">'+
         '<div class="mc-home">'+es(x.h)+' '+flag(x.h)+'</div>'+
-        '<div class="mc-center"><div class="mc-meta">Grupo '+x.g+'</div>'+
+        '<div class="mc-center"><div class="mc-meta">'+(x.m>3?x.g:'Grupo '+x.g)+'</div>'+
         '<div class="mc-time">'+fmtTime(x)+'</div>'+
         (hr?'<div class="mc-result">'+r.h+' - '+r.a+'</div>':'<div style="font-size:.72rem;color:var(--text2)">vs</div>')+
         (x.v?'<div class="mc-venue">📍 '+x.v+'</div>':'')+
@@ -1795,7 +1723,6 @@ function rMatch(){
         '</div><div class="mc-away">'+flag(x.a)+' '+es(x.a)+'</div></div>';
     }).join('')).join('');
 
-  // Click en cualquier partido → detalle con las predicciones de todos
   mcc.removeEventListener('click', _matchViewDetailHandler);
   _matchViewDetailHandler = function(ev){
     const card = ev.target.closest('.mc[data-mid]');
@@ -1844,11 +1771,10 @@ function showPredSubTab(t){
 function rPred(){
   const pr=S.pr[ME]||{};
   myPreds=JSON.parse(JSON.stringify(pr));
-  // myAwardPreds is NOT reset here — managed independently to preserve local picks
 
   // Stats
   let ex=0,oc=0,wr=0,tot=0;
-  MA.forEach(x=>{const p=pr[x.i];const r=S.r[x.i];
+  getDynamicMatches().forEach(x=>{const p=pr[x.i];const r=S.r[x.i];
     if(p&&p.h!==''&&p.a!==''){tot++;if(r&&r.h!==''&&r.a!==''){const pt=cP(p,r);if(pt===3)ex++;else if(pt===1)oc++;else wr++;}}
   });
   document.getElementById('my-stats').innerHTML=
@@ -1856,15 +1782,15 @@ function rPred(){
     '<div class="psi ex"><div class="n">'+ex+'</div><div class="l">Resultados Exactos</div></div>'+
     '<div class="psi oc"><div class="n">'+oc+'</div><div class="l">Ganadores Acertados</div></div>'+
     '<div class="psi wr"><div class="n">'+wr+'</div><div class="l">Fallos</div></div>'+
-    '<div class="psi"><div class="n">'+tot+'/72</div><div class="l">Predicciones</div></div>';
+    '<div class="psi"><div class="n">'+tot+'/104</div><div class="l">Predicciones</div></div>';
 
-  // Partidos
   const fc=document.getElementById('pmf');
   fc.innerHTML=[['Todos',0],['J1',1],['J2',2],['J3',3],['R32',4],['8vos',5],['4tos',6],['Semis',7],['Final',8]].map(([l,v])=>
     '<button class="'+(pMD===v?'active':'')+'" data-pmd="'+v+'">'+l+'</button>').join('');
   fc.querySelectorAll('button').forEach(b=>b.addEventListener('click',function(){pMD=parseInt(this.dataset.pmd);rPred();}));
 
-  const ms=pMD===0?MA:MA.filter(x=>x.m===pMD);
+  const all = getDynamicMatches();
+  const ms = pMD === 0 ? all : all.filter(x => x.m === pMD);
   const bd={};ms.forEach(x=>{if(!bd[x.d])bd[x.d]=[];bd[x.d].push(x);});
   const cc=document.getElementById('pcc');
   cc.innerHTML=Object.entries(bd).map(([d,xs])=>
@@ -1883,7 +1809,6 @@ function rPred(){
         else if(pt===1){rc=' ro';badge='<span class="badge badge-oc">+1</span>';}
         else{rc=' rw';badge='<span class="badge badge-wr">0</span>';}
       }
-      // Card status indicator
       let statusBadge = '';
       let cardClass = 'mc'+rc;
       if(isFullyConfirmed){ cardClass += ' locked'; statusBadge='<div class="mc-status confirmed">🔒 Confirmado</div>'; }
@@ -1899,7 +1824,7 @@ function rPred(){
       return '<div class="'+cardClass+'" data-mid="'+x.i+'">'+
         (badge?'<div class="mc-pts">'+badge+'</div>':'')+
         '<div class="mc-home">'+es(x.h)+' '+flag(x.h)+'</div>'+
-        '<div class="mc-center"><div class="mc-meta">Grupo '+x.g+'</div>'+
+        '<div class="mc-center"><div class="mc-meta">'+(x.m>3?x.g:'Grupo '+x.g)+'</div>'+
         '<div class="mc-time">'+fmtTime(x)+'</div>'+
         ((!windowOpen)
           ?'<div class="mc-lock">'+statusBadge+'</div>'
@@ -1916,8 +1841,6 @@ function rPred(){
                 (!editable?'':'<div class="mc-step-btns"><button class="mc-step-btn" data-i="'+x.i+'" data-s="a" data-dir="1">▲</button><button class="mc-step-btn" data-i="'+x.i+'" data-s="a" data-dir="-1">▼</button></div>')+
               '</div>'+
             '</div>')+
-        // Status row at bottom of mc-center — contenedor estable para
-        // poder actualizarlo al instante al teclear sin re-renderizar inputs
         '<div class="mc-action-slot" id="mcact-'+x.i+'">'+_matchActionsHTML(x)+'</div>'+
         (hasResult?'<div class="mc-real">Real: '+r.h+'-'+r.a+'</div>':'')+
         ((isConfirmedByUser||locked)
@@ -1930,17 +1853,16 @@ function rPred(){
     el.addEventListener('change',function(){uP(this);});
     el.addEventListener('input',function(){uP(this);});
   });
-  // Click en cualquier parte de la card (menos inputs/flechas/botones) → detalle
+  
   cc.removeEventListener('click', _matchDetailHandler);
   _matchDetailHandler = function(ev){
-    // Ignora elementos interactivos
     if(ev.target.closest('input, .mc-step-btn, .mc-btn-confirm, .mc-btn-del')) return;
     const card = ev.target.closest('.mc[data-mid]');
     if(!card) return;
     openMatchDetail(card.dataset.mid);
   };
   cc.addEventListener('click', _matchDetailHandler);
-  // Confirm and delete buttons
+  
   cc.querySelectorAll('.mc-btn-confirm').forEach(btn=>{
     btn.addEventListener('click',function(){
       const mid = this.dataset.confirm;
@@ -1954,7 +1876,6 @@ function rPred(){
     });
   });
 
-  // Step buttons use event delegation so they survive re-renders
   cc.removeEventListener('click', _stepBtnHandler);
   _stepBtnHandler = function(e){
     const btn = e.target.closest('.mc-step-btn');
@@ -1966,10 +1887,9 @@ function rPred(){
     const nv = Math.max(0, Math.min(20, cur+dir));
     myPreds[i][s] = nv;
     scheduleAutoSave();
-    // Update just the input value in place — no full re-render
     const inp = cc.querySelector('input[data-i="'+i+'"][data-s="'+s+'"]');
     if(inp) inp.value = nv;
-    _refreshMatchActions(i);   // ← muestra "Confirmar" al instante
+    _refreshMatchActions(i);
   };
   cc.addEventListener('click', _stepBtnHandler);
 
@@ -2013,7 +1933,7 @@ function _wireMatchCardActions(slot, mid){
 function _refreshMatchActions(mid){
   const slot = document.getElementById('mcact-'+mid);
   if(!slot) return;
-  const x = MA.find(m=>String(m.i)===String(mid));
+  const x = getDynamicMatches().find(m=>String(m.i)===String(mid));
   if(!x) return;
   slot.innerHTML = _matchActionsHTML(x);
   _wireMatchCardActions(slot, mid);
@@ -2042,7 +1962,7 @@ async function confirmMatch(mid){
   // 2) En segundo plano: guarda predicción + confirmación. Si falla, revierte.
   const preds=[];
   for(const [k,v] of Object.entries(myPreds)){
-    const match=MA.find(x=>String(x.i)===String(k));
+    const match=getDynamicMatches().find(x=>String(x.i)===String(k));
     if(match&&isLocked(match)) continue;
     if(v.h!==''&&v.a!=='') preds.push({mid:k,h:v.h,a:v.a});
   }
@@ -2064,7 +1984,7 @@ function scheduleAutoSave(){
 async function autoSavePreds(){
   const data=[];
   for(const [mid,v] of Object.entries(myPreds)){
-    const match=MA.find(x=>String(x.i)===String(mid));
+    const match=getDynamicMatches().find(x=>String(x.i)===String(mid));
     if(match&&isLocked(match)) continue;
     if(v.h!==''&&v.a!=='') data.push({mid,h:v.h,a:v.a});
   }
@@ -2704,12 +2624,15 @@ let rMD=0;let pendR={};let pendAw={};
 function rRes(){
   pendR=JSON.parse(JSON.stringify(S.r));
   pendAw=JSON.parse(JSON.stringify(S.aw));
+  
   const fc=document.getElementById('rmf');
   fc.innerHTML=[['Todos',0],['J1',1],['J2',2],['J3',3],['R32',4],['8vos',5],['4tos',6],['Semis',7],['Final',8]].map(([l,v])=>
     '<button class="'+(rMD===v?'active':'')+'" data-rmd="'+v+'">'+l+'</button>').join('');
   fc.querySelectorAll('button').forEach(b=>b.addEventListener('click',function(){rMD=parseInt(this.dataset.rmd);rRes();}));
 
-  const ms=rMD===0?MA:MA.filter(x=>x.m===rMD);
+  const all = getDynamicMatches();
+  const ms = rMD === 0 ? all : all.filter(x => x.m === rMD);
+  
   const bd={};ms.forEach(x=>{if(!bd[x.d])bd[x.d]=[];bd[x.d].push(x);});
   const rcc=document.getElementById('rcc');
   rcc.innerHTML=Object.entries(bd).map(([d,xs])=>
@@ -2717,7 +2640,7 @@ function rRes(){
       const r=S.r[x.i]||{h:'',a:''};
       return '<div class="mc">'+
         '<div class="mc-home">'+es(x.h)+' '+flag(x.h)+'</div>'+
-        '<div class="mc-center"><div class="mc-meta">Grupo '+x.g+'</div>'+
+        '<div class="mc-center"><div class="mc-meta">'+(x.m>3?x.g:'Grupo '+x.g)+'</div>'+
         '<div class="mc-time">'+fmtTime(x)+'</div>'+
         '<div class="mc-score">'+
         '<input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="20" value="'+r.h+'" data-i="'+x.i+'" data-s="h" placeholder="-" style="border-color:var(--gold)">'+
@@ -2733,7 +2656,6 @@ function rRes(){
     el.addEventListener('input',function(){uR(this);});
   });
 
-  // Wire real bracket tabs
   const rbt1 = document.getElementById('real-bracket-groups-tab');
   const rbt2 = document.getElementById('real-bracket-bracket-tab');
   if(rbt1) rbt1.addEventListener('click',()=>showRealBracketTab('groups'));
@@ -2748,7 +2670,6 @@ function rRes(){
   const saveKOBtn = document.getElementById('save-ko-btn');
   if(saveKOBtn) saveKOBtn.addEventListener('click', saveKOAssignments);
 
-  // Premios admin
   const ac=document.getElementById('awards-admin-container');
   ac.innerHTML=AWARDS.map(a=>{
     const curr = S.aw[a.id]||{};
@@ -2771,7 +2692,7 @@ function rRes(){
       '</div>';
     }
   }).join('');
-  // Wire admin award inputs
+  
   ac.querySelectorAll('input[type=text][data-awid]').forEach(el=>{
     el.addEventListener('input',function(){
       const aid=this.dataset.awid, slot=this.dataset.slot;
@@ -2826,23 +2747,24 @@ function rKOAdmin(){
   if(!container) return;
   const cur = S.ko || {};
   container.innerHTML = matches.map(m => {
-    const a = cur[m.i] || {};
+    const a = cur[m.id] || {};
     const optsH = '<option value="">— elegir local —</option>' +
       teams.map(t => '<option value="'+t+'"'+(a.h===t?' selected':'')+'>'+es(t)+'</option>').join('');
     const optsA = '<option value="">— elegir visitante —</option>' +
       teams.map(t => '<option value="'+t+'"'+(a.a===t?' selected':'')+'>'+es(t)+'</option>').join('');
     const assigned = a.h && a.a;
     const borderColor = assigned ? 'var(--exact)' : 'var(--border)';
+    const label = (m.id <= 88 ? 'Dieciseisavos' : (m.id <= 96 ? 'Octavos' : (m.id <= 100 ? 'Cuartos' : (m.id <= 102 ? 'Semifinal' : (m.id === 103 ? 'Tercer Puesto' : 'Final')))));
     return '<div style="background:var(--card);border:1px solid '+borderColor+';border-radius:10px;padding:12px;margin-bottom:8px">'+
       '<div style="font-size:.72rem;color:var(--text2);margin-bottom:8px;display:flex;justify-content:space-between">'+
-        '<span><strong style="color:var(--gold)">M'+m.i+'</strong> · '+m.g+' · '+m.d+' · '+fmtTime(m)+'</span>'+
-        '<span>📍 '+m.v+'</span>'+
+        '<span><strong style="color:var(--gold)">M'+m.id+'</strong> · '+label+' · '+m.d+' · '+fmtTime(m)+'</span>'+
+        '<span>📍 '+m.venue+'</span>'+
       '</div>'+
       '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+
-        '<select data-koi="'+m.i+'" data-kos="h" style="flex:1;min-width:140px;padding:8px;background:var(--bg);border:1px solid var(--gold);border-radius:6px;color:var(--text);font-size:.85rem">'+optsH+'</select>'+
+        '<select data-koi="'+m.id+'" data-kos="h" style="flex:1;min-width:140px;padding:8px;background:var(--bg);border:1px solid var(--gold);border-radius:6px;color:var(--text);font-size:.85rem">'+optsH+'</select>'+
         '<span style="font-weight:700;color:var(--gold)">vs</span>'+
-        '<select data-koi="'+m.i+'" data-kos="a" style="flex:1;min-width:140px;padding:8px;background:var(--bg);border:1px solid var(--gold);border-radius:6px;color:var(--text);font-size:.85rem">'+optsA+'</select>'+
-        (assigned ? '<button class="btn btn-sm btn-d" data-koclear="'+m.i+'">🗑️</button>' : '')+
+        '<select data-koi="'+m.id+'" data-kos="a" style="flex:1;min-width:140px;padding:8px;background:var(--bg);border:1px solid var(--gold);border-radius:6px;color:var(--text);font-size:.85rem">'+optsA+'</select>'+
+        (assigned ? '<button class="btn btn-sm btn-d" data-koclear="'+m.id+'">🗑️</button>' : '')+
       '</div>'+
       (assigned ? '<div style="margin-top:6px;font-size:.7rem;color:var(--exact)">✅ '+es(a.h)+' vs '+es(a.a)+' — visible para jugadores</div>' : '')+
     '</div>';
@@ -2878,7 +2800,7 @@ function closeMatchDetail(){
 }
 
 function openMatchDetail(mid){
-  const x = MA.find(m=>String(m.i)===String(mid));
+  const x = getDynamicMatches().find(m=>String(m.i)===String(mid));
   if(!x) return;
   // 🔒 Gate: solo puedes ver predicciones de otros si:
   //   a) tú has confirmado la tuya para este partido, o
@@ -3003,7 +2925,7 @@ function cP(p,r){
 function rLB(){
   const st=S.p.map(nm=>{
     const pr=S.pr[nm]||{};let ex=0,oc=0,wr=0;
-    MA.forEach(x=>{const p=pr[x.i];const r=S.r[x.i];
+    getDynamicMatches().forEach(x=>{const p=pr[x.i];const r=S.r[x.i];
       if(p&&p.h!==''&&p.a!==''&&r&&r.h!==''&&r.a!==''){const pt=cP(p,r);if(pt===3)ex++;else if(pt===1)oc++;else wr++;}
     });
     const matchPts=ex*3+oc;
@@ -3015,7 +2937,7 @@ function rLB(){
   const mw=MA.filter(x=>{const r=S.r[x.i];return r&&r.h!==''&&r.a!=='';}).length;
   document.getElementById('lst').innerHTML=
     '<div class="psi"><div class="n">'+S.p.length+'</div><div class="l">Jugadores</div></div>'+
-    '<div class="psi"><div class="n">'+mw+'/72</div><div class="l">Partidos</div></div>';
+    '<div class="psi"><div class="n">'+mw+'/104</div><div class="l">Partidos</div></div>';
 
   const c=document.getElementById('lcc');
   if(!st.length){c.innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)"><div style="font-size:3rem">🏆</div><p>Aún no hay datos</p></div>';return;}
@@ -3034,10 +2956,6 @@ function rLB(){
     '</tr>').join('')+'</tbody></table>';
 }
 
-
-// ============================================================
-// PARTICIPANTES
-// ============================================================
 let partDetailJornada = 0;
 
 function rParticipantes() {
@@ -3050,10 +2968,9 @@ function rParticipantes() {
     return;
   }
 
-  // Build sorted standings for rank
   const st = S.p.map(nm => {
     const pr = S.pr[nm] || {}; let ex=0,oc=0,wr=0;
-    MA.forEach(x => {
+    getDynamicMatches().forEach(x => {
       const p=pr[x.i]; const r=S.r[x.i];
       if(p&&p.h!==''&&p.a!==''&&r&&r.h!==''&&r.a!==''){
         const pt=cP(p,r); if(pt===3)ex++; else if(pt===1)oc++; else wr++;
@@ -3066,7 +2983,7 @@ function rParticipantes() {
   const medals = ['🥇','🥈','🥉'];
 
   list.innerHTML = st.map((s, i) => {
-    const pct = s.tot > 0 ? Math.round(s.tot/72*100) : 0;
+    const pct = s.tot > 0 ? Math.round(s.tot/104*100) : 0;
     return `<div class="part-card" data-nm="${s.nm}" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:.2s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
       <div style="font-size:1.4rem;width:32px;text-align:center">${medals[i]||(i+1)}</div>
       <div style="flex:1">
@@ -3082,7 +2999,7 @@ function rParticipantes() {
         <div style="margin-top:6px;background:var(--border);border-radius:4px;height:4px;overflow:hidden">
           <div style="height:4px;width:${pct}%;background:var(--gold);border-radius:4px;transition:.4s"></div>
         </div>
-        <div style="font-size:.65rem;color:var(--text2);margin-top:2px">${s.tot}/72 predicciones</div>
+        <div style="font-size:.65rem;color:var(--text2);margin-top:2px">${s.tot}/104 predicciones</div>
       </div>
       <div style="color:var(--text2);font-size:1rem">›</div>
     </div>`;
@@ -3112,7 +3029,7 @@ function showPartDetail(nm) {
 function renderPartDetail(nm) {
   const pr = S.pr[nm] || {};
   let ex=0,oc=0,wr=0,tot=0;
-  MA.forEach(x => {
+  getDynamicMatches().forEach(x => {
     const p=pr[x.i]; const r=S.r[x.i];
     if(p&&p.h!==''&&p.a!==''){tot++;
       if(r&&r.h!==''&&r.a!==''){const pt=cP(p,r);if(pt===3)ex++;else if(pt===1)oc++;else wr++;}}
@@ -3180,7 +3097,7 @@ function renderPartDetail(nm) {
 
 function renderPartMatches(nm){
   const pr = S.pr[nm] || {};
-  const ms = partDetailJornada===0 ? MA : MA.filter(x=>x.m===partDetailJornada);
+  const ms = partDetailJornada===0 ? getDynamicMatches() : getDynamicMatches().filter(x=>x.m===partDetailJornada);
   // Only show matches that the VIEWER has confirmed (or that are time-locked)
   // and that the participant has predicted
   const showAll = (nm === ME);
@@ -3453,6 +3370,61 @@ function renderPartBracket(nm){
   confirmedGroups      = _bc;
   qualifiedThirdGroups = _bt;
 
+  const breakdown = getBracketPointsBreakdown(
+    pWinners, pOrder, pConfirmed, pThirds,
+    realBracketWinners, realBracketOrder, realBracketConfirmed, realBracketThirds
+  );
+  let breakdownHTML = '';
+  if (breakdown) {
+    const total = breakdown.r32.pts + breakdown.r16.pts + breakdown.qf.pts + breakdown.sf.pts + breakdown.final.pts + breakdown.champion.pts;
+    breakdownHTML = `
+      <div class="ib" style="margin-top:20px;background:rgba(245,197,24,.05);border-color:rgba(245,197,24,.2);text-align:left">
+        <div style="font-weight:700;color:var(--gold);font-size:.9rem;margin-bottom:8px;text-align:center">📊 Desglose de Puntos de Cuadro de ${nm}</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;font-size:.78rem">
+          <div style="padding:6px;background:var(--bg);border-radius:6px;text-align:center">
+            <div style="color:var(--text2)">Dieciseisavos</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--gold)">${breakdown.r32.pts} pts</div>
+            <div style="font-size:.65rem;color:var(--text2)">${breakdown.r32.base} aciertos (${breakdown.r32.bonus} pos. exacta)</div>
+          </div>
+          <div style="padding:6px;background:var(--bg);border-radius:6px;text-align:center">
+            <div style="color:var(--text2)">Octavos</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--gold)">${breakdown.r16.pts} pts</div>
+            <div style="font-size:.65rem;color:var(--text2)">${breakdown.r16.hits} aciertos (x2)</div>
+          </div>
+          <div style="padding:6px;background:var(--bg);border-radius:6px;text-align:center">
+            <div style="color:var(--text2)">Cuartos</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--gold)">${breakdown.qf.pts} pts</div>
+            <div style="font-size:.65rem;color:var(--text2)">${breakdown.qf.hits} aciertos (x3)</div>
+          </div>
+          <div style="padding:6px;background:var(--bg);border-radius:6px;text-align:center">
+            <div style="color:var(--text2)">Semifinales</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--gold)">${breakdown.sf.pts} pts</div>
+            <div style="font-size:.65rem;color:var(--text2)">${breakdown.sf.hits} aciertos (x4)</div>
+          </div>
+          <div style="padding:6px;background:var(--bg);border-radius:6px;text-align:center">
+            <div style="color:var(--text2)">Finalistas</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--gold)">${breakdown.final.pts} pts</div>
+            <div style="font-size:.65rem;color:var(--text2)">${breakdown.final.hits} aciertos (x5)</div>
+          </div>
+          <div style="padding:6px;background:var(--bg);border-radius:6px;text-align:center">
+            <div style="color:var(--text2)">Campeón</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--gold)">${breakdown.champion.pts} pts</div>
+            <div style="font-size:.65rem;color:var(--text2)">${breakdown.champion.hits} aciertos (x5)</div>
+          </div>
+        </div>
+        <div style="text-align:center;font-size:.78rem;color:var(--text);margin-top:10px;border-top:1px solid var(--border);padding-top:8px;margin-bottom:8px">Puntos totales acumulados: <strong style="color:var(--gold)">${total} pts</strong></div>
+        <details style="font-size:.7rem;color:var(--text2);border-top:1px dashed var(--border);padding-top:6px;cursor:pointer">
+          <summary>🔍 Diagnóstico del cálculo (R32)</summary>
+          <div style="padding:6px;background:var(--bg);border-radius:4px;margin-top:4px;font-family:monospace;white-space:pre-wrap;word-break:break-all">
+<strong>Tus Equipos (${breakdown.diag.userR32Count}):</strong> ${breakdown.diag.userR32List}<br>
+<strong>Reales en Porra (${breakdown.diag.realR32Count}):</strong> ${breakdown.diag.realR32List}<br>
+<strong>Admin Confirm:</strong> ${breakdown.diag.realC}<br>
+<strong>Admin Thirds:</strong> ${breakdown.diag.realT}
+          </div>
+        </details>
+      </div>`;
+  }
+
   container.innerHTML =
     '<div style="font-size:.82rem;font-weight:700;color:var(--gold);margin-bottom:8px">📋 Grupos</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">'+groupsHTML+'</div>'
@@ -3461,7 +3433,8 @@ function renderPartBracket(nm){
       +'<div class="br-tree" style="pointer-events:none">'
         +titlesHTML+matchesHTML+finalCardHTML+championBoxHTML+thirdCardHTML
       +'</div>'
-    +'</div>';
+    +'</div>'
+    +breakdownHTML;
 
   // Enable drag-to-scroll with mouse (desktop)
   const scroller = document.getElementById('part-br-rounds');
@@ -3483,7 +3456,7 @@ function renderPartBracket(nm){
 }
 
 
-// ─── BRACKET STATE ───────────────────────────────────────────
+// ── BRACKET STATE ───────────────────────────────────────────
 let bracketOrder = {};
 let bracketWinners = {};
 let confirmedGroups = {};
@@ -3640,125 +3613,244 @@ const ANNEX_C = {
 "ACDEIJKL":["E","J","A","C","I","D","L","K"],"ACDEHJKL":["E","J","A","C","H","D","L","K"],
 "ACDEHIKL":["E","I","A","C","H","D","L","K"],"ACDEHIJL":["E","J","A","C","H","D","L","I"],
 "ACDEHIJK":["E","J","A","C","H","D","I","K"],"ACDEGJKL":["E","G","A","C","J","D","L","K"],
-"ACDEGIKL":["E","G","A","C","I","D","L","K"],"ACDEGIJL":["E","G","A","C","J","D","L","I"],
-"ACDEGIJK":["E","G","A","C","J","D","I","K"],"ACDEGHKL":["E","G","A","C","H","D","L","K"],
-"ACDEGHJL":["E","G","A","C","J","D","L","H"],"ACDEGHJK":["E","G","A","C","J","D","H","K"],
-"ACDEGHIL":["E","G","A","C","H","D","L","I"],"ACDEGHIK":["E","G","A","C","H","D","I","K"],
-"ACDEGHIJ":["E","G","A","C","J","D","H","I"],"ACDEFJKL":["C","J","A","D","E","F","L","K"],
-"ACDEFIKL":["C","E","A","D","I","F","L","K"],"ACDEFIJL":["C","J","A","D","E","F","L","I"],
-"ACDEFIJK":["C","J","A","D","E","F","I","K"],"ACDEFHKL":["C","E","A","D","H","F","L","K"],
-"ACDEFHJL":["C","J","A","D","E","F","L","H"],"ACDEFHJK":["C","J","A","D","E","F","H","K"],
-"ACDEFHIL":["C","E","A","D","H","F","L","I"],"ACDEFHIK":["C","E","A","D","H","F","I","K"],
-"ACDEFHIJ":["C","J","A","D","E","F","H","I"],"ACDEFGKL":["C","G","A","D","E","F","L","K"],
-"ACDEFGJL":["C","G","A","D","E","F","L","J"],"ACDEFGJK":["C","G","A","D","E","F","J","K"],
-"ACDEFGIL":["C","G","A","D","E","F","L","I"],"ACDEFGIK":["C","G","A","D","E","F","I","K"],
-"ACDEFGIJ":["C","G","A","D","E","F","J","I"],"ACDEFGHL":["C","G","A","D","E","F","L","H"],
-"ACDEFGHK":["C","G","A","D","E","F","H","K"],"ACDEFGHJ":["C","G","A","D","E","F","H","J"],
-"ACDEFGHI":["C","G","A","D","E","F","H","I"],"ABGHIJKL":["H","J","A","B","I","G","L","K"],
-"ABFHIJKL":["H","J","A","B","I","F","L","K"],"ABFGIJKL":["I","G","A","B","J","F","L","K"],
-"ABFGHJKL":["H","G","A","B","J","F","L","K"],"ABFGHIKL":["H","G","A","B","I","F","L","K"],
-"ABFGHIJL":["H","G","A","B","J","F","L","I"],"ABFGHIJK":["H","G","A","B","J","F","I","K"],
-"ABEHIJKL":["E","J","A","B","I","H","L","K"],"ABEGIJKL":["E","J","A","B","I","G","L","K"],
-"ABEGHJKL":["E","J","A","B","H","G","L","K"],"ABEGHIKL":["E","G","A","B","I","H","L","K"],
-"ABEGHIJL":["E","J","A","B","H","G","L","I"],"ABEGHIJK":["E","J","A","B","H","G","I","K"],
-"ABEFIJKL":["E","J","A","B","I","F","L","K"],"ABEFHJKL":["E","J","A","B","H","F","L","K"],
-"ABEFHIKL":["E","I","A","B","H","F","L","K"],"ABEFHIJL":["E","J","A","B","H","F","L","I"],
-"ABEFHIJK":["E","J","A","B","H","F","I","K"],"ABEFGJKL":["E","G","A","B","J","F","L","K"],
-"ABEFGIKL":["E","G","A","B","I","F","L","K"],"ABEFGIJL":["E","G","A","B","J","F","L","I"],
-"ABEFGIJK":["E","G","A","B","J","F","I","K"],"ABEFGHKL":["E","G","A","B","H","F","L","K"],
-"ABEFGHJL":["H","G","A","B","J","F","L","E"],"ABEFGHJK":["H","G","A","B","J","F","E","K"],
-"ABEFGHIL":["E","G","A","B","H","F","L","I"],"ABEFGHIK":["E","G","A","B","H","F","I","K"],
-"ABEFGHIJ":["H","G","A","B","J","F","E","I"],"ABDHIJKL":["H","J","A","B","I","D","L","K"],
-"ABDGIJKL":["I","G","A","B","J","D","L","K"],"ABDGHJKL":["H","G","A","B","J","D","L","K"],
-"ABDGHIKL":["H","G","A","B","I","D","L","K"],"ABDGHIJL":["H","G","A","B","J","D","L","I"],
-"ABDGHIJK":["H","G","A","B","J","D","I","K"],"ABDFIJKL":["I","J","A","B","D","F","L","K"],
-"ABDFHJKL":["H","J","A","B","D","F","L","K"],"ABDFHIKL":["H","I","A","B","D","F","L","K"],
-"ABDFHIJL":["H","J","A","B","D","F","L","I"],"ABDFHIJK":["H","J","A","B","D","F","I","K"],
-"ABDFGJKL":["G","J","A","B","D","F","L","K"],"ABDFGIKL":["G","I","A","B","D","F","L","K"],
-"ABDFGIJL":["G","J","A","B","D","F","L","I"],"ABDFGIJK":["G","J","A","B","D","F","I","K"],
-"ABDFGHKL":["H","G","A","B","D","F","L","K"],"ABDFGHJL":["H","G","A","B","J","F","L","D"],
-"ABDFGHJK":["H","G","A","B","J","F","D","K"],"ABDFGHIL":["H","G","A","B","D","F","L","I"],
-"ABDFGHIK":["H","G","A","B","D","F","I","K"],"ABDFGHIJ":["H","G","A","B","J","F","D","I"],
-"ABDEIJKL":["I","J","A","B","D","E","L","K"],"ABDEHJKL":["H","J","A","B","D","E","L","K"],
-"ABDEHIKL":["H","I","A","B","D","E","L","K"],"ABDEHIJL":["H","J","A","B","D","E","L","I"],
-"ABDEHIJK":["H","J","A","B","D","E","I","K"],"ABDEGJKL":["G","J","A","B","D","E","L","K"],
-"ABDEGIKL":["G","I","A","B","D","E","L","K"],"ABDEGIJL":["G","J","A","B","D","E","L","I"],
-"ABDEGIJK":["G","J","A","B","D","E","I","K"],"ABDEGHKL":["H","G","A","B","D","E","L","K"],
-"ABDEGHJL":["H","G","A","B","J","E","L","D"],"ABDEGHJK":["H","G","A","B","J","E","D","K"],
-"ABDEGHIL":["H","G","A","B","D","E","L","I"],"ABDEGHIK":["H","G","A","B","D","E","I","K"],
-"ABDEGHIJ":["H","G","A","B","J","E","D","I"],"ABDEFJKL":["E","J","A","B","D","F","L","K"],
-"ABDEFIKL":["E","I","A","B","D","F","L","K"],"ABDEFIJL":["E","J","A","B","D","F","L","I"],
-"ABDEFIJK":["E","J","A","B","D","F","I","K"],"ABDEFHKL":["E","H","A","B","D","F","L","K"],
-"ABDEFHJL":["H","J","A","B","D","F","L","E"],"ABDEFHJK":["H","J","A","B","D","F","E","K"],
-"ABDEFHIL":["E","H","A","B","D","F","L","I"],"ABDEFHIK":["E","H","A","B","D","F","I","K"],
-"ABDEFHIJ":["H","J","A","B","D","F","E","I"],"ABDEFGKL":["E","G","A","B","D","F","L","K"],
-"ABDEFGJL":["G","J","A","B","D","F","L","E"],"ABDEFGJK":["G","J","A","B","D","F","E","K"],
-"ABDEFGIL":["E","G","A","B","D","F","L","I"],"ABDEFGIK":["E","G","A","B","D","F","I","K"],
-"ABDEFGIJ":["G","J","A","B","D","F","E","I"],"ABDEFGHL":["E","H","A","B","D","F","L","G"],
-"ABDEFGHK":["E","H","A","B","D","F","G","K"],"ABDEFGHJ":["H","J","A","B","D","F","E","G"],
-"ABDEFGHI":["E","H","A","B","D","F","G","I"],"ABCHIJKL":["H","J","A","B","I","C","L","K"],
-"ABCGIJKL":["I","G","A","B","J","C","L","K"],"ABCGHJKL":["H","G","A","B","J","C","L","K"],
-"ABCGHIKL":["H","G","A","B","I","C","L","K"],"ABCGHIJL":["H","G","A","B","J","C","L","I"],
-"ABCGHIJK":["H","G","A","B","J","C","I","K"],"ABCFIJKL":["I","J","A","B","C","F","L","K"],
-"ABCFHJKL":["H","J","A","B","C","F","L","K"],"ABCFHIKL":["H","I","A","B","C","F","L","K"],
-"ABCFHIJL":["H","J","A","B","C","F","L","I"],"ABCFHIJK":["H","J","A","B","C","F","I","K"],
-"ABCFGJKL":["G","J","A","B","C","F","L","K"],"ABCFGIKL":["G","I","A","B","C","F","L","K"],
-"ABCFGIJL":["G","J","A","B","C","F","L","I"],"ABCFGIJK":["G","J","A","B","C","F","I","K"],
-"ABCFGHKL":["H","G","A","B","C","F","L","K"],"ABCFGHJL":["H","G","A","B","J","F","L","C"],
-"ABCFGHJK":["H","G","A","B","J","F","C","K"],"ABCFGHIL":["H","G","A","B","C","F","L","I"],
-"ABCFGHIK":["H","G","A","B","C","F","I","K"],"ABCFGHIJ":["H","G","A","B","J","F","C","I"],
-"ABCEIJKL":["I","J","A","B","C","E","L","K"],"ABCEHJKL":["H","J","A","B","C","E","L","K"],
-"ABCEHIKL":["H","I","A","B","C","E","L","K"],"ABCEHIJL":["H","J","A","B","C","E","L","I"],
-"ABCEHIJK":["H","J","A","B","C","E","I","K"],"ABCEGJKL":["G","J","A","B","C","E","L","K"],
-"ABCEGIKL":["G","I","A","B","C","E","L","K"],"ABCEGIJL":["G","J","A","B","C","E","L","I"],
-"ABCEGIJK":["G","J","A","B","C","E","I","K"],"ABCEGHKL":["H","G","A","B","C","E","L","K"],
-"ABCEGHJL":["H","G","A","B","J","E","L","C"],"ABCEGHJK":["H","G","A","B","J","E","C","K"],
-"ABCEGHIL":["H","G","A","B","C","E","L","I"],"ABCEGHIK":["H","G","A","B","C","E","I","K"],
-"ABCEGHIJ":["H","G","A","B","J","E","C","I"],"ABCEFJKL":["E","J","A","B","C","F","L","K"],
-"ABCEFIKL":["E","I","A","B","C","F","L","K"],"ABCEFIJL":["E","J","A","B","C","F","L","I"],
-"ABCEFIJK":["E","J","A","B","C","F","I","K"],"ABCEFHKL":["E","H","A","B","C","F","L","K"],
-"ABCEFHJL":["H","J","A","B","C","F","L","E"],"ABCEFHJK":["H","J","A","B","C","F","E","K"],
-"ABCEFHIL":["E","H","A","B","C","F","L","I"],"ABCEFHIK":["E","H","A","B","C","F","I","K"],
-"ABCEFHIJ":["H","J","A","B","C","F","E","I"],"ABCEFGKL":["E","G","A","B","C","F","L","K"],
-"ABCEFGJL":["G","J","A","B","C","F","L","E"],"ABCEFGJK":["G","J","A","B","C","F","E","K"],
-"ABCEFGIL":["E","G","A","B","C","F","L","I"],"ABCEFGIK":["E","G","A","B","C","F","I","K"],
-"ABCEFGIJ":["G","J","A","B","C","F","E","I"],"ABCEFGHL":["E","H","A","B","C","F","L","G"],
-"ABCEFGHK":["E","H","A","B","C","F","G","K"],"ABCEFGHJ":["H","J","A","B","C","F","E","G"],
-"ABCEFGHI":["E","H","A","B","C","F","G","I"],"ABCDIJKL":["I","J","A","B","D","C","L","K"],
-"ABCDHJKL":["H","J","A","B","D","C","L","K"],"ABCDHIKL":["H","I","A","B","D","C","L","K"],
-"ABCDHIJL":["H","J","A","B","D","C","L","I"],"ABCDHIJK":["H","J","A","B","D","C","I","K"],
-"ABCDGJKL":["G","J","A","B","D","C","L","K"],"ABCDGIKL":["G","I","A","B","D","C","L","K"],
-"ABCDGIJL":["G","J","A","B","D","C","L","I"],"ABCDGIJK":["G","J","A","B","D","C","I","K"],
-"ABCDGHKL":["H","G","A","B","D","C","L","K"],"ABCDGHJL":["H","G","A","B","J","C","L","D"],
-"ABCDGHJK":["H","G","A","B","J","C","D","K"],"ABCDGHIL":["H","G","A","B","D","C","L","I"],
-"ABCDGHIK":["H","G","A","B","D","C","I","K"],"ABCDGHIJ":["H","G","A","B","J","C","D","I"],
-"ABCDFJKL":["C","J","A","B","D","F","L","K"],"ABCDFIKL":["C","I","A","B","D","F","L","K"],
-"ABCDFIJL":["C","J","A","B","D","F","L","I"],"ABCDFIJK":["C","J","A","B","D","F","I","K"],
-"ABCDFHKL":["C","H","A","B","D","F","L","K"],"ABCDFHJL":["H","J","A","B","D","F","L","C"],
-"ABCDFHJK":["H","J","A","B","D","F","C","K"],"ABCDFHIL":["C","H","A","B","D","F","L","I"],
-"ABCDFHIK":["C","H","A","B","D","F","I","K"],"ABCDFHIJ":["H","J","A","B","D","F","C","I"],
-"ABCDFGKL":["C","G","A","B","D","F","L","K"],"ABCDFGJL":["G","J","A","B","D","F","L","C"],
-"ABCDFGJK":["G","J","A","B","D","F","C","K"],"ABCDFGIL":["C","G","A","B","D","F","L","I"],
-"ABCDFGIK":["C","G","A","B","D","F","I","K"],"ABCDFGIJ":["G","J","A","B","D","F","C","I"],
-"ABCDFGHL":["C","H","A","B","D","F","L","G"],"ABCDFGHK":["C","H","A","B","D","F","G","K"],
-"ABCDFGHJ":["H","J","A","B","D","F","C","G"],"ABCDFGHI":["C","H","A","B","D","F","G","I"],
-"ABCDEJKL":["E","J","A","B","D","C","L","K"],"ABCDEIKL":["E","I","A","B","D","C","L","K"],
-"ABCDEIJL":["E","J","A","B","D","C","L","I"],"ABCDEIJK":["E","J","A","B","D","C","I","K"],
-"ABCDEHKL":["E","H","A","B","D","C","L","K"],"ABCDEHJL":["H","J","A","B","D","C","L","E"],
-"ABCDEHJK":["H","J","A","B","D","C","E","K"],"ABCDEHIL":["E","H","A","B","D","C","L","I"],
-"ABCDEHIK":["E","H","A","B","D","C","I","K"],"ABCDEHIJ":["H","J","A","B","D","C","E","I"],
-"ABCDEGKL":["E","G","A","B","D","C","L","K"],"ABCDEGJL":["G","J","A","B","D","C","L","E"],
-"ABCDEGJK":["G","J","A","B","D","C","E","K"],"ABCDEGIL":["E","G","A","B","D","C","L","I"],
-"ABCDEGIK":["E","G","A","B","D","C","I","K"],"ABCDEGIJ":["G","J","A","B","D","C","E","I"],
-"ABCDEGHL":["E","H","A","B","D","C","L","G"],"ABCDEGHK":["E","H","A","B","D","C","G","K"],
-"ABCDEGHJ":["H","J","A","B","D","C","E","G"],"ABCDEGHI":["E","H","A","B","D","C","G","I"],
-"ABCDEFKL":["E","C","A","B","D","F","L","K"],"ABCDEFJL":["C","J","A","B","D","F","L","E"],
-"ABCDEFJK":["C","J","A","B","D","F","E","K"],"ABCDEFIL":["E","C","A","B","D","F","L","I"],
-"ABCDEFIK":["E","C","A","B","D","F","I","K"],"ABCDEFIJ":["C","J","A","B","D","F","E","I"],
-"ABCDEFHL":["E","C","A","B","D","F","L","H"],"ABCDEFHK":["E","C","A","B","D","F","H","K"],
-"ABCDEFHJ":["C","J","A","B","D","F","E","H"],"ABCDEFHI":["E","C","A","B","D","F","H","I"],
-"ABCDEFGL":["E","C","A","B","D","F","L","G"],"ABCDEFGK":["E","C","A","B","D","F","G","K"],
-"ABCDEFGJ":["C","J","A","B","D","F","E","G"],"ABCDEFGI":["E","C","A","B","D","F","G","I"],
+"ACDEGIKL":["E","G","A","C","I","D","L","K"],
+"ACDEGIJL":["E","G","A","C","J","D","L","I"],
+"ACDEGIJK":["E","G","A","C","J","D","I","K"],
+"ACDEGHKL":["E","G","A","C","H","D","L","K"],
+"ACDEGHJL":["E","G","A","C","J","D","L","H"],
+"ACDEGHJK":["E","G","A","C","J","D","H","K"],
+"ACDEGHIL":["E","G","A","C","H","D","L","I"],
+"ACDEGHIK":["E","G","A","C","H","D","I","K"],
+"ACDEGHIJ":["E","G","A","C","J","D","H","I"],
+"ACDEFJKL":["C","J","A","D","E","F","L","K"],
+"ACDEFIKL":["C","E","A","D","I","F","L","K"],
+"ACDEFIJL":["C","J","A","D","E","F","L","I"],
+"ACDEFIJK":["C","J","A","D","E","F","I","K"],
+"ACDEFHKL":["C","E","A","D","H","F","L","K"],
+"ACDEFHJL":["C","J","A","D","E","F","L","H"],
+"ACDEFHJK":["C","J","A","D","E","F","H","K"],
+"ACDEFHIL":["C","E","A","D","H","F","L","I"],
+"ACDEFHIK":["C","E","A","D","H","F","I","K"],
+"ACDEFHIJ":["C","J","A","D","E","F","H","I"],
+"ACDEFGKL":["C","G","A","D","E","F","L","K"],
+"ACDEFGJL":["C","G","A","D","E","F","L","J"],
+"ACDEFGJK":["C","G","A","D","E","F","J","K"],
+"ACDEFGIL":["C","G","A","D","E","F","L","I"],
+"ACDEFGIK":["C","G","A","D","E","F","I","K"],
+"ACDEFGIJ":["C","G","A","D","E","F","J","I"],
+"ACDEFGHL":["C","G","A","D","E","F","L","H"],
+"ACDEFGHK":["C","G","A","D","E","F","H","K"],
+"ACDEFGHJ":["C","G","A","D","E","F","H","J"],
+"ACDEFGHI":["C","G","A","D","E","F","H","I"],
+"ABGHIJKL":["H","J","A","B","I","G","L","K"],
+"ABFHIJKL":["H","J","A","B","I","F","L","K"],
+"ABFGIJKL":["I","G","A","B","J","F","L","K"],
+"ABFGHJKL":["H","G","A","B","J","F","L","K"],
+"ABFGHIKL":["H","G","A","B","I","F","L","K"],
+"ABFGHIJL":["H","G","A","B","J","F","L","I"],
+"ABFGHIJK":["H","G","A","B","J","F","I","K"],
+"ABEHIJKL":["E","J","A","B","I","H","L","K"],
+"ABEGIJKL":["E","J","A","B","I","G","L","K"],
+"ABEGHJKL":["E","J","A","B","H","G","L","K"],
+"ABEGHIKL":["E","G","A","B","I","H","L","K"],
+"ABEGHIJL":["E","J","A","B","H","G","L","I"],
+"ABEGHIJK":["E","J","A","B","H","G","I","K"],
+"ABEFIJKL":["E","J","A","B","I","F","L","K"],
+"ABEFHJKL":["E","J","A","B","H","F","L","K"],
+"ABEFHIKL":["E","I","A","B","H","F","L","K"],
+"ABEFHIJL":["E","J","A","B","H","F","L","I"],
+"ABEFHIJK":["E","J","A","B","H","F","I","K"],
+"ABEFGJKL":["E","G","A","B","J","F","L","K"],
+"ABEFGIKL":["E","G","A","B","I","F","L","K"],
+"ABEFGIJL":["E","G","A","B","J","F","L","I"],
+"ABEFGIJK":["E","G","A","B","J","F","I","K"],
+"ABEFGHKL":["E","G","A","B","H","F","L","K"],
+"ABEFGHJL":["H","G","A","B","J","F","L","E"],
+"ABEFGHJK":["H","G","A","B","J","F","E","K"],
+"ABEFGHIL":["E","G","A","B","H","F","L","I"],
+"ABEFGHIK":["E","G","A","B","H","F","I","K"],
+"ABEFGHIJ":["H","G","A","B","J","F","E","I"],
+"ABDHIJKL":["H","J","A","B","I","D","L","K"],
+"ABDGIJKL":["I","G","A","B","J","D","L","K"],
+"ABDGHJKL":["H","G","A","B","J","D","L","K"],
+"ABDGHIKL":["H","G","A","B","I","D","L","K"],
+"ABDGHIJL":["H","G","A","B","J","D","L","I"],
+"ABDGHIJK":["H","G","A","B","J","D","I","K"],
+"ABDFIJKL":["I","J","A","B","D","F","L","K"],
+"ABDFHJKL":["H","J","A","B","D","F","L","K"],
+"ABDFHIKL":["H","I","A","B","D","F","L","K"],
+"ABDFHIJL":["H","J","A","B","D","F","L","I"],
+"ABDFHIJK":["H","J","A","B","D","F","I","K"],
+"ABDFGJKL":["G","J","A","B","D","F","L","K"],
+"ABDFGIKL":["G","I","A","B","D","F","L","K"],
+"ABDFGIJL":["G","J","A","B","D","F","L","I"],
+"ABDFGIJK":["G","J","A","B","D","F","I","K"],
+"ABDFGHKL":["H","G","A","B","D","F","L","K"],
+"ABDFGHJL":["H","G","A","B","J","F","L","D"],
+"ABDFGHJK":["H","G","A","B","J","F","D","K"],
+"ABDFGHIL":["H","G","A","B","D","F","L","I"],
+"ABDFGHIK":["H","G","A","B","D","F","I","K"],
+"ABDFGHIJ":["H","G","A","B","J","F","D","I"],
+"ABDEIJKL":["I","J","A","B","D","E","L","K"],
+"ABDEHJKL":["H","J","A","B","D","E","L","K"],
+"ABDEHIKL":["H","I","A","B","D","E","L","K"],
+"ABDEHIJL":["H","J","A","B","D","E","L","I"],
+"ABDEHIJK":["H","J","A","B","D","E","I","K"],
+"ABDEGJKL":["G","J","A","B","D","E","L","K"],
+"ABDEGIKL":["G","I","A","B","D","E","L","K"],
+"ABDEGIJL":["G","J","A","B","D","E","L","I"],
+"ABDEGIJK":["G","J","A","B","D","E","I","K"],
+"ABDEGHKL":["H","G","A","B","D","E","L","K"],
+"ABDEGHJL":["H","G","A","B","J","E","L","D"],
+"ABDEGHJK":["H","G","A","B","J","E","D","K"],
+"ABDEGHIL":["H","G","A","B","D","E","L","I"],
+"ABDEGHIK":["H","G","A","B","D","E","I","K"],
+"ABDEGHIJ":["H","G","A","B","J","E","D","I"],
+"ABDEFJKL":["E","J","A","B","D","F","L","K"],
+"ABDEFIKL":["E","I","A","B","D","F","L","K"],
+"ABDEFIJL":["E","J","A","B","D","F","L","I"],
+"ABDEFIJK":["E","J","A","B","D","F","I","K"],
+"ABDEFHKL":["E","H","A","B","D","F","L","K"],
+"ABDEFHJL":["H","J","A","B","D","F","L","E"],
+"ABDEFHJK":["H","J","A","B","D","F","E","K"],
+"ABDEFHIL":["E","H","A","B","D","F","L","I"],
+"ABDEFHIK":["E","H","A","B","D","F","I","K"],
+"ABDEFHIJ":["H","J","A","B","D","F","E","I"],
+"ABDEFGKL":["E","G","A","B","D","F","L","K"],
+"ABDEFGJL":["G","J","A","B","D","F","L","E"],
+"ABDEFGJK":["G","J","A","B","D","F","E","K"],
+"ABDEFGIL":["E","G","A","B","D","F","L","I"],
+"ABDEFGIK":["E","G","A","B","D","F","I","K"],
+"ABDEFGIJ":["G","J","A","B","D","F","E","I"],
+"ABDEFGHL":["E","H","A","B","D","F","L","G"],
+"ABDEFGHK":["E","H","A","B","D","F","G","K"],
+"ABDEFGHJ":["H","J","A","B","D","F","E","G"],
+"ABDEFGHI":["E","H","A","B","D","F","G","I"],
+"ABCHIJKL":["H","J","A","B","I","C","L","K"],
+"ABCGIJKL":["I","G","A","B","J","C","L","K"],
+"ABCGHJKL":["H","G","A","B","J","C","L","K"],
+"ABCGHIKL":["H","G","A","B","I","C","L","K"],
+"ABCGHIJL":["H","G","A","B","J","C","L","I"],
+"ABCGHIJK":["H","G","A","B","J","C","I","K"],
+"ABCFIJKL":["I","J","A","B","C","F","L","K"],
+"ABCFHJKL":["H","J","A","B","C","F","L","K"],
+"ABCFHIKL":["H","I","A","B","C","F","L","K"],
+"ABCFHIJL":["H","J","A","B","C","F","L","I"],
+"ABCFHIJK":["H","J","A","B","C","F","I","K"],
+"ABCFGJKL":["G","J","A","B","C","F","L","K"],
+"ABCFGIKL":["G","I","A","B","C","F","L","K"],
+"ABCFGIJL":["G","J","A","B","C","F","L","I"],
+"ABCFGIJK":["G","J","A","B","C","F","I","K"],
+"ABCFGHKL":["H","G","A","B","C","F","L","K"],
+"ABCFGHJL":["H","G","A","B","J","F","L","C"],
+"ABCFGHJK":["H","G","A","B","J","F","C","K"],
+"ABCFGHIL":["H","G","A","B","C","F","L","I"],
+"ABCFGHIK":["H","G","A","B","C","F","I","K"],
+"ABCFGHIJ":["H","G","A","B","J","F","C","I"],
+"ABCEIJKL":["I","J","A","B","C","E","L","K"],
+"ABCEHJKL":["H","J","A","B","C","E","L","K"],
+"ABCEHIKL":["H","I","A","B","C","E","L","K"],
+"ABCEHIJL":["H","J","A","B","C","E","L","I"],
+"ABCEHIJK":["H","J","A","B","C","E","I","K"],
+"ABCEGJKL":["G","J","A","B","C","E","L","K"],
+"ABCEGIKL":["G","I","A","B","C","E","L","K"],
+"ABCEGIJL":["G","J","A","B","C","E","L","I"],
+"ABCEGIJK":["G","J","A","B","C","E","I","K"],
+"ABCEGHKL":["H","G","A","B","C","E","L","K"],
+"ABCEGHJL":["H","G","A","B","J","E","L","C"],
+"ABCEGHJK":["H","G","A","B","J","E","C","K"],
+"ABCEGHIL":["H","G","A","B","C","E","L","I"],
+"ABCEGHIK":["H","G","A","B","C","E","I","K"],
+"ABCEGHIJ":["H","G","A","B","J","E","C","I"],
+"ABCEFJKL":["E","J","A","B","C","F","L","K"],
+"ABCEFIKL":["E","I","A","B","C","F","L","K"],
+"ABCEFIJL":["E","J","A","B","C","F","L","I"],
+"ABCEFIJK":["E","J","A","B","C","F","I","K"],
+"ABCEFHKL":["E","H","A","B","C","F","L","K"],
+"ABCEFHJL":["H","J","A","B","C","F","L","E"],
+"ABCEFHJK":["H","J","A","B","C","F","E","K"],
+"ABCEFHIL":["E","H","A","B","C","F","L","I"],
+"ABCEFHIK":["E","H","A","B","C","F","I","K"],
+"ABCEFHIJ":["H","J","A","B","C","F","E","I"],
+"ABCEFGKL":["E","G","A","B","C","F","L","K"],
+"ABCEFGJL":["G","J","A","B","C","F","L","E"],
+"ABCEFGJK":["G","J","A","B","C","F","E","K"],
+"ABCEFGIL":["E","G","A","B","C","F","L","I"],
+"ABCEFGIK":["E","G","A","B","C","F","I","K"],
+"ABCEFGIJ":["G","J","A","B","C","F","E","I"],
+"ABCEFGHL":["E","H","A","B","C","F","L","G"],
+"ABCEFGHK":["E","H","A","B","C","F","G","K"],
+"ABCEFGHJ":["H","J","A","B","C","F","E","G"],
+"ABCEFGHI":["E","H","A","B","C","F","G","I"],
+"ABCDIJKL":["I","J","A","B","D","C","L","K"],
+"ABCDHJKL":["H","J","A","B","D","C","L","K"],
+"ABCDHIKL":["H","I","A","B","D","C","L","K"],
+"ABCDHIJL":["H","J","A","B","D","C","L","I"],
+"ABCDHIJK":["H","J","A","B","D","C","I","K"],
+"ABCDGJKL":["G","J","A","B","D","C","L","K"],
+"ABCDGIKL":["G","I","A","B","D","C","L","K"],
+"ABCDGIJL":["G","J","A","B","D","C","L","I"],
+"ABCDGIJK":["G","J","A","B","D","C","I","K"],
+"ABCDGHKL":["H","G","A","B","D","C","L","K"],
+"ABCDGHJL":["H","G","A","B","J","C","L","D"],
+"ABCDGHJK":["H","G","A","B","J","C","D","K"],
+"ABCDGHIL":["H","G","A","B","D","C","L","I"],
+"ABCDGHIK":["H","G","A","B","D","C","I","K"],
+"ABCDGHIJ":["H","G","A","B","J","C","D","I"],
+"ABCDFJKL":["C","J","A","B","D","F","L","K"],
+"ABCDFIKL":["C","I","A","B","D","F","L","K"],
+"ABCDFIJL":["C","J","A","B","D","F","L","I"],
+"ABCDFIJK":["C","J","A","B","D","F","I","K"],
+"ABCDFHKL":["C","H","A","B","D","F","L","K"],
+"ABCDFHJL":["H","J","A","B","D","F","L","C"],
+"ABCDFHJK":["H","J","A","B","D","F","C","K"],
+"ABCDFHIL":["C","H","A","B","D","F","L","I"],
+"ABCDFHIK":["C","H","A","B","D","F","I","K"],
+"ABCDFHIJ":["H","J","A","B","D","F","C","I"],
+"ABCDFGKL":["C","G","A","B","D","F","L","K"],
+"ABCDFGJL":["G","J","A","B","D","F","L","C"],
+"ABCDFGJK":["G","J","A","B","D","F","C","K"],
+"ABCDFGIL":["C","G","A","B","D","F","L","I"],
+"ABCDFGIK":["C","G","A","B","D","F","I","K"],
+"ABCDFGIJ":["G","J","A","B","D","F","C","I"],
+"ABCDFGHL":["C","H","A","B","D","F","L","G"],
+"ABCDFGHK":["C","H","A","B","D","F","G","K"],
+"ABCDFGHJ":["H","J","A","B","D","F","C","G"],
+"ABCDFGHI":["C","H","A","B","D","F","G","I"],
+"ABCDEJKL":["E","J","A","B","D","C","L","K"],
+"ABCDEIKL":["E","I","A","B","D","C","L","K"],
+"ABCDEIJL":["E","J","A","B","D","C","L","I"],
+"ABCDEIJK":["E","J","A","B","D","C","I","K"],
+"ABCDEHKL":["E","H","A","B","D","C","L","K"],
+"ABCDEHJL":["H","J","A","B","D","C","L","E"],
+"ABCDEHJK":["H","J","A","B","D","C","E","K"],
+"ABCDEHIL":["E","H","A","B","D","C","L","I"],
+"ABCDEHIK":["E","H","A","B","D","C","I","K"],
+"ABCDEHIJ":["H","J","A","B","D","C","E","I"],
+"ABCDEGKL":["E","G","A","B","D","C","L","K"],
+"ABCDEGJL":["G","J","A","B","D","C","L","E"],
+"ABCDEGJK":["G","J","A","B","D","C","E","K"],
+"ABCDEGIL":["E","G","A","B","D","C","L","I"],
+"ABCDEGIK":["E","G","A","B","D","C","I","K"],
+"ABCDEGIJ":["G","J","A","B","D","C","E","I"],
+"ABCDEGHL":["E","H","A","B","D","C","L","G"],
+"ABCDEGHK":["E","H","A","B","D","C","G","K"],
+"ABCDEGHJ":["H","J","A","B","D","C","E","G"],
+"ABCDEGHI":["E","H","A","B","D","C","G","I"],
+"ABCDEFKL":["E","C","A","B","D","F","L","K"],
+"ABCDEFJL":["C","J","A","B","D","F","L","E"],
+"ABCDEFJK":["C","J","A","B","D","F","E","K"],
+"ABCDEFIL":["E","C","A","B","D","F","L","I"],
+"ABCDEFIK":["E","C","A","B","D","F","I","K"],
+"ABCDEFIJ":["C","J","A","B","D","F","E","I"],
+"ABCDEFHL":["E","C","A","B","D","F","L","H"],
+"ABCDEFHK":["E","C","A","B","D","F","H","K"],
+"ABCDEFHJ":["C","J","A","B","D","F","E","H"],
+"ABCDEFHI":["E","C","A","B","D","F","H","I"],
+"ABCDEFGL":["E","C","A","B","D","F","L","G"],
+"ABCDEFGK":["E","C","A","B","D","F","G","K"],
+"ABCDEFGJ":["C","J","A","B","D","F","E","G"],
+"ABCDEFGI":["E","C","A","B","D","F","G","I"],
 "ABCDEFGH":["E","C","A","B","D","F","G","H"]
 };
 
@@ -4043,38 +4135,75 @@ function getFinalAndThird(){
   };
 }
 
-function getMatchTeams(matchId){
-  // For R32 matches (73-88), resolve from groups + Annex C
+function getMatchTeams(matchId) {
+  // 1. SI ESTAMOS EN MODO ADMIN (mirando el cuadro real), usamos los datos reales
+  // Para diferenciarlo, si bracketOrder es igual a realBracketOrder, estamos en modo admin.
+  // Pero lo más fácil es que esta función sea "context aware":
+  
+  // Vamos a usar una variable global de contexto para decidir qué datos usar
+  const isReal = (typeof window.useRealData !== 'undefined' && window.useRealData === true);
+  
+  const curOrder = isReal ? realBracketOrder : bracketOrder;
+  const curWinners = isReal ? realBracketWinners : bracketWinners;
+  const curConfirmed = isReal ? realBracketConfirmed : confirmedGroups;
+  const curThirds = isReal ? realBracketThirds : qualifiedThirdGroups;
+
+  // Lógica local para resolver slots usando el contexto actual
+  function getTeamForContext(slot, mid) {
+    if(slot.type === 'W'){
+      if(!curConfirmed[slot.g]) return null;
+      return (curOrder[slot.g]||[])[0] || null;
+    }
+    if(slot.type === 'R'){
+      if(!curConfirmed[slot.g]) return null;
+      return (curOrder[slot.g]||[])[1] || null;
+    }
+    if(slot.type === 'T3') {
+       // RESOLVER TERCEROS con el contexto actual
+       const qualified = Object.keys(GR).filter(g=>curThirds[g] && curConfirmed[g]).sort();
+       if(qualified.length !== 8) return null;
+       const key = qualified.join('');
+       const row = ANNEX_C[key];
+       if(!row) return null;
+       const idx = T3_SLOT_INDEX[mid];
+       if(idx === undefined) return null;
+       return (curOrder[row[idx]]||[])[2] || null;
+    }
+    return null;
+  }
+
+  // Lógica de partidos
   const r32m = R32.find(m=>m.id===matchId);
   if(r32m){
     return {
-      home: getTeamForSlot(r32m.home, matchId),
-      away: getTeamForSlot(r32m.away, matchId),
+      home: getTeamForContext(r32m.home, matchId),
+      away: getTeamForContext(r32m.away, matchId), // Usamos nuestra nueva lógica aquí
     };
   }
-  // For later rounds, the teams are winners of previous matches
+
+  // Para rondas posteriores
   const allLater = [...getR16Pairs(), ...getQFPairs(), ...getSFPairs()];
   const later = allLater.find(m=>m.id===matchId);
   if(later){
     return {
-      home: bracketWinners[later.prev[0]] || null,
-      away: bracketWinners[later.prev[1]] || null,
+      home: curWinners[later.prev[0]] || null,
+      away: curWinners[later.prev[1]] || null,
     };
   }
+
   // Final + Third
   const ft = getFinalAndThird();
   if(matchId === ft.final.id){
     return {
-      home: bracketWinners[ft.final.prev[0]] || null,
-      away: bracketWinners[ft.final.prev[1]] || null,
+      home: curWinners[ft.final.prev[0]] || null,
+      away: curWinners[ft.final.prev[1]] || null,
     };
   }
   if(matchId === ft.third.id){
-    // Losers of semifinals
     const sf1 = getSFPairs()[0], sf2 = getSFPairs()[1];
     const sf1t = getMatchTeams(sf1.id);
     const sf2t = getMatchTeams(sf2.id);
-    const w1 = bracketWinners[sf1.id], w2 = bracketWinners[sf2.id];
+    const w1 = curWinners[sf1.id], w2 = curWinners[sf2.id];
     const l1 = w1 && sf1t.home===w1 ? sf1t.away : (w1 ? sf1t.home : null);
     const l2 = w2 && sf2t.home===w2 ? sf2t.away : (w2 ? sf2t.home : null);
     return {home: l1, away: l2};
@@ -4478,21 +4607,76 @@ function updateBracketConfirmStatus(){
   const savBtn = document.getElementById('save-bracket-btn');
   const delBtn = document.getElementById('delete-bracket-btn');
 
+  const breakdown = getBracketPointsBreakdown(
+    bracketWinners, bracketOrder, confirmedGroups, qualifiedThirdGroups,
+    realBracketWinners, realBracketOrder, realBracketConfirmed, realBracketThirds
+  );
+  let breakdownHTML = '';
+  if (breakdown) {
+    const total = breakdown.r32.pts + breakdown.r16.pts + breakdown.qf.pts + breakdown.sf.pts + breakdown.final.pts + breakdown.champion.pts;
+    breakdownHTML = `
+      <div class="ib" style="margin-top:14px;background:rgba(245,197,24,.05);border-color:rgba(245,197,24,.2);text-align:left">
+        <div style="font-weight:700;color:var(--gold);font-size:.9rem;margin-bottom:8px;text-align:center">📊 Desglose de Puntos de tu Cuadro</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;font-size:.78rem">
+          <div style="padding:6px;background:var(--bg);border-radius:6px;text-align:center">
+            <div style="color:var(--text2)">Dieciseisavos</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--gold)">${breakdown.r32.pts} pts</div>
+            <div style="font-size:.65rem;color:var(--text2)">${breakdown.r32.base} aciertos (${breakdown.r32.bonus} pos. exacta)</div>
+          </div>
+          <div style="padding:6px;background:var(--bg);border-radius:6px;text-align:center">
+            <div style="color:var(--text2)">Octavos</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--gold)">${breakdown.r16.pts} pts</div>
+            <div style="font-size:.65rem;color:var(--text2)">${breakdown.r16.hits} aciertos (x2)</div>
+          </div>
+          <div style="padding:6px;background:var(--bg);border-radius:6px;text-align:center">
+            <div style="color:var(--text2)">Cuartos</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--gold)">${breakdown.qf.pts} pts</div>
+            <div style="font-size:.65rem;color:var(--text2)">${breakdown.qf.hits} aciertos (x3)</div>
+          </div>
+          <div style="padding:6px;background:var(--bg);border-radius:6px;text-align:center">
+            <div style="color:var(--text2)">Semifinales</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--gold)">${breakdown.sf.pts} pts</div>
+            <div style="font-size:.65rem;color:var(--text2)">${breakdown.sf.hits} aciertos (x4)</div>
+          </div>
+          <div style="padding:6px;background:var(--bg);border-radius:6px;text-align:center">
+            <div style="color:var(--text2)">Finalistas</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--gold)">${breakdown.final.pts} pts</div>
+            <div style="font-size:.65rem;color:var(--text2)">${breakdown.final.hits} aciertos (x5)</div>
+          </div>
+          <div style="padding:6px;background:var(--bg);border-radius:6px;text-align:center">
+            <div style="color:var(--text2)">Campeón</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--gold)">${breakdown.champion.pts} pts</div>
+            <div style="font-size:.65rem;color:var(--text2)">${breakdown.champion.hits} aciertos (x5)</div>
+          </div>
+        </div>
+        <div style="text-align:center;font-size:.78rem;color:var(--text);margin-top:10px;border-top:1px solid var(--border);padding-top:8px;margin-bottom:8px">Puntos totales acumulados: <strong style="color:var(--gold)">${total} pts</strong></div>
+        <details style="font-size:.7rem;color:var(--text2);border-top:1px dashed var(--border);padding-top:6px;cursor:pointer">
+          <summary>🔍 Diagnóstico del cálculo (R32)</summary>
+          <div style="padding:6px;background:var(--bg);border-radius:4px;margin-top:4px;font-family:monospace;white-space:pre-wrap;word-break:break-all">
+<strong>Tus Equipos (${breakdown.diag.userR32Count}):</strong> ${breakdown.diag.userR32List}<br>
+<strong>Reales en Porra (${breakdown.diag.realR32Count}):</strong> ${breakdown.diag.realR32List}<br>
+<strong>Admin Confirm:</strong> ${breakdown.diag.realC}<br>
+<strong>Admin Thirds:</strong> ${breakdown.diag.realT}
+          </div>
+        </details>
+      </div>`;
+  }
+
   if(bracketLocked()){
-    el.innerHTML = '<span style="font-size:.85rem;color:var(--wrong);font-weight:700">\ud83d\udd12 El cuadro est\u00e1 cerrado \u2014 ya no se puede editar</span>';
+    el.innerHTML = breakdownHTML + '<div style="margin-top:10px"><span style="font-size:.85rem;color:var(--wrong);font-weight:700">\ud83d\udd12 El cuadro est\u00e1 cerrado \u2014 ya no se puede editar</span></div>';
     if(savBtn) savBtn.style.display = 'none';
     if(delBtn) delBtn.style.display = 'none';
     return;
   }
 
   if(isConfirmed('br')){
-    el.innerHTML = '<span style="font-size:.85rem;color:var(--exact);font-weight:700">🔒 Cuadro confirmado definitivamente — no se puede modificar</span>';
+    el.innerHTML = breakdownHTML + '<div style="margin-top:10px"><span style="font-size:.85rem;color:var(--exact);font-weight:700">🔒 Cuadro confirmado definitivamente — no se puede modificar</span></div>';
     if(savBtn) savBtn.style.display = 'none';
     if(delBtn) delBtn.style.display = 'none';
   } else {
-    el.innerHTML = inBracket
+    el.innerHTML = breakdownHTML + (inBracket
       ? '<div style="margin-top:12px"><button class="btn btn-g" id="confirm-bracket-btn" style="padding:12px 28px;font-size:.95rem;background:var(--exact);border-color:var(--exact);color:#fff">✅ Confirmar cuadro definitivamente</button><div style="font-size:.72rem;color:var(--text2);margin-top:6px">Una vez confirmado no podrás cambiar el bracket</div></div>'
-      : '';
+      : '');
     if(savBtn) savBtn.style.display = '';
     if(delBtn) delBtn.style.display = '';
     // Wire the confirm button if just rendered
@@ -4538,19 +4722,24 @@ async function saveBracket(){
   }
 }
 
+function loadBracket(){
+  const myAw = S.awPred[ME] || {};
+  const raw = myAw.__bracket__;
+  if(!raw) return;
+  try{
+    const data = typeof raw==='string' ? JSON.parse(raw) : raw;
+    if(data.order) bracketOrder = data.order;
+    if(data.winners) bracketWinners = data.winners;
+    if(data.confirmed) confirmedGroups = data.confirmed;
+    if(data.thirds) qualifiedThirdGroups = data.thirds;
+  }catch(_){}
+}
 
-// ── CLASIFICACIÓN REAL — calcula el orden de los grupos a partir
-//    de los resultados ya guardados en S.r y muestra los grupos
-//    con su orden FINAL real, además de los 8 mejores terceros y
-//    los cruces de eliminatorias que ya se han definido. ──
 function _computeRealStandings(){
-  // Devuelve {groups:{A:[teams ordered], ...}, thirds:{A:bool,...}}
-  // basado en los resultados reales de fase de grupos (m===1,2,3)
   const groupRows = {};
   for(const g of Object.keys(GR)){
     groupRows[g] = GR[g].map(t => ({team:t, pts:0, gf:0, ga:0, gd:0, w:0, d:0, l:0}));
   }
-  // Agregar puntos partido a partido
   MA.filter(m => m.m===1 || m.m===2 || m.m===3).forEach(m => {
     const r = S.r[m.i];
     if(!r || r.h==='' || r.a==='' || r.h==null || r.a==null) return;
@@ -4565,7 +4754,6 @@ function _computeRealStandings(){
   });
   for(const g of Object.keys(groupRows)){
     groupRows[g].forEach(r => r.gd = r.gf - r.ga);
-    // Orden: pts desc, gd desc, gf desc, nombre asc
     groupRows[g].sort((a,b) => 
       b.pts-a.pts || b.gd-a.gd || b.gf-a.gf || a.team.localeCompare(b.team)
     );
@@ -4576,9 +4764,7 @@ function _computeRealStandings(){
 function rCuadroReal(){
   const container = document.getElementById('cuadro-panel-real');
   if(!container) return;
-  // Calcular standings desde los resultados reales
   const standings = _computeRealStandings();
-  // Determinar grupos completos (todos sus partidos jugados)
   const completedGroups = Object.keys(GR).filter(g => {
     const groupMatches = MA.filter(m => m.g===g && (m.m===1||m.m===2||m.m===3));
     return groupMatches.every(m => {
@@ -4586,15 +4772,12 @@ function rCuadroReal(){
       return r && r.h!=='' && r.a!=='' && r.h!=null && r.a!=null;
     });
   });
-  // Si no hay ningún grupo completo, mostrar info
   if(completedGroups.length === 0){
     container.innerHTML = '<div class="cuadro-pending">⚠️ Aún no se han completado los grupos. La clasificación real aparecerá cuando estén los resultados.</div>';
     return;
   }
-  // Cargar admin real bracket para los terceros
   loadRealBracket();
   const realThirds = realBracketThirds || {};
-  // Renderizar grupos con su orden real
   let html = '<div class="ib">Esta es la clasificación REAL de los grupos según los resultados oficiales. Los partidos de eliminatoria asignados también se reflejan aquí.</div>';
   html += '<div style="font-size:.85rem;font-weight:700;color:var(--gold);margin:10px 0 8px">📋 Grupos (orden real)</div>';
   html += '<div class="cg-grid">';
@@ -4619,8 +4802,7 @@ function rCuadroReal(){
     html += '</div>';
   }
   html += '</div>';
-  // Cruces de eliminatorias ya definidos
-  const assignedKO = MA.filter(m => m.m===4).filter(m => m.h && m.a);
+  const assignedKO = getDynamicMatches().filter(m => m.m===4 && m.h && m.a);
   if(assignedKO.length > 0){
     html += '<div style="font-size:.85rem;font-weight:700;color:var(--gold);margin:18px 0 8px">🔗 Dieciseisavos (cruces reales)</div>';
     html += '<div style="display:flex;flex-direction:column;gap:6px">';
@@ -4644,21 +4826,6 @@ function rCuadroReal(){
   container.innerHTML = html;
 }
 
-function loadBracket(){
-  const myAw = S.awPred[ME] || {};
-  const raw = myAw.__bracket__;
-  if(!raw) return;
-  try{
-    const data = typeof raw==='string' ? JSON.parse(raw) : raw;
-    if(data.order) bracketOrder = data.order;
-    if(data.winners) bracketWinners = data.winners;
-    if(data.confirmed) confirmedGroups = data.confirmed;
-    if(data.thirds) qualifiedThirdGroups = data.thirds;
-  }catch(_){}
-}
-
-
-// Partial update — only update affected matches, not whole bracket
 function selectWinnerPartial(matchId, team){
   const prev = bracketWinners[matchId];
   if(prev === team){
@@ -4667,16 +4834,8 @@ function selectWinnerPartial(matchId, team){
     bracketWinners[matchId] = team;
   }
   cascadeClear(matchId);
-  // Trigger auto-save debounced
   scheduleBracketAutoSave();
 
-  // Re-render warning + only the affected match cells
-  // Affected: this match + all downstream matches (any match where this match's
-  // winner could appear). Simplest: re-render warning + ALL match cells but keep
-  // the tree DOM container — no, that defeats the purpose.
-  // Better: re-render just the affected cells.
-
-  // Collect affected match IDs: changed match itself + descendants
   const affected = new Set([matchId]);
   function addDescendants(mid){
     const allLater = [...getR16Pairs(),...getQFPairs(),...getSFPairs(),getFinalAndThird().final,getFinalAndThird().third];
@@ -4688,12 +4847,10 @@ function selectWinnerPartial(matchId, team){
     }
   }
   addDescendants(matchId);
-  // 3rd place depends on losers of SFs
   if([101,102].includes(matchId) || affected.has(101) || affected.has(102)){
     affected.add(103);
   }
 
-  // Update each affected cell in place
   for(const mid of affected){
     const cell = document.getElementById('match-cell-'+mid);
     if(!cell) continue;
@@ -4712,7 +4869,6 @@ function selectWinnerPartial(matchId, team){
     const champion = bracketWinners[104];
     const medalClass = (mid===104 && champion) ? ' medal-1' : '';
     if(mid===103){
-      // 3rd place — preserve the small title above
       const titleEl = cell.querySelector('div:first-child');
       cell.innerHTML = (titleEl?titleEl.outerHTML:'<div style="font-size:.6rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);text-align:center;font-weight:700">3er puesto</div>') + renderMatchTree(mid, info.date, info.v, false, '');
     } else {
@@ -4720,7 +4876,6 @@ function selectWinnerPartial(matchId, team){
     }
   }
 
-  // Update champion box separately
   const championBox = document.getElementById('champion-box-cell');
   if(championBox){
     const champ = bracketWinners[104];
@@ -4729,30 +4884,20 @@ function selectWinnerPartial(matchId, team){
       : ``;
   }
 
-  // Wire delegation on fresh render
   _bracketDelegated = false;
   wireBracketTeamClicks(document.getElementById('cuadro-panel-bracket'));
 }
 
-// Keep old selectWinner for full-render path; not used by clicks anymore
 function renderMatchTree(matchId, date, venue, isFinal, extraClass){
   const teams = getMatchTeams(matchId);
   const winner = bracketWinners[matchId];
   const homeT = teams.home;
   const awayT = teams.away;
-
-  // Determine medal badge for runner-up (silver) and bronze (3rd)
   const champion = bracketWinners[104];
-  let medalBadge = '';
-  if(matchId===104 && champion){
-    // Final: champion already styled by extraClass medal-1 on the match
-    // Add silver badge to the loser team line — handled by team class below
-  }
 
   const homeCls = winner ? (winner===homeT?'br-winner':'br-eliminated') : '';
   const awayCls = winner ? (winner===awayT?'br-winner':'br-eliminated') : '';
 
-  // Medal markers for the final & 3rd-place results
   let homeMedal = '', awayMedal = '';
   if(matchId === 104 && champion){
     const silver = (champion===homeT) ? awayT : homeT;
@@ -4786,91 +4931,6 @@ function renderMatchTree(matchId, date, venue, isFinal, extraClass){
   </div>`;
 }
 
-// renderMatch replaced by renderMatchTree above
-
-// ── SUB-TAB SWITCHING ─────────────────────────────────────────
-
-function updateBracketConfirmStatus(){
-  const el = document.getElementById('bracket-confirm-status');
-  if(!el) return;
-  const inBracket = document.getElementById('cuadro-panel-bracket') &&
-                    document.getElementById('cuadro-panel-bracket').style.display !== 'none';
-  const savBtn = document.getElementById('save-bracket-btn');
-  const delBtn = document.getElementById('delete-bracket-btn');
-
-  if(bracketLocked()){
-    el.innerHTML = '<span style="font-size:.85rem;color:var(--wrong);font-weight:700">\ud83d\udd12 El cuadro est\u00e1 cerrado \u2014 ya no se puede editar</span>';
-    if(savBtn) savBtn.style.display = 'none';
-    if(delBtn) delBtn.style.display = 'none';
-    return;
-  }
-
-  if(isConfirmed('br')){
-    el.innerHTML = '<span style="font-size:.85rem;color:var(--exact);font-weight:700">🔒 Cuadro confirmado definitivamente — no se puede modificar</span>';
-    if(savBtn) savBtn.style.display = 'none';
-    if(delBtn) delBtn.style.display = 'none';
-  } else {
-    el.innerHTML = inBracket
-      ? '<div style="margin-top:12px"><button class="btn btn-g" id="confirm-bracket-btn" style="padding:12px 28px;font-size:.95rem;background:var(--exact);border-color:var(--exact);color:#fff">✅ Confirmar cuadro definitivamente</button><div style="font-size:.72rem;color:var(--text2);margin-top:6px">Una vez confirmado no podrás cambiar el bracket</div></div>'
-      : '';
-    if(savBtn) savBtn.style.display = '';
-    if(delBtn) delBtn.style.display = '';
-    // Wire the confirm button if just rendered
-    const btn = document.getElementById('confirm-bracket-btn');
-    if(btn){
-      btn.addEventListener('click', async function(){
-        if(!confirm('¿Confirmar el cuadro definitivamente? No podrás cambiarlo después.')) return;
-        await saveBracket();
-        await confirmPrediction('br');
-        updateBracketConfirmStatus();
-      });
-    }
-  }
-}
-
-function showCuadroStep(step){
-  document.getElementById('cuadro-panel-groups').style.display = step==='groups'?'':'none';
-  document.getElementById('cuadro-panel-bracket').style.display = step==='bracket'?'':'none';
-  document.getElementById('cuadro-panel-real').style.display = step==='real'?'':'none';
-  updateBracketConfirmStatus();
-  document.getElementById('cuadro-step-groups').classList.toggle('active', step==='groups');
-  document.getElementById('cuadro-step-bracket').classList.toggle('active', step==='bracket');
-  document.getElementById('cuadro-step-real').classList.toggle('active', step==='real');
-  if(step==='groups') rCuadroGroups();
-  if(step==='bracket') rCuadroBracket();
-  if(step==='real') rCuadroReal();
-}
-
-// ── SAVE / LOAD BRACKET PREDICTION ────────────────────────────
-async function saveBracket(){
-  const data = {
-    order: bracketOrder,
-    winners: bracketWinners,
-    confirmed: confirmedGroups,
-    thirds: qualifiedThirdGroups,
-  };
-  try{
-    toast('Guardando cuadro...','ok');
-    await api('saveAwardPredictions',{name:ME, data:{__bracket__:JSON.stringify(data)}});
-    toast('✅ Cuadro guardado','ok');
-  }catch(e){
-    toast('Error: '+e.message,'err');
-  }
-}
-
-function loadBracket(){
-  const myAw = S.awPred[ME] || {};
-  const raw = myAw.__bracket__;
-  if(!raw) return;
-  try{
-    const data = typeof raw==='string' ? JSON.parse(raw) : raw;
-    if(data.order) bracketOrder = data.order;
-    if(data.winners) bracketWinners = data.winners;
-    if(data.confirmed) confirmedGroups = data.confirmed;
-    if(data.thirds) qualifiedThirdGroups = data.thirds;
-  }catch(_){}
-}
-
 // ============================================================
 // RENDER ALL
 // ============================================================
@@ -4894,12 +4954,20 @@ function loadRealBracket(){
 }
 
 async function saveRealBracket(){
-  const data = {order:realBracketOrder,winners:realBracketWinners,confirmed:realBracketConfirmed,thirds:realBracketThirds};
+  const data = {
+    order: realBracketOrder,
+    winners: realBracketWinners,
+    confirmed: realBracketConfirmed,
+    thirds: realBracketThirds
+  };
   const awData = {'__realBracket__': JSON.stringify(data)};
   try{
-    toast('Guardando cuadro real...','ok');
     await api('saveAwards',{data:awData});
     S.aw['__realBracket__'] = JSON.stringify(data);
+    
+    // IMPORTANTE: Al guardar, actualizamos el estado global 
+    // para que la vista de Partidos/Predicciones detecte los nuevos cruces
+    loadRealBracket(); 
     toast('✅ Cuadro real guardado','ok');
   }catch(e){ toast('Error: '+e.message,'err'); }
 }
@@ -4914,27 +4982,94 @@ const ROUND_MATCH_IDS = {
   final:[104],
 };
 
-function getTeamsFromBracket(bW, bO, bC, bT){
-  // Returns {r32:Set, r16:Set, qf:Set, sf:Set, final:Set, champion:Set}
+function _computeRealThirds(standings){
+  const thirds = [];
+  Object.keys(standings).forEach(g => {
+    const thirdPlaceRow = standings[g][2];
+    if (thirdPlaceRow) {
+      thirds.push({
+        group: g,
+        team: thirdPlaceRow.team,
+        pts: thirdPlaceRow.pts,
+        gd: thirdPlaceRow.gd,
+        gf: thirdPlaceRow.gf
+      });
+    }
+  });
+  thirds.sort((a,b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf || a.group.localeCompare(b.group));
+  const result = {};
+  thirds.slice(0, 8).forEach(t => {
+    result[t.group] = true;
+  });
+  return result;
+}
+
+const isTruthy = val => val === true || val === 'true' || val === 1 || val === '1';
+
+function getTeamsFromBracket(bW, bO, bC, bT, isRealData){
+  let curOrder = bO;
+  let curConfirmed = bC;
+  let curThirds = bT;
+
+  if (isRealData) {
+    const standings = _computeRealStandings();
+    curOrder = {};
+    curConfirmed = {};
+    curThirds = {};
+    
+    // 1. Resolver orden y confirmación de grupos
+    for (const g of Object.keys(GR)) {
+      if (bC && isTruthy(bC[g])) {
+        curConfirmed[g] = true;
+        curOrder[g] = bO[g];
+      } else {
+        const groupMatches = MA.filter(m => m.g===g && (m.m===1||m.m===2||m.m===3));
+        const isComplete = groupMatches.every(m => {
+          const r = S.r[m.i];
+          return r && r.h!=='' && r.a!=='' && r.h!=null && r.a!=null;
+        });
+        if (isComplete) {
+          curConfirmed[g] = true;
+          curOrder[g] = standings[g].map(x => x.team);
+        } else {
+          curConfirmed[g] = false;
+          curOrder[g] = bO[g] || [...GR[g]];
+        }
+      }
+    }
+    
+    // 2. Resolver mejores terceros
+    const numManualThirds = bT ? Object.values(bT).filter(isTruthy).length : 0;
+    if (numManualThirds === 8) {
+      for (const g of Object.keys(GR)) {
+        curThirds[g] = isTruthy(bT[g]);
+      }
+    } else {
+      const autoThirds = _computeRealThirds(standings);
+      for (const g of Object.keys(GR)) {
+        curThirds[g] = isTruthy(autoThirds[g]);
+      }
+    }
+  }
+
   const result = {};
   ['r32','r16','qf','sf','final'].forEach(round=>{
     result[round] = new Set();
     ROUND_MATCH_IDS[round].forEach(mid=>{
-      // Teams that played in this match = the two participants
       const r32m = R32.find(m=>m.id===mid);
       if(r32m){
         const getT = (slot) => {
-          if(!bC[slot.g]) return null;
-          if(slot.type==='W') return (bO[slot.g]||[])[0]||null;
-          if(slot.type==='R') return (bO[slot.g]||[])[1]||null;
+          if(slot.type!=='T3' && !isTruthy(curConfirmed[slot.g])) return null;
+          if(slot.type==='W') return (curOrder[slot.g]||[])[0]||null;
+          if(slot.type==='R') return (curOrder[slot.g]||[])[1]||null;
           if(slot.type==='T3'){
-            const q=Object.keys(GR).filter(g=>bT[g]&&bC[g]).sort();
+            const q=Object.keys(GR).filter(g=>isTruthy(curThirds[g])&&isTruthy(curConfirmed[g])).sort();
             if(q.length!==8) return null;
             const row=ANNEX_C[q.join('')];
             if(!row) return null;
             const idx=T3_SLOT_INDEX[mid];
             if(idx===undefined) return null;
-            return (bO[row[idx]]||[])[2]||null;
+            return (curOrder[row[idx]]||[])[2]||null;
           }
           return null;
         };
@@ -4952,23 +5087,63 @@ function getTeamsFromBracket(bW, bO, bC, bT){
   return result;
 }
 
-function _r32TeamMatchMap(bW, bO, bC, bT){
-  // Devuelve un Map: nombre_equipo -> matchId de R32 al que pertenece
-  // según el estado del bracket pasado (W, R o T3).
+function _r32TeamMatchMap(bW, bO, bC, bT, isRealData){
   const map = {};
+  
+  let curOrder = bO;
+  let curConfirmed = bC;
+  let curThirds = bT;
+  
+  if (isRealData) {
+    const standings = _computeRealStandings();
+    curOrder = {};
+    curConfirmed = {};
+    curThirds = {};
+    for (const g of Object.keys(GR)) {
+      if (bC && isTruthy(bC[g])) {
+        curConfirmed[g] = true;
+        curOrder[g] = bO[g];
+      } else {
+        const groupMatches = MA.filter(m => m.g===g && (m.m===1||m.m===2||m.m===3));
+        const isComplete = groupMatches.every(m => {
+          const r = S.r[m.i];
+          return r && r.h!=='' && r.a!=='' && r.h!=null && r.a!=null;
+        });
+        if (isComplete) {
+          curConfirmed[g] = true;
+          curOrder[g] = standings[g].map(x => x.team);
+        } else {
+          curConfirmed[g] = false;
+          curOrder[g] = bO[g] || [...GR[g]];
+        }
+      }
+    }
+    const numManualThirds = bT ? Object.values(bT).filter(isTruthy).length : 0;
+    if (numManualThirds === 8) {
+      for (const g of Object.keys(GR)) {
+        curThirds[g] = isTruthy(bT[g]);
+      }
+    } else {
+      const autoThirds = _computeRealThirds(standings);
+      for (const g of Object.keys(GR)) {
+        curThirds[g] = isTruthy(autoThirds[g]);
+      }
+    }
+  }
+
   R32.forEach(m => {
     const getT = (slot) => {
-      if(!bC[slot.g]) return null;
-      if(slot.type==='W') return (bO[slot.g]||[])[0]||null;
-      if(slot.type==='R') return (bO[slot.g]||[])[1]||null;
+      if(slot.type!=='T3' && !isTruthy(curConfirmed[slot.g])) return null;
+      if(slot.type==='W') return (curOrder[slot.g]||[])[0]||null;
+      if(slot.type==='R') return (curOrder[slot.g]||[])[1]||null;
       if(slot.type==='T3'){
-        const q=Object.keys(GR).filter(g=>bT[g]&&bC[g]).sort();
+        const q=Object.keys(GR).filter(g=>isTruthy(curThirds[g])&&isTruthy(curConfirmed[g])).sort();
         if(q.length!==8) return null;
         const row=ANNEX_C[q.join('')];
         if(!row) return null;
         const idx=T3_SLOT_INDEX[m.id];
         if(idx===undefined) return null;
-        return (bO[row[idx]]||[])[2]||null;
+        return (curOrder[row[idx]]||[])[2]||null;
       }
       return null;
     };
@@ -4980,14 +5155,14 @@ function _r32TeamMatchMap(bW, bO, bC, bT){
 }
 
 function calcBracketPoints(userW, userO, userC, userT, realW, realO, realC, realT){
-  const userTeams = getTeamsFromBracket(userW, userO, userC, userT);
-  const realTeams = getTeamsFromBracket(realW, realO, realC, realT);
+  const userTeams = getTeamsFromBracket(userW, userO, userC, userT, false);
+  const realTeams = getTeamsFromBracket(realW, realO, realC, realT, true);
   let pts = 0;
   // R32: 1 pt por equipo presente en la ronda + 1 pt extra si está en el
   //      MISMO partido (mismo matchId) que predijo el usuario.
   //      Funciona para W, R y T3.
-  const userR32Map = _r32TeamMatchMap(userW, userO, userC, userT);
-  const realR32Map = _r32TeamMatchMap(realW, realO, realC, realT);
+  const userR32Map = _r32TeamMatchMap(userW, userO, userC, userT, false);
+  const realR32Map = _r32TeamMatchMap(realW, realO, realC, realT, true);
   userTeams.r32.forEach(team => {
     if(!realTeams.r32.has(team)) return;
     pts += 1; // base: 1 pt por estar en la ronda
@@ -5007,6 +5182,49 @@ function calcBracketPoints(userW, userO, userC, userT, realW, realO, realC, real
     if(realTeams.champion.has(team)) pts += 5;
   });
   return pts;
+}
+
+function getBracketPointsBreakdown(userW, userO, userC, userT, realW, realO, realC, realT){
+  if(!Object.keys(realW).length && !Object.keys(realO).length) return null;
+  const userTeams = getTeamsFromBracket(userW, userO, userC, userT, false);
+  const realTeams = getTeamsFromBracket(realW, realO, realC, realT, true);
+  
+  const userR32Map = _r32TeamMatchMap(userW, userO, userC, userT, false);
+  const realR32Map = _r32TeamMatchMap(realW, realO, realC, realT, true);
+  
+  let r32Base = 0;
+  let r32Bonus = 0;
+  userTeams.r32.forEach(team => {
+    if(realTeams.r32.has(team)){
+      r32Base++;
+      if(userR32Map[team] && realR32Map[team] && userR32Map[team] === realR32Map[team]){
+        r32Bonus++;
+      }
+    }
+  });
+  
+  const r16Hits = [...userTeams.r16].filter(t=>realTeams.r16.has(t)).length;
+  const qfHits = [...userTeams.qf].filter(t=>realTeams.qf.has(t)).length;
+  const sfHits = [...userTeams.sf].filter(t=>realTeams.sf.has(t)).length;
+  const finalHits = [...userTeams.final].filter(t=>realTeams.final.has(t)).length;
+  const champHits = [...userTeams.champion].filter(t=>realTeams.champion.has(t)).length;
+  
+  return {
+    r32: { base: r32Base, bonus: r32Bonus, pts: r32Base*1 + r32Bonus*1 },
+    r16: { hits: r16Hits, pts: r16Hits*2 },
+    qf: { hits: qfHits, pts: qfHits*3 },
+    sf: { hits: sfHits, pts: sfHits*4 },
+    final: { hits: finalHits, pts: finalHits*5 },
+    champion: { hits: champHits, pts: champHits*5 },
+    diag: {
+      userR32Count: userTeams.r32.size,
+      realR32Count: realTeams.r32.size,
+      userR32List: Array.from(userTeams.r32).sort().join(', '),
+      realR32List: Array.from(realTeams.r32).sort().join(', '),
+      realC: JSON.stringify(realC),
+      realT: JSON.stringify(realT)
+    }
+  };
 }
 
 function totalBracketPoints(nm){
@@ -5043,6 +5261,40 @@ function prefetchSelectedPlayerPhotos(){
 
 
 // ── ADMIN REAL BRACKET UI ─────────────────────────────────
+// Esta función genera los partidos reales basados en TU BRACKET
+function getDynamicMatches() {
+  const matches = [...MA]; // MA son los partidos de grupos
+  
+  // Recorremos todas las eliminatorias posibles
+  const allKO = [...R32, ...getR16Pairs(), ...getQFPairs(), ...getSFPairs(), getFinalAndThird().final, getFinalAndThird().third];
+  
+  window.useRealData = true; // Forzar lectura del bracket real del admin
+  allKO.forEach(m => {
+    // Obtenemos los equipos de este partido según los ganadores marcados en el Bracket Real
+    const teams = getMatchTeams(m.id); 
+    
+    const isRealTeam = t => t && t !== 'TBD' && !t.includes('W') && !t.includes('R') && !t.includes('T3');
+    
+    // Si el partido ya tiene ambos equipos asignados en el Bracket, lo añadimos a la lista
+    if (teams && isRealTeam(teams.home) && isRealTeam(teams.away)) {
+      const template = KO_MATCHES_TEMPLATE.find(x => x.id === m.id);
+      if (template) {
+        matches.push({
+          i: m.id,
+          m: template.m,
+          d: template.d,
+          h: teams.home,
+          a: teams.away,
+          g: (m.id <= 88 ? 'Dieciseisavos' : (m.id <= 96 ? 'Octavos' : (m.id <= 100 ? 'Cuartos' : (m.id <= 102 ? 'Semifinal' : (m.id === 103 ? 'Tercer Puesto' : 'Final'))))), // Etiqueta
+          v: template.venue,
+          ko: template.ko
+        });
+      }
+    }
+  });
+  window.useRealData = false; // Restaurar
+  return matches;
+}
 function rRealBracketAdmin(){
   loadRealBracket();
   showRealBracketTab('groups');
@@ -5060,76 +5312,128 @@ function showRealBracketTab(tab){
 }
 
 function rRealBracketGroups(){
+  // 1. Asegurar que los arrays de orden existan para cada grupo
   for(const g of Object.keys(GR)){
-    if(!realBracketOrder[g]||realBracketOrder[g].length!==4) realBracketOrder[g]=[...GR[g]];
+    if(!realBracketOrder[g] || realBracketOrder[g].length !== 4) realBracketOrder[g] = [...GR[g]];
   }
-  const container=document.getElementById('real-bracket-groups-panel');
+  
+  const container = document.getElementById('real-bracket-groups-panel');
   if(!container) return;
-  container.innerHTML='<div class="cg-grid">'+
-    Object.keys(GR).map(g=>{
-      const teams=realBracketOrder[g], confirmed=!!realBracketConfirmed[g];
-      return '<div class="'+(confirmed?'cg-card confirmed':'cg-card')+'">'+
-        '<div class="cg-head"><span class="cg-grp-name">GRUPO '+g+'</span><span class="cg-hint">'+(confirmed?'🔒 confirmado':'')+'</span></div>'+
-        teams.map((t,idx)=>'<div class="cg-row" '+(confirmed?'':'draggable="true" ')+'data-rg="'+g+'" data-idx="'+idx+'">'+
-          '<div class="cg-pos cg-pos-'+(idx+1)+'">'+(idx===3?'4º':(idx+1)+'º')+'</div>'+
-          '<div class="cg-team">'+flag(t)+' <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">'+es(t)+'</span></div>'+
-          '<div class="cg-arrows">'+
-            '<button class="cg-arrow" data-rg="'+g+'" data-idx="'+idx+'" data-dir="-1" '+(idx===0||confirmed?'disabled':'')+'>▲</button>'+
-            '<button class="cg-arrow" data-rg="'+g+'" data-idx="'+idx+'" data-dir="1" '+(idx===3||confirmed?'disabled':'')+'>▼</button>'+
-          '</div></div>').join('')+
-        '<div class="cg-actions">'+(confirmed?'<button class="cg-btn-edit" data-redit-g="'+g+'">✏️ Editar</button>':'<button class="cg-btn-confirm" data-rconfirm-g="'+g+'">✅ Confirmar</button>')+'</div>'+
-      '</div>';
-    }).join('')+'</div>';
-  container.querySelectorAll('.cg-arrow[data-rg]').forEach(btn=>{
-    btn.addEventListener('click',function(){
-      const g=this.dataset.rg,idx=parseInt(this.dataset.idx),dir=parseInt(this.dataset.dir);
-      if(realBracketConfirmed[g]) return;
-      const arr=realBracketOrder[g],ni=idx+dir;
-      if(ni<0||ni>=arr.length) return;
-      [arr[idx],arr[ni]]=[arr[ni],arr[idx]];
+  
+  container.innerHTML = '<div class="cg-grid">' + Object.keys(GR).map(g => {
+    const teams = realBracketOrder[g];
+    const confirmed = !!realBracketConfirmed[g];
+    const isThirdQualified = !!(realBracketThirds && realBracketThirds[g]);
+    
+    return `<div class="cg-card ${confirmed ? 'confirmed' : 'unconfirmed'}">
+      <div class="cg-head"><span>GRUPO ${g}</span></div>
+      ${teams.map((t, idx) => {
+        const isThird = (idx === 2);
+        // Si es 3º y está marcado como clasificado, añadimos clase especial
+        const rowClass = (isThird && isThirdQualified) ? 'cg-row cg-third-qualified' : 'cg-row';
+        const thirdAction = isThird ? 'data-rthird-g="'+g+'"' : '';
+        
+        return `<div class="${rowClass}" data-rg="${g}" data-idx="${idx}" ${thirdAction} style="cursor: pointer">
+          <div class="cg-pos cg-pos-${idx+1}">${idx+1}º</div>
+          <div class="cg-team" style="flex:1">${flag(t)} ${es(t)} ${isThird && isThirdQualified ? '⭐' : ''}</div>
+          <div class="cg-arrows" style="display:flex">
+            <button class="cg-arrow" data-rg="${g}" data-idx="${idx}" data-dir="-1" ${idx===0||confirmed?'disabled':''}>▲</button>
+            <button class="cg-arrow" data-rg="${g}" data-idx="${idx}" data-dir="1" ${idx===3||confirmed?'disabled':''}>▼</button>
+          </div>
+        </div>`;
+      }).join('')}
+      <div class="cg-actions">
+        ${confirmed 
+          ? `<button class="cg-btn-edit" data-redit-g="${g}">✏️ Editar</button>`
+          : `<button class="cg-btn-confirm" data-rconfirm-g="${g}">✅ Confirmar</button>`}
+      </div>
+    </div>`;
+  }).join('') + '</div>';
+
+  // Delegación de eventos para evitar que se rompan al repintar
+  container.removeEventListener('click', _handleAdminClick);
+  container.addEventListener('click', _handleAdminClick);
+}
+
+// Handler compartido para Admin (debes tenerlo definido una vez en tu JS)
+function _handleAdminClick(e) {
+  const container = document.getElementById('real-bracket-groups-panel');
+  
+  // 1. Flechas de orden
+  const btn = e.target.closest('.cg-arrow');
+  if(btn && !btn.disabled){
+    const g = btn.dataset.rg, idx = parseInt(btn.dataset.idx), dir = parseInt(btn.dataset.dir);
+    const arr = realBracketOrder[g];
+    const ni = idx + dir;
+    if(ni >= 0 && ni < 4) {
+      [arr[idx], arr[ni]] = [arr[ni], arr[idx]];
       rRealBracketGroups();
-    });
-  });
-  container.querySelectorAll('[data-rconfirm-g]').forEach(btn=>{
-    btn.addEventListener('click',function(){realBracketConfirmed[this.dataset.rconfirmG]=true;rRealBracketGroups();});
-  });
-  container.querySelectorAll('[data-redit-g]').forEach(btn=>{
-    btn.addEventListener('click',function(){delete realBracketConfirmed[this.dataset.reditG];rRealBracketGroups();});
-  });
+    }
+  }
+
+  // 2. Marcar Terceros (hacer clic en la fila del 3º)
+  const row = e.target.closest('[data-rthird-g]');
+  if(row && !e.target.closest('.cg-arrow')){
+    const g = row.dataset.rthirdG;
+    if(realBracketThirds[g]) delete realBracketThirds[g];
+    else {
+      const count = Object.keys(realBracketThirds).length;
+      if(count < 8) realBracketThirds[g] = true;
+      else toast('Ya has marcado 8 terceros', 'err');
+    }
+    rRealBracketGroups();
+  }
+
+  // 3. Botones Confirmar/Editar
+  const cBtn = e.target.closest('[data-rconfirm-g]');
+  if(cBtn){ realBracketConfirmed[cBtn.dataset.rconfirmG] = true; rRealBracketGroups(); }
+  
+  const eBtn = e.target.closest('[data-redit-g]');
+  if(eBtn){ delete realBracketConfirmed[eBtn.dataset.reditG]; rRealBracketGroups(); }
 }
 
 function rRealBracketBracket(){
-  const panel=document.getElementById('real-bracket-bracket-panel');
+  const panel = document.getElementById('real-bracket-bracket-panel');
   if(!panel) return;
-  // Swap state temporarily
-  const _bo=bracketOrder,_bw=bracketWinners,_bc=confirmedGroups,_bt=qualifiedThirdGroups;
-  bracketOrder=realBracketOrder;bracketWinners=realBracketWinners;
-  confirmedGroups=realBracketConfirmed;qualifiedThirdGroups=realBracketThirds;
-  // Use a temp container
-  const orig=document.getElementById('cuadro-panel-bracket');
-  const temp=document.createElement('div');temp.id='cuadro-panel-bracket';temp.style.display='none';
-  document.body.appendChild(temp);
-  try{ rCuadroBracket(); panel.innerHTML=temp.innerHTML; }catch(_){}
-  temp.remove();
-  bracketOrder=_bo;bracketWinners=_bw;confirmedGroups=_bc;qualifiedThirdGroups=_bt;
-  // Wire clicks for real bracket
-  panel.querySelectorAll('.br-team[data-mid]').forEach(el=>{
-    el.addEventListener('click',function(){
-      const mid=parseInt(this.dataset.mid),team=this.dataset.team;
-      if(!team) return;
-      if(realBracketWinners[mid]===team) delete realBracketWinners[mid];
-      else realBracketWinners[mid]=team;
-      // cascade
-      const allM=[...getR16Pairs(),...getQFPairs(),...getSFPairs(),getFinalAndThird().final,getFinalAndThird().third];
-      let ch=true;
-      while(ch){ch=false;for(const m of allM){const w=realBracketWinners[m.id];if(!w)continue;
-        bracketOrder=realBracketOrder;bracketWinners=realBracketWinners;confirmedGroups=realBracketConfirmed;qualifiedThirdGroups=realBracketThirds;
-        const t=getMatchTeams(m.id);
-        bracketOrder=_bo;bracketWinners=_bw2||{};confirmedGroups=_bc2||{};qualifiedThirdGroups=_bt2||{};
-        if(t.home!==w&&t.away!==w){delete realBracketWinners[m.id];ch=true;}}}
-      rRealBracketBracket();
+
+  // 1. Guardar estado original del usuario para no corromperlo
+  const _bo=bracketOrder, _bw=bracketWinners, _bc=confirmedGroups, _bt=qualifiedThirdGroups;
+  
+  // 2. Cargar datos REALES del admin en las variables globales que usa rCuadroBracket
+  bracketOrder = realBracketOrder || {};
+  bracketWinners = realBracketWinners || {};
+  confirmedGroups = realBracketConfirmed || {};
+  qualifiedThirdGroups = realBracketThirds || {};
+  
+  // 3. Renderizar (esto pintará el bracket usando los datos REALES)
+  // Nota: asegúrate de que rCuadroBracket NO limpie el panel interno, 
+  // sino que escriba en el div contenedor adecuado.
+  rCuadroBracket(); 
+  
+  // 4. Mover el HTML generado al panel del Admin
+  const userBracket = document.getElementById('cuadro-panel-bracket');
+  panel.innerHTML = userBracket.innerHTML;
+  
+  // 5. "Enganchar" los clics para que el admin pueda asignar ganadores
+  panel.querySelectorAll('.br-team[data-mid]').forEach(el => {
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', function() {
+      const mid = parseInt(this.dataset.mid);
+      const team = this.dataset.team;
+      if(!team || team === 'TBD') return;
+
+      // Toggle: si ya es el ganador, lo quitamos, si no, lo ponemos
+      if(realBracketWinners[mid] === team) delete realBracketWinners[mid];
+      else realBracketWinners[mid] = team;
+      
+      // Guardar y repintar
+      saveRealBracket();
+      rRealBracketBracket(); 
     });
   });
+  
+  // Restaurar variables de usuario
+  bracketOrder=_bo; bracketWinners=_bw; confirmedGroups=_bc; qualifiedThirdGroups=_bt;
 }
 function renderAll(){
   // Sync myAwardPreds from server data (only if not already locally modified)
@@ -5158,22 +5462,23 @@ function renderAll(){
 // ============================================================
 function findRelevantMatch(){
   const now = Date.now();
+  const allMatches = getDynamicMatches();
   // Prioridad 1: partidos en ventana abierta que NO has confirmado todavía
-  for(const m of MA){
+  for(const m of allMatches){
     if(!isPredictionOpen(m)) continue;
     if(isLocked(m)) continue;
     const confirmed = !!(S.cf && S.cf[m.i]);
     if(!confirmed) return m;
   }
   // Prioridad 2: próximo partido futuro
-  for(const m of MA){
+  for(const m of allMatches){
     const ko = koDate(m).getTime();
     if(ko > now) return m;
   }
   // Prioridad 3: el último jugado
-  for(let i=MA.length-1; i>=0; i--){
-    const ko = koDate(MA[i]).getTime();
-    if(ko <= now) return MA[i];
+  for(let i=allMatches.length-1; i>=0; i--){
+    const ko = koDate(allMatches[i]).getTime();
+    if(ko <= now) return allMatches[i];
   }
   return null;
 }
@@ -5212,6 +5517,30 @@ function jumpToRelevantMatch(silent){
       toast('Partido no visible en el filtro actual','err');
     }
   });
+}
+function getAllVisibleMatches() {
+  // MA son los partidos fijos de grupos
+  let all = [...MA]; 
+  
+  // Añadimos las eliminatorias si el admin las ha configurado
+  KO_MATCHES_TEMPLATE.forEach(template => {
+    const id = template.id;
+    const teams = getMatchTeams(id); 
+    // Si el Admin ha asignado ambos equipos, creamos el partido al vuelo
+    if (teams && teams.home && teams.away && teams.home !== 'TBD' && teams.away !== 'TBD') {
+      all.push({
+        i: id, 
+        m: template.m,
+        d: template.d,
+        h: teams.home, 
+        a: teams.away,
+        g: (id <= 88 ? 'Dieciseisavos' : (id <= 96 ? 'Octavos' : (id <= 100 ? 'Cuartos' : (id <= 102 ? 'Semifinal' : (id === 103 ? 'Tercer Puesto' : 'Final'))))),
+        v: template.venue,
+        ko: template.ko
+      });
+    }
+  });
+  return all;
 }
 // Mostrar/ocultar el botón flotante según la pestaña activa
 function updateJumpTodayBtn(){

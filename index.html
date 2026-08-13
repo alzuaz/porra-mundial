@@ -1267,6 +1267,7 @@ function startApp(){
       if(!myAwardPreds || Object.keys(myAwardPreds).length === 0) myAwardPreds = JSON.parse(JSON.stringify(S.awPred[ME] || {}));
       
       loadRealBracket();
+      loadKOAssignments();
       for(const g of Object.keys(GR)){
         if(!realBracketOrder[g]) realBracketOrder[g] = [...GR[g]];
       }   
@@ -1603,6 +1604,7 @@ async function syncAll(){
     S.cf = allCf[ME] || {};
     
     loadRealBracket();
+    loadKOAssignments();
 
     for(const g of Object.keys(GR)){
       if(!realBracketOrder[g]) realBracketOrder[g] = [...GR[g]];
@@ -2666,6 +2668,7 @@ function rRes(){
   const liveBtn = document.getElementById('live-btn');
   if(liveBtn) liveBtn.addEventListener('click', fetchLiveResults);
   loadRealBracket();
+  loadKOAssignments();
   rRealBracketAdmin();
   rKOAdmin();
   const saveKOBtn = document.getElementById('save-ko-btn');
@@ -2732,6 +2735,15 @@ async function saveAwardsAdmin(){
     toast('✅ Premios reales guardados','ok');
   }catch(e){toast('Error: '+e.message,'err');}
 }
+
+function availableTeamsForKO(){
+  const all = [];
+  for (const group of Object.values(GR)) {
+    all.push(...group);
+  }
+  return all.sort((a,b) => a.localeCompare(b));
+}
+
 // ── ADMIN: Asignar equipos a eliminatorias ────────────────────
 let koFilter = 4; // por defecto R32
 function rKOAdmin(){
@@ -4964,15 +4976,34 @@ async function saveRealBracket(){
     confirmed: realBracketConfirmed,
     thirds: realBracketThirds
   };
-  const awData = {'__realBracket__': JSON.stringify(data)};
   try{
+    toast('Guardando cuadro real...','ok');
+    const awData = JSON.parse(JSON.stringify(S.aw || {}));
+    awData['__realBracket__'] = JSON.stringify(data);
     await api('saveAwards',{data:awData});
-    S.aw['__realBracket__'] = JSON.stringify(data);
-    
-    // IMPORTANTE: Al guardar, actualizamos el estado global 
-    // para que la vista de Partidos/Predicciones detecte los nuevos cruces
+    S.aw = awData;
     loadRealBracket(); 
     toast('✅ Cuadro real guardado','ok');
+  }catch(e){ toast('Error: '+e.message,'err'); }
+}
+
+function loadKOAssignments(){
+  const raw = S.aw['__ko__'];
+  if(!raw) { S.ko = {}; return; }
+  try{
+    S.ko = typeof raw==='string' ? JSON.parse(raw) : raw;
+  }catch(_){ S.ko = {}; }
+}
+
+async function saveKOAssignments(){
+  try{
+    toast('Guardando eliminatorias...','ok');
+    const awData = JSON.parse(JSON.stringify(S.aw || {}));
+    awData['__ko__'] = JSON.stringify(S.ko || {});
+    await api('saveAwards',{data:awData});
+    S.aw = awData;
+    loadKOAssignments();
+    toast('✅ Asignaciones KO guardadas','ok');
   }catch(e){ toast('Error: '+e.message,'err'); }
 }
 
@@ -5301,6 +5332,7 @@ function getDynamicMatches() {
 }
 function rRealBracketAdmin(){
   loadRealBracket();
+  loadKOAssignments();
   showRealBracketTab('groups');
 }
 

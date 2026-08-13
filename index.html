@@ -2622,6 +2622,7 @@ async function saveAwardsPred(){
 let rMD=0;let pendR={};let pendAw={};
 
 function rRes(){
+  try {
   pendR=JSON.parse(JSON.stringify(S.r));
   pendAw=JSON.parse(JSON.stringify(S.aw));
   
@@ -2705,6 +2706,9 @@ function rRes(){
       }
     });
   });
+  } catch (e) {
+    alert("ERROR en rRes: " + e.message + "\nStack: " + e.stack);
+  }
 }
 
 function uR(el){const id=el.dataset.i,s=el.dataset.s;if(!pendR[id])pendR[id]={h:'',a:''};pendR[id][s]=el.value===''?'':parseInt(el.value);}
